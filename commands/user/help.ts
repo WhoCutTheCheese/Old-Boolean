@@ -1,8 +1,11 @@
 import {
+    ButtonInteraction,
     Client,
+    Message,
     MessageActionRow,
     MessageEmbed,
-    MessageSelectMenu
+    MessageSelectMenu,
+    SelectMenuInteraction
 } from 'discord.js';
 try {
     const Guild = require("../../models/guild");
@@ -12,9 +15,9 @@ try {
         maxArgs: 1,
         cooldown: 2,
         expectedArgs: ["(Command/Category)"],
-        callback: async (client: Client, bot: any, message: any, args: string[]) => {
+        callback: async (client: Client, bot: { version: string }, message: Message, args: string[]) => {
             const guildSettings = await Guild.findOne({
-                guildID: message.guild.id
+                guildID: message.guild?.id
             })
             const row = new MessageActionRow().addComponents(
                 new MessageSelectMenu()
@@ -201,15 +204,10 @@ try {
                         .addField("Current Guild Settings", `Prefix: \`${guildSettings.prefix}\`\nEmbed Color: \`#${guildSettings.color}\`\nPremium Status: \`${guildSettings.premium}\``)
                         .setColor(guildSettings.color)
                         .addField("User Commands", "`ping`, `userinfo`, `serverinfo`, `avatar`, `botinfo`, `invite`, `help`")
-                        .addField("Moderation Commands", "`warn`, `mute`, `kick`, `ban`, `softban`, `history`, `purge`, `lockdown`, `unlockdown`, `delcase`, `slowmode`, `nickname`")
+                        .addField("Moderation Commands", "`warn`, `mute`, `kick`, `ban`, `softban`, `history`, `purge`, `lockdown`, `unlockdown`, `delcase`, `reason`, `slowmode`, `nickname`")
                         .addField("Config Commands", "`config`, `prefix`, `color`, `check`, `permission`, `modlogset`, `muterole`, `joinrole`")
                         .addField("Administration Commands", "`deleteallcases`, `premium`")
-                        .setFooter({
-                            text: `${message.guild.name} - v${bot.version}`,
-                            iconURL: message.guild.iconURL({
-                                dynamic: true
-                            })
-                        })
+                        .setFooter({ text: `${message.guild?.name} - v${bot.version}`, iconURL: message.guild?.iconURL({ dynamic: true }) || "" })
                     message.channel.send({
                         embeds: [chingChong],
                         components: [row]
@@ -228,9 +226,9 @@ try {
                                 components: [row]
                             })
                         })
-                        Buttoncollector.on('collect', async (i: any) => {
+                        Buttoncollector.on('collect', async (i: ButtonInteraction) => {
                             await i.deferUpdate()
-                            switch (i.values[0]) {
+                            switch ((i as any).values[0]) {
                                 case "first":
                                     const userCommands = new MessageEmbed()
                                         .setTitle("🎮 User Commands")
@@ -248,7 +246,7 @@ try {
                                         .setColor(guildSettings.color)
                                         .setDescription("List of powerful moderation commands to keep your users in check!\nRun `help [Command]` to get information about a command.")
                                         .addField("Commands 1/2", "<:arrow_right:967329549912248341> **Warn** - Issue a warning to a user\n<:arrow_right:967329549912248341> **Mute** - Mute a user\n<:arrow_right:967329549912248341> **Kick** - Kick a user\n<:arrow_right:967329549912248341> **Ban** - Ban a user\n<:arrow_right:967329549912248341> **History** - View a user's cases\n<:arrow_right:967329549912248341> **Purge** - Bulk delete messages", true)
-                                        .addField("Commands 2/2", "<:arrow_right:967329549912248341> **Lockdown** - Removes talk for @everyone\n<:arrow_right:967329549912248341> **Unlockdown** - Adds talk for @everyone\n<:arrow_right:967329549912248341> **Delcase** - Delete a case\n<:arrow_right:967329549912248341> **Slowmode** - Add slowmode to channel\n<:arrow_right:967329549912248341> **Nickname** - Change a user's nick\n<:arrow_right:967329549912248341> **Reason** - Change the reason of a case", true)
+                                        .addField("Commands 2/2", "<:arrow_right:967329549912248341> **Lockdown** - Removes talk for @everyone\n<:arrow_right:967329549912248341> **Unlockdown** - Adds talk for @everyone\n<:arrow_right:967329549912248341> **Delcase** - Delete a case\n<:arrow_right:967329549912248341> **Reason** - Change the reason of a case\n<:arrow_right:967329549912248341> **Slowmode** - Add slowmode to channel\n<:arrow_right:967329549912248341> **Nickname** - Change a user's nick", true)
                                     resultMessage.edit({
                                         embeds: [modCommands],
                                         components: [row],

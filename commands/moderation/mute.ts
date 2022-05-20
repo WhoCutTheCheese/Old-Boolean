@@ -8,29 +8,29 @@ module.exports = {
     minArgs: 1,
     cooldown: 3,
     expectedArgs: "[@User/User ID] (Time || Reason) {Reason}",
-    callback: async (client: Client, bot: any, message: any, args: string[]) => {
+    callback: async (client: Client, bot: any, message: Message, args: string[]) => {
         const guildSettings = await Guild.findOne({
-            guildID: message.guild.id,
+            guildID: message.guild?.id,
         })
-        let muteUser = message.mentions.members.first() || message.guild.members.cache.get(args[0]);
+        let muteUser = message.mentions.members?.first() || message.guild?.members.cache.get(args[0]);
         if (!muteUser) { return message.channel.send({ content: "I was unable to find that user!" }) }
-        if (muteUser.roles.highest.position > message.member.roles.highest.position) { return message.channel.send({ content: "You may not issue punishments to a user higher then you." }) }
+        if (muteUser.roles.highest.position > message.member!.roles.highest.position) { return message.channel.send({ content: "You may not issue punishments to a user higher then you." }) }
         if (muteUser.id === message.author.id) { return message.channel.send({ content: "You cannot issue punishments to yourself." }) }
-        if (muteUser.bot) { return message.channel.send({ content: "You cannot issue punishments to bots." }) }
+        if (muteUser.user.bot) { return message.channel.send({ content: "You cannot issue punishments to bots." }) }
         if (!/^\d/.test(args[1])) {
             let reason = args.slice(1).join(" ")
             if (!reason) { reason = "No reason provided" }
             if (reason.length > 250) { return message.channel.send({ content: "Reason exceeds maximum size! (250 Characters)" }) }
             const config = await Config.findOne({
-                guildID: message.guild.id,
+                guildID: message.guild?.id,
             })
             if (!config) { return message.channel.send({ content: "An unknown error occurred, contact support if this persists." }) }
             if (config.muteRoleID === "None") { return message.channel.send({ content: "You do not have a mute role!" }) }
-            const muteRole = message.guild.roles.cache.get(config.muteRoleID)
+            const muteRole = message.guild?.roles.cache.get(config.muteRoleID)
             if (!muteRole) { return message.channel.send({ content: "Your mute role does not exist or has been deleted." }) }
             const caseNumberSet = guildSettings.totalCases + 1;
             const newCases = await new Cases({
-                guildID: message.guild.id,
+                guildID: message.guild?.id,
                 userID: muteUser.id,
                 modID: message.author.id,
                 caseType: "Mute",
@@ -40,12 +40,12 @@ module.exports = {
             })
             newCases.save().catch((err: any) => console.log(err))
             await Guild.findOneAndUpdate({
-                guildID: message.guild.id,
+                guildID: message.guild?.id,
             }, {
                 totalCases: caseNumberSet,
             })
             const warns = await Cases.countDocuments({
-                guildID: message.guild.id,
+                guildID: message.guild?.id,
                 userID: muteUser.id,
                 caseType: "Warn",
             })
@@ -66,7 +66,7 @@ module.exports = {
                 if (reason.length > 250) { return message.channel.send({ content: "Reason exceeds maximum size! (250 Characters)" }) }    
                 const caseNumberSet = guildSettings.totalCases + 1;
                 const newCases = await new Cases({
-                    guildID: message.guild.id,
+                    guildID: message.guild?.id,
                     userID: muteUser.id,
                     modID: message.author.id,
                     caseType: "Mute",
@@ -76,12 +76,12 @@ module.exports = {
                 })
                 newCases.save().catch((err: any) => console.log(err))
                 await Guild.findOneAndUpdate({
-                    guildID: message.guild.id,
+                    guildID: message.guild?.id,
                 }, {
                     totalCases: caseNumberSet,
                 })
                 const warns = await Cases.countDocuments({
-                    guildID: message.guild.id,
+                    guildID: message.guild?.id,
                     userID: muteUser.id,
                     caseType: "Warn",
                 })
@@ -99,7 +99,7 @@ module.exports = {
                 if (reason.length > 250) { return message.channel.send({ content: "Reason exceeds maximum size! (250 Characters)" }) }    
                 const caseNumberSet = guildSettings.totalCases + 1;
                 const newCases = await new Cases({
-                    guildID: message.guild.id,
+                    guildID: message.guild?.id,
                     userID: muteUser.id,
                     modID: message.author.id,
                     caseType: "Mute",
@@ -109,12 +109,12 @@ module.exports = {
                 })
                 newCases.save().catch((err: any) => console.log(err))
                 await Guild.findOneAndUpdate({
-                    guildID: message.guild.id,
+                    guildID: message.guild?.id,
                 }, {
                     totalCases: caseNumberSet,
                 })
                 const warns = await Cases.countDocuments({
-                    guildID: message.guild.id,
+                    guildID: message.guild?.id,
                     userID: muteUser.id,
                     caseType: "Warn",
                 })
@@ -132,7 +132,7 @@ module.exports = {
                 if (reason.length > 250) { return message.channel.send({ content: "Reason exceeds maximum size! (250 Characters)" }) }    
                 const caseNumberSet = guildSettings.totalCases + 1;
                 const newCases = await new Cases({
-                    guildID: message.guild.id,
+                    guildID: message.guild?.id,
                     userID: muteUser.id,
                     modID: message.author.id,
                     caseType: "Mute",
@@ -142,12 +142,12 @@ module.exports = {
                 })
                 newCases.save().catch((err: any) => console.log(err))
                 await Guild.findOneAndUpdate({
-                    guildID: message.guild.id,
+                    guildID: message.guild?.id,
                 }, {
                     totalCases: caseNumberSet,
                 })
                 const warns = await Cases.countDocuments({
-                    guildID: message.guild.id,
+                    guildID: message.guild?.id,
                     userID: muteUser.id,
                     caseType: "Warn",
                 })
@@ -166,7 +166,7 @@ module.exports = {
                 if (reason.length > 250) { return message.channel.send({ content: "Reason exceeds maximum size! (250 Characters)" }) }    
                 const caseNumberSet = guildSettings.totalCases + 1;
                 const newCases = await new Cases({
-                    guildID: message.guild.id,
+                    guildID: message.guild?.id,
                     userID: muteUser.id,
                     modID: message.author.id,
                     caseType: "Mute",
@@ -176,12 +176,12 @@ module.exports = {
                 })
                 newCases.save().catch((err: any) => console.log(err))
                 await Guild.findOneAndUpdate({
-                    guildID: message.guild.id,
+                    guildID: message.guild?.id,
                 }, {
                     totalCases: caseNumberSet,
                 })
                 const warns = await Cases.countDocuments({
-                    guildID: message.guild.id,
+                    guildID: message.guild?.id,
                     userID: muteUser.id,
                     caseType: "Warn",
                 })

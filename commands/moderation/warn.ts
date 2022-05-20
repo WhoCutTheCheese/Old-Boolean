@@ -7,25 +7,25 @@ module.exports = {
     expectedArgs: "[@User/User ID] (Reason)",
     cooldown: 1,
     userPermissions: ["MANAGE_MESSAGES"],
-    callback: async (client: Client, bot: any, message: any, args: string[]) => {
-        let warnUser = message.mentions.members.first() || message.guild.members.cache.get(args[0]);
+    callback: async (client: Client, bot: any, message: Message, args: string[]) => {
+        let warnUser = message.mentions.members?.first() || message.guild?.members.cache.get(args[0]);
         if(!warnUser) { return message.channel.send({ content: "I was unable to find that user!" }) }
         let reason = args.slice(1).join(" ")
         if(!reason) { reason = "No reason provided" }
         if(reason.length > 250) { return message.channel.send({ content: "Reason exceeds maximum size! (250 Characters)" }) }
         if(warnUser.id === message.author.id) { return message.channel.send({ content: "You cannot issue punishments to yourself." }) }
-        if(warnUser.bot)  { return message.channel.send({ content: "You cannot issue punishments to bots." }) }
+        if(warnUser.user.bot)  { return message.channel.send({ content: "You cannot issue punishments to bots." }) }
         const guildSettings = await Guild.findOne({
-            guildID: message.guild.id,
+            guildID: message.guild?.id,
         })
         const warns = await Cases.countDocuments({
-            guildID: message.guild.id,
+            guildID: message.guild?.id,
             userID: warnUser.id,
             caseType: "Warn",
         })
         const caseNumberSet = guildSettings.totalCases + 1;
         const newCases = await new Cases({
-            guildID: message.guild.id,
+            guildID: message.guild?.id,
             userID: warnUser.id,
             modID: message.author.id,
             caseType: "Warn",
@@ -35,7 +35,7 @@ module.exports = {
         })
         newCases.save().catch()
         await Guild.findOneAndUpdate({
-            guildID: message.guild.id,
+            guildID: message.guild?.id,
         }, {
             totalCases: caseNumberSet,
         })

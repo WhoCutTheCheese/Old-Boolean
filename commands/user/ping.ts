@@ -1,11 +1,14 @@
+import { Client, Message, MessageActionRow, MessageButton, MessageEmbed, ButtonInteraction, Interaction } from "discord.js";
 module.exports = {
-    commands: ['ping', 'latency', 'p'],
+    commands: ['ping', 'p', 'latency'],
     minArgs: 0,
     maxArgs: 0,
-    callback: async (client: { ws: { ping: any } }, bot: any, message: { reply: (arg0: { content: string }) => Promise<any>; createdTimestamp: number }, args: any, text: any) => {
-        const pingMessage = await message.reply({ content: "🔃 Calculating..." }).then(resultMessage => {
+    expectedArgs: "",
+    cooldown: 1,
+    callback: async (client: Client, bot: any, message: Message, args: string[]) => {
+        await message.reply({ content: "🔃 Calculating..." }).then(resultMessage => {
             const ping = resultMessage.createdTimestamp - message.createdTimestamp
             resultMessage.edit({ content: `<:check:966796856975835197> Bot Latency: **${ping}ms**, API Latency: **${client.ws.ping}ms**` })
-        })
+        })        
     },
 }

@@ -9,16 +9,16 @@ try {
         cooldown: 0,
         expectedArgs: "(@User/User ID)",
         userPermissions: ["MANAGE_MESSAGES"],
-        callback: async (client: Client, bot: any, message: any, args: string[]) => {
-            let histUser = message.mentions.members.first() || message.guild.members.cache.get(args[0]);
+        callback: async (client: Client, bot: any, message: Message, args: string[]) => {
+            let histUser = message.mentions.members?.first() || message.guild?.members.cache.get(args[0]);
             if (!histUser) { return message.channel.send({ content: "I was unable to find that user!" }) }
             let arr = [];
             const warnings = await Cases.find({
                 userID: histUser.id,
-                guildID: message.guild.id,
+                guildID: message.guild?.id,
             })
             const guildSettings = await Guild.findOne({
-                guildID: message.guild.id,
+                guildID: message.guild?.id,
             })
             for (const warn of warnings) {
                 arr.push(`\n\n**Case:** \`#${warn.caseNumber}\`\n**Type:** \`${warn.caseType}\`\n**Mod:** <@${warn.modID}>\n**Reason:** \`${warn.caseReason}\``)
@@ -64,7 +64,7 @@ try {
                         if (numbers === 0) { return }
                         numbers = numbers - 1;
                         const testEmbed = new MessageEmbed()
-                            .setAuthor({ name: `${histUser.user.tag}'s History`, iconURL: histUser.displayAvatarURL({ dynamic: true }) })
+                            .setAuthor({ name: `${histUser?.user.tag}'s History`, iconURL: histUser?.displayAvatarURL({ dynamic: true }) })
                             .setDescription(`${bitches[numbers]}`)
                             .setFooter({ text: `Requested by ${message.author.tag}`, iconURL: message.author.displayAvatarURL({ dynamic: true }) })
                             .setColor(guildSettings.color)
@@ -73,7 +73,7 @@ try {
                         if(numbers === bitches.length) { return }
                         numbers = numbers + 1;
                         const testEmbed = new MessageEmbed()
-                            .setAuthor({ name: `${histUser.user.tag}'s History`, iconURL: histUser.displayAvatarURL({ dynamic: true }) })
+                            .setAuthor({ name: `${histUser?.user.tag}'s History`, iconURL: histUser?.displayAvatarURL({ dynamic: true }) })
                             .setDescription(`${bitches[numbers]}`)
                             .setFooter({ text: `Requested by ${message.author.tag}`, iconURL: message.author.displayAvatarURL({ dynamic: true }) })
                             .setColor(guildSettings.color)
@@ -83,7 +83,7 @@ try {
                         invite.components[1].setDisabled(true)
                         invite.components[2].setDisabled(true)
                         const testEmbed = new MessageEmbed()
-                            .setAuthor({ name: `${histUser.user.tag}'s History`, iconURL: histUser.displayAvatarURL({ dynamic: true }) })
+                            .setAuthor({ name: `${histUser?.user.tag}'s History`, iconURL: histUser?.displayAvatarURL({ dynamic: true }) })
                             .setDescription(`${bitches[numbers]}`)
                             .setFooter({ text: `Requested by ${message.author.tag}`, iconURL: message.author.displayAvatarURL({ dynamic: true }) })
                             .setColor(guildSettings.color)

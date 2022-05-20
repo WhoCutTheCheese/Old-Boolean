@@ -1,4 +1,4 @@
-import { Client, Collection, Interaction, Permissions, MessageEmbed } from 'discord.js';
+import { Client, Collection, Interaction, Permissions, MessageEmbed, Message } from 'discord.js';
 const Guild = require('../../models/guild');
 module.exports = {
     commands: ['av', 'avatar', 'pfp'],
@@ -6,11 +6,11 @@ module.exports = {
     maxArgs: 1,
     cooldown: 3,
     expectedArgs: ['(@User/User ID)'],
-    callback: async (client: any, bot: any, message: { guild: { id: any; members: { cache: { get: (arg0: any) => any; }; }; }; mentions: { members: { first: () => any; }; }; author: { tag: any; displayAvatarURL: (arg0: { dynamic: boolean; size?: number; }) => any; }; channel: { send: (arg0: { embeds?: any[]; content?: string; }) => void; }; }, args: any[], text: any) => {
+    callback: async (client: Client, bot: any, message: Message, args: string[]) => {
         const gSettings = await Guild.findOne({
-            guildID: message.guild.id
+            guildID: message.guild?.id
         })
-        let user = message.mentions.members.first() || message.guild.members.cache.get(args[1]);
+        let user = message.mentions.members?.first() || message.guild?.members.cache.get(args[1]);
         if (!args[0]) {
             const av = new MessageEmbed()
                 .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.displayAvatarURL({ dynamic: true }) })

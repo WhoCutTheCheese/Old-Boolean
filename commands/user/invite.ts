@@ -1,13 +1,13 @@
-import { MessageEmbed, MessageActionRow, MessageButton } from 'discord.js'
+import { MessageEmbed, MessageActionRow, MessageButton, Client, Message } from 'discord.js'
 const Guild = require("../../models/guild");
 module.exports = {
     commands: ['invite', 'add'],
     minArgs: 0,
     maxArgs: 0,
     cooldown: 1,
-    callback: async (client: any, bot: any, message: { guild: { id: any; }; channel: { send: (arg0: { embeds: any[]; components: any[]; }) => void; }; }, args: any, text: any) => {
+    callback: async (client: Client, bot: { version: string }, message: Message, args: string[]) => {
         const guildSettings = await Guild.findOne({
-            guildID: message.guild.id,
+            guildID: message.guild?.id,
         })
         const row = new MessageActionRow().addComponents(
             new MessageButton()

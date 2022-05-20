@@ -1,4 +1,4 @@
-import { MessageEmbed, Client } from 'discord.js'
+import { MessageEmbed, Client, Message, TextChannel } from 'discord.js'
 const Guild = require('../../models/guild');
 const Config = require("../../models/config");
 const ms = require('ms');
@@ -8,19 +8,19 @@ module.exports = {
     cooldown: 5,
     userPermissions: ["MANAGE_MESSAGES"],
     expectedArgs: "(#Channel || all)",
-    callback: async (client: Client, bot: any, message: any, args: string[]) => {
+    callback: async (client: Client, bot: any, message: Message, args: string[]) => {
         const guildSettings = await Guild.findOne({
-            guildID: message.guild.id
+            guildID: message.guild?.id
         })
-        const channel = message.mentions.channels.first() || message.guild.channels.cache.find((c: any) => c.id === args[0])
+        const channel = message.mentions.channels.first() || message.guild?.channels.cache.find((c: any) => c.id === args[0])
         if (!channel) {
             if (args[0] !== "all") {
                 let reason = args.slice(0).join(" ")
                 if (!reason) { reason = "No reason provided" }
                 if (reason.length > 250) { return message.channel.send({ content: "Reason exceeds maximum size! (250 Characters)" }) }
-                message.channel.permissionOverwrites.edit(message.channel.guild.id, {
-                    SEND_MESSAGES: false,
-                });
+                ((message.channel as TextChannel).permissionOverwrites).edit((message.channel as TextChannel).guild.id, {
+                    SEND_MESSAGES: false
+                })
                 const successEmbed2 = new MessageEmbed()
                     .setTitle("Channel Locked")
                     .setColor(guildSettings.color)
@@ -31,9 +31,9 @@ module.exports = {
                 let reason = args.slice(1).join(" ")
                 if (!reason) { reason = "No reason provided" }
                 if (reason.length > 250) { return message.channel.send({ content: "Reason exceeds maximum size! (250 Characters)" }) }
-                message.guild.channels.cache.forEach(async (channel: any) => {
-                    if (channel.permissionsFor(message.channel.guild.roles.everyone).has("SEND_MESSAGES")) {
-                        await channel.permissionOverwrites.edit(message.channel.guild.id, {
+                message.guild?.channels.cache.forEach(async (channel: any) => {
+                    if (channel.permissionsFor((message.channel as TextChannel).guild.roles.everyone).has("SEND_MESSAGES")) {
+                        await channel.permissionOverwrites.edit((message.channel as TextChannel).guild.id, {
                             SEND_MESSAGES: false,
                         });
                     }
@@ -49,8 +49,8 @@ module.exports = {
             let reason = args.slice(1).join(" ")
             if (!reason) { reason = "No reason provided" }
             if (reason.length > 250) { return message.channel.send({ content: "Reason exceeds maximum size! (250 Characters)" }) }
-            channel.permissionOverwrites.edit(channel.guild.id, {
-                SEND_MESSAGES: false,
+            ((channel as TextChannel).permissionOverwrites).edit((channel as TextChannel).guild.id, {
+                SEND_MESSAGES: false
             });
             const successEmbed = new MessageEmbed()
                 .setTitle("Channel Locked")
@@ -62,8 +62,8 @@ module.exports = {
                 .setTitle("Channel Locked")
                 .setColor(guildSettings.color)
                 .setDescription(`Channel has been locked.`)
-                .addField("Reason", reason)
-            channel.send({ embeds: [successEmbed2] })
+                .addField("Reason", reason);
+            (message.guild?.channels.cache.find(c => c.id === channel.id) as TextChannel).send({ embeds: [successEmbed2] })
         }
     },
 }

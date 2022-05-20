@@ -1,4 +1,4 @@
-import { MessageEmbed, Client } from 'discord.js'
+import { MessageEmbed, Client, Message, TextChannel } from 'discord.js'
 const Guild = require('../../models/guild');
 const Config = require("../../models/config");
 module.exports = {
@@ -7,14 +7,14 @@ module.exports = {
     cooldown: 5,
     userPermissions: ["MANAGE_MESSAGES"],
     expectedArgs: "(#Channel || all)",
-    callback: async (client: Client, bot: any, message: any, args: string[]) => {
+    callback: async (client: Client, bot: any, message: Message, args: string[]) => {
         const guildSettings = await Guild.findOne({
-            guildID: message.guild.id
+            guildID: message.guild?.id
         })
-        const channel = message.mentions.channels.first() || message.guild.channels.cache.find((c: any) => c.id === args[0])
+        const channel = message.mentions.channels.first() || message.guild?.channels.cache.find((c: any) => c.id === args[0])
         if (!channel) {
             if (args[0] !== "all") {
-                message.channel.permissionOverwrites.edit(message.channel.guild.id, {
+                (message.channel as TextChannel).permissionOverwrites.edit((message.channel as TextChannel).guild.id, {
                     SEND_MESSAGES: null,
                 });
                 const successEmbed2 = new MessageEmbed()
@@ -22,9 +22,9 @@ module.exports = {
                     .setDescription(`Channel unlocked!`)
                 message.channel.send({ embeds: [successEmbed2] })
             } else if (args[0] === "all") {
-                message.guild.channels.cache.forEach(async (channel: any) => {
-                    if (!channel.permissionsFor(message.channel.guild.roles.everyone).has("SEND_MESSAGES")) {
-                        await channel.permissionOverwrites.edit(message.channel.guild.id, {
+                message.guild?.channels.cache.forEach(async (channel: any) => {
+                    if (!channel.permissionsFor((message.channel as TextChannel).guild.roles.everyone).has("SEND_MESSAGES")) {
+                        await channel.permissionOverwrites.edit((message.channel as TextChannel).guild.id, {
                             SEND_MESSAGES: null,
                         });
                     }
@@ -35,7 +35,7 @@ module.exports = {
                 message.channel.send({ embeds: [successEmbed] })
             }
         } else if (channel) {
-            channel.permissionOverwrites.edit(channel.guild.id, {
+            (channel as TextChannel).permissionOverwrites.edit((channel as TextChannel).guild.id, {
                 SEND_MESSAGES: null,
             });
             const successEmbed = new MessageEmbed()
@@ -44,8 +44,8 @@ module.exports = {
             message.channel.send({ embeds: [successEmbed] })
             const successEmbed2 = new MessageEmbed()
                 .setColor(guildSettings.color)
-                .setDescription(`Channel has been unlocked.`)
-            channel.send({ embeds: [successEmbed2] })
-        }
+                .setDescription(`Channel has been unlocked.`);
+            (message.guild?.channels.cache.find(c => c.id === channel.id) as TextChannel).send({ embeds: [successEmbed2] })
+            }
     },
 }

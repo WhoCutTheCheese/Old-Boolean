@@ -1,3 +1,4 @@
+import { Client, Message } from 'discord.js';
 import mongoose from 'mongoose';
 const GuildSchema = require('../models/guild');
 const ConfigSchema = require("../models/config")
@@ -73,17 +74,17 @@ module.exports = (commandOptions: { commands: any; userPermissions?: never[] | u
 }
 const bot = require('../package.json')
 const talkedRecently = new Set();
-module.exports.listen = (client: { on: (arg0: string, arg1: (message: any) => Promise<any>) => void; }) => {
-    client.on('messageCreate', async (message: { channel?: any; author?: any; reply?: any; member?: any; content?: any; guild?: any; }) => {
+module.exports.listen = (client: any) => {
+    client.on('messageCreate', async (message: Message) => {
         const { member, content, guild } = message
         GuildSchema.findOne({
-            guildID: message.guild.id
+            guildID: message.guild?.id
         }, ((err: any, guild: any) => {
             if (err) console.error(err)
             if (!guild) {
                 const newGuild = new GuildSchema({
                     _id: new mongoose.Types.ObjectId(),
-                    guildID: message.guild.id,
+                    guildID: message.guild?.id,
                     prefix: "!!",
                     color: `5865F2`,
                     premium: false,
@@ -97,13 +98,13 @@ module.exports.listen = (client: { on: (arg0: string, arg1: (message: any) => Pr
             }
         }));
         const config = ConfigSchema.findOne({
-            guildID: message.guild.id,
+            guildID: message.guild?.id,
         }, (err: any, config: any) => {
             if (err) console.error(err)
             if (!config) {
                 const newConfig = new ConfigSchema({
                     _id: new mongoose.Types.ObjectId(),
-                    guildID: message.guild.id,
+                    guildID: message.guild?.id,
                     muteRoleID: "None",
                     modLogChannel: "None",
                     joinRoleID: "None",
@@ -113,14 +114,14 @@ module.exports.listen = (client: { on: (arg0: string, arg1: (message: any) => Pr
             };
         });
         const serverSettings = await GuildSchema.findOne({
-            guildID: message.guild.id
+            guildID: message.guild?.id
         })
         const prefix = serverSettings.prefix;
         // Split on any number of spaces
         const args = content.split(/[ ]+/)
 
         // Remove the command which is the first index
-        const name = args.shift().toLowerCase();
+        const name = args.shift()!.toLowerCase();
         if (name.startsWith(prefix)) {
             const command = allCommands[name.replace(prefix, '')]
             if (!command) {
@@ -154,7 +155,7 @@ module.exports.listen = (client: { on: (arg0: string, arg1: (message: any) => Pr
             }
             // Ensure the user has the required permissions
             for (const _permission of userPermissions) {
-                if (!member.permissions.has(userPermissions)) {
+                if (!member?.permissions.has(userPermissions)) {
                     message.reply({ content: permissionError }).catch((err: any) => console.log(err));
                     return
                 }
@@ -162,11 +163,11 @@ module.exports.listen = (client: { on: (arg0: string, arg1: (message: any) => Pr
 
             // Ensure the user has the required roles
             for (const requiredRole of requiredRoles) {
-                const role = guild.roles.cache.find(
+                const role = guild?.roles.cache.find(
                     (role: { name: any; }) => role.name === requiredRole
                 )
 
-                if (!role || !member.roles.cache.has(role.id)) {
+                if (!role || !member?.roles.cache.has(role.id)) {
                     message.reply({
                         content: `You must have the "${requiredRole}" role to use this command.`
                     }).catch((err: any) => console.log(err));

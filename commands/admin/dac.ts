@@ -6,8 +6,8 @@ module.exports = {
     maxArgs: 0,
     minargs: 0,
     cooldown: 60,
-    callback: async (client: Client, bot: any, message: any, args: string[]) => {
-        if (message.author.id !== message.guild.ownerId) { return message.channel.send({ content: "You cannot use this!" }) }
+    callback: async (client: Client, bot: { version: string }, message: Message, args: string[]) => {
+        if (message.author.id !== message.guild?.ownerId) { return message.channel.send({ content: "You cannot use this!" }) }
 
         const invite = new MessageActionRow().addComponents(
             new MessageButton()
@@ -16,7 +16,7 @@ module.exports = {
                 .setCustomId(`confirm.${message.author.id}`),
         )
         const guildSettings = await Guild.findOne({
-            guildID: message.guild.id,
+            guildID: message.guild?.id,
         })
         const deleteallcasesEmbed = new MessageEmbed()
             .setTitle("Delete All Cases?")
@@ -42,10 +42,10 @@ module.exports = {
                         .setDescription("Boolean has deleted all case files in this guild!")
                     resultMessage.edit({ embeds: [deleteallcasesEmbed], components: [invite] }).catch((err: any) => console.log(err))
                     await Cases.deleteMany({
-                        guildID: message.guild.id,
+                        guildID: message.guild?.id,
                     })
                     await Guild.updateOne({
-                        guildID: message.guild.id,
+                        guildID: message.guild?.id,
                     }, {
                         totalCases: 0,
                     })
