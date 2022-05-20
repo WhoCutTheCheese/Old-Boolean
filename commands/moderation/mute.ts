@@ -37,6 +37,7 @@ module.exports = {
                 caseReason: reason,
                 caseNumber: caseNumberSet,
                 caseLength: "Permanent",
+                date: Date.now(),
             })
             newCases.save().catch((err: any) => console.log(err))
             await Guild.findOneAndUpdate({
@@ -73,6 +74,7 @@ module.exports = {
                     caseReason: reason,
                     caseNumber: caseNumberSet,
                     caseLength: "None",
+                    date: Date.now(),
                 })
                 newCases.save().catch((err: any) => console.log(err))
                 await Guild.findOneAndUpdate({
@@ -106,6 +108,7 @@ module.exports = {
                     caseReason: reason,
                     caseNumber: caseNumberSet,
                     caseLength: "None",
+                    date: Date.now(),
                 })
                 newCases.save().catch((err: any) => console.log(err))
                 await Guild.findOneAndUpdate({
@@ -139,6 +142,7 @@ module.exports = {
                     caseReason: reason,
                     caseNumber: caseNumberSet,
                     caseLength: "None",
+                    date: Date.now(),
                 })
                 newCases.save().catch((err: any) => console.log(err))
                 await Guild.findOneAndUpdate({
@@ -173,6 +177,7 @@ module.exports = {
                     caseReason: reason,
                     caseNumber: caseNumberSet,
                     caseLength: "None",
+                    date: Date.now(),
                 })
                 newCases.save().catch((err: any) => console.log(err))
                 await Guild.findOneAndUpdate({

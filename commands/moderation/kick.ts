@@ -31,6 +31,7 @@ module.exports = {
             caseReason: reason,
             caseNumber: caseNumberSet,
             caseLength: "None",
+            date: Date.now(),
         })
         newCases.save().catch()
         await Guild.findOneAndUpdate({
