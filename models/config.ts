@@ -6,6 +6,8 @@ let Schema = new mongoose.Schema({
     muteRoleID: String,
     modLogChannel: String,
     joinRoleID: String,
+    modRoleID: Array,
+    adminRoleID: Array,
 })
 
 module.exports = mongoose.model('config', Schema)

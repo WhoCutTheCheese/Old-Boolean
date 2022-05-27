@@ -1,7 +1,8 @@
-import { MessageEmbed, Client, Message, TextChannel } from 'discord.js'
+import { MessageEmbed, Client, Message, TextChannel, Permissions } from 'discord.js'
 const Guild = require('../../models/guild');
 const Config = require("../../models/config");
 const ms = require('ms');
+const ModLog = require('../../functions/modlogs')
 module.exports = {
     commands: ['lockdown', 'ld'],
     minArgs: 0,
@@ -9,6 +10,9 @@ module.exports = {
     userPermissions: ["MANAGE_MESSAGES"],
     expectedArgs: "(#Channel || all)",
     callback: async (client: Client, bot: any, message: Message, args: string[]) => {
+        if(!message.guild?.me?.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS)) {
+            return message.channel.send({ content: "I don't have permission to lockdown! Run **!!check** to finish setting me up!" })
+        }
         const guildSettings = await Guild.findOne({
             guildID: message.guild?.id
         })
@@ -27,6 +31,7 @@ module.exports = {
                     .setDescription(`Channel has been locked.`)
                     .addField("Reason", reason)
                 message.channel.send({ embeds: [successEmbed2] })
+                ModLog(false, 0, message.guild?.id, "Channel Lockdown", message.author.id, message, client, Date.now())
             } else if (args[0] === "all") {
                 let reason = args.slice(1).join(" ")
                 if (!reason) { reason = "No reason provided" }
@@ -44,6 +49,8 @@ module.exports = {
                     .setDescription(`You have locked down all channels.`)
                     .addField("Reason", reason)
                 message.channel.send({ embeds: [successEmbed] })
+                ModLog(false, 0, message.guild?.id, "Guild Lockdown", message.author.id, message, client, Date.now())
+
             }
         } else if (channel) {
             let reason = args.slice(1).join(" ")
@@ -64,6 +71,8 @@ module.exports = {
                 .setDescription(`Channel has been locked.`)
                 .addField("Reason", reason);
             (message.guild?.channels.cache.find(c => c.id === channel.id) as TextChannel).send({ embeds: [successEmbed2] })
+            ModLog(false, 0, message.guild?.id, "Channel Lockdown", message.author.id, message, client, Date.now())
+
         }
     },
 }

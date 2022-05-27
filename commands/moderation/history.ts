@@ -25,7 +25,7 @@ try {
             }
             const bitches = _.chunk(arr, 5)
             let numbers = 0
-            if(bitches.length == 0) { return message.channel.send({ content: "No past punishments!" }) };
+            if (bitches.length == 0) { return message.channel.send({ content: "No past punishments!" }) };
             const invite = new MessageActionRow().addComponents(
                 new MessageButton()
                     .setLabel("")
@@ -57,7 +57,7 @@ try {
                     time: 15000
                 })
 
-                Buttoncollector.on('collect', async (i: any) => {
+                Buttoncollector.on('collect', async (i: ButtonInteraction) => {
                     await i.deferUpdate()
                     const id = i.customId
                     if (id === `back.${i.user.id}`) {
@@ -70,7 +70,7 @@ try {
                             .setColor(guildSettings.color)
                         resultMessage.edit({ embeds: [testEmbed], components: [invite] }).catch((err: any) => console.log(err))
                     } else if (id === `forward.${i.user.id}`) {
-                        if(numbers === bitches.length) { return }
+                        if (numbers === bitches.length) { return }
                         numbers = numbers + 1;
                         const testEmbed = new MessageEmbed()
                             .setAuthor({ name: `${histUser?.user.tag}'s History`, iconURL: histUser?.displayAvatarURL({ dynamic: true }) })
@@ -90,7 +90,20 @@ try {
                         resultMessage.edit({ embeds: [testEmbed], components: [invite] }).catch((err: any) => console.log(err))
                     }
                 })
+                Buttoncollector.on('end', async (i: ButtonInteraction) => {
+                    invite.components[0].setDisabled(true)
+                    invite.components[1].setDisabled(true)
+                    invite.components[2].setDisabled(true)
+                    const testEmbed = new MessageEmbed()
+                        .setAuthor({ name: `${histUser?.user.tag}'s History`, iconURL: histUser?.displayAvatarURL({ dynamic: true }) })
+                        .setDescription(`${bitches[numbers]}`)
+                        .setFooter({ text: `Requested by ${message.author.tag} - Interaction Timed Out`, iconURL: message.author.displayAvatarURL({ dynamic: true }) })
+                        .setColor(guildSettings.color)
+                    resultMessage.edit({ embeds: [testEmbed], components: [invite] }).catch((err: any) => console.log(err))
+
+                })
             }).catch((err: any) => console.log(err))
+
         },
     }
 } catch (err) {

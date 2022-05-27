@@ -1,7 +1,9 @@
-import { Client, Message, MessageActionRow, MessageButton, MessageEmbed, ButtonInteraction, Interaction } from "discord.js"
+import { Client, Message, MessageEmbed, Permissions } from "discord.js"
 const Guild = require('../../models/guild');
 const Cases = require('../../models/cases');
 const Config = require('../../models/config');
+const ModLog = require('../../functions/modlogs');
+
 const ms = require('ms')
 module.exports = {
     commands: ['mute', 'm', 'silence'],
@@ -9,6 +11,9 @@ module.exports = {
     cooldown: 3,
     expectedArgs: "[@User/User ID] (Time || Reason) {Reason}",
     callback: async (client: Client, bot: any, message: Message, args: string[]) => {
+        if(!message.guild?.me?.permissions.has(Permissions.FLAGS.MODERATE_MEMBERS) || !message.guild?.me?.permissions.has(Permissions.FLAGS.MANAGE_ROLES)) {
+            return message.channel.send({ content: "I don't have permission to mute! Run **!!check** to finish setting me up!" })
+        }
         const guildSettings = await Guild.findOne({
             guildID: message.guild?.id,
         })
@@ -55,6 +60,7 @@ module.exports = {
                 .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Duration:** Permanent | **Reason:** ${reason}`)
                 .setColor(guildSettings.color)
             message.channel.send({ content: `<:arrow_right:967329549912248341> **${muteUser.user.tag}** has been muted (Warns **${warns}**)`, embeds: [muteEmbed] })
+            ModLog(true, caseNumberSet, message.guild?.id, "Mute", message.author.id, message, client, Date.now())
 
 
         } else if (/^\d/.test(args[1])) {
@@ -73,7 +79,7 @@ module.exports = {
                     caseType: "Mute",
                     caseReason: reason,
                     caseNumber: caseNumberSet,
-                    caseLength: "None",
+                    caseLength: `${time} second(s)`,
                     date: Date.now(),
                 })
                 newCases.save().catch((err: any) => console.log(err))
@@ -92,6 +98,7 @@ module.exports = {
                     .setColor(guildSettings.color)
                 message.channel.send({ content: `<:arrow_right:967329549912248341> **${muteUser.user.tag}** has been muted (Warns **${warns}**)`, embeds: [muteEmbed] })
                 muteUser.timeout(ms(`${time}s`), reason).catch((err: any) => console.error(err))
+                ModLog(true, caseNumberSet, message.guild?.id, "Mute", message.author.id, message, client, Date.now())
             } else if (args[1].endsWith("m")) {
                 let time = args[1].replace("m", "");
                 if (Number.isNaN(time)) { return message.channel.send({ content: "That is an invalid time!" }) }
@@ -107,7 +114,7 @@ module.exports = {
                     caseType: "Mute",
                     caseReason: reason,
                     caseNumber: caseNumberSet,
-                    caseLength: "None",
+                    caseLength: `${time} minute(s)`,
                     date: Date.now(),
                 })
                 newCases.save().catch((err: any) => console.log(err))
@@ -126,6 +133,7 @@ module.exports = {
                     .setColor(guildSettings.color)
                 message.channel.send({ content: `<:arrow_right:967329549912248341> **${muteUser.user.tag}** has been muted (Warns **${warns}**)`, embeds: [muteEmbed] })
                 muteUser.timeout(ms(`${time}m`), reason).catch((err: any) => console.error(err))
+                ModLog(true, caseNumberSet, message.guild?.id, "Mute", message.author.id, message, client, Date.now())
             } else if (args[1].endsWith("h")) {
                 let time = args[1].replace("h", "");
                 if (Number.isNaN(time)) { return message.channel.send({ content: "That is an invalid time!" }) }
@@ -141,7 +149,7 @@ module.exports = {
                     caseType: "Mute",
                     caseReason: reason,
                     caseNumber: caseNumberSet,
-                    caseLength: "None",
+                    caseLength: `${time} hour(s)`,
                     date: Date.now(),
                 })
                 newCases.save().catch((err: any) => console.log(err))
@@ -160,6 +168,7 @@ module.exports = {
                     .setColor(guildSettings.color)
                 message.channel.send({ content: `<:arrow_right:967329549912248341> **${muteUser.user.tag}** has been muted (Warns **${warns}**)`, embeds: [muteEmbed] })
                 muteUser.timeout(ms(`${time}h`), reason)
+                ModLog(true, caseNumberSet, message.guild?.id, "Mute", message.author.id, message, client, Date.now())
             } else if (args[1].endsWith("d")) {
                 let time = args[1].replace("d", "");
                 if (Number.isNaN(time)) { return message.channel.send({ content: "That is an invalid time!" }) }
@@ -176,7 +185,7 @@ module.exports = {
                     caseType: "Mute",
                     caseReason: reason,
                     caseNumber: caseNumberSet,
-                    caseLength: "None",
+                    caseLength: `${time} day(s)`,
                     date: Date.now(),
                 })
                 newCases.save().catch((err: any) => console.log(err))
@@ -195,6 +204,7 @@ module.exports = {
                     .setColor(guildSettings.color)
                 message.channel.send({ content: `<:arrow_right:967329549912248341> **${muteUser.user.tag}** has been muted (Warns **${warns}**)`, embeds: [muteEmbed] })
                 muteUser.timeout(ms(`${time}d`), reason).catch((err: any) => console.error(err))
+                ModLog(true, caseNumberSet, message.guild?.id, "Mute", message.author.id, message, client, Date.now())
             }
 
         }

@@ -1,4 +1,4 @@
-import { Client, Intents } from 'discord.js';
+import { Client, Intents, Message } from 'discord.js';
 import Dotenv from 'dotenv';
 import fs from 'fs';
 import path from "path";
@@ -77,6 +77,8 @@ client.on('guildCreate', async guild => {
                 muteRoleID: "None",
                 modLogChannel: "None",
                 joinRoleID: "None",
+                modRoleID: [],
+                adminRoleID: [],
             });
             newConfig.save()
                 .catch((err: any) => console.error(err))
@@ -106,5 +108,8 @@ client.on('guildDelete', async guild => {
             guildID: guild.id
         });
     };
+    await ConfigSchema.findOneAndRemove({
+        guildID: guild.id,
+    })
 });
 client.login(process.env.token);

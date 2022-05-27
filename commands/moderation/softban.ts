@@ -1,6 +1,7 @@
-import { Client, Message, MessageActionRow, MessageButton, MessageEmbed, ButtonInteraction, Interaction, UserResolvable } from "discord.js";
+import { Client, Message, MessageEmbed, UserResolvable, Permissions } from "discord.js";
 const Guild = require("../../models/guild");
 const Cases = require("../../models/cases");
+const ModLog = require("../../functions/modlogs");
 module.exports = {
     commands: ['softban', 'sb'],
     minArgs: 1,
@@ -8,6 +9,9 @@ module.exports = {
     cooldown: 2,
     userPermissions: ["MANAGE_MESSAGES"],
     callback: async (client: Client, bot: any, message: Message, args: string[]) => {
+        if(!message.guild?.me?.permissions.has(Permissions.FLAGS.BAN_MEMBERS)) {
+            return message.channel.send({ content: "I don't have permission to edit slowmode! Run **!!check** to finish setting me up!" })
+        }
         let banUser = message.mentions.members?.first() || message.guild?.members.cache.get(args[0]);
         if (!banUser) { return message.channel.send({ content: "I was unable to find that user!" }) }
         if (banUser.id === message.author.id) { return message.channel.send({ content: "You cannot issue punishments to yourself." }) }
@@ -32,6 +36,7 @@ module.exports = {
                 caseReason: reason,
                 caseNumber: caseNumberSet,
                 caseLength: "None",
+                date: Date.now(),
             })
             newCases.save().catch()
             await Guild.findOneAndUpdate({
@@ -45,6 +50,8 @@ module.exports = {
                 .setColor(guildSettings.color)
             message.channel.send({ content: `<:arrow_right:967329549912248341> **${banUser.user.tag}** has been soft-banned (Warns **${warns}**)`, embeds: [warnEmbed] })
             banUser.ban({ reason: reason, days: 7 }).catch((err: any) => console.log(err)).then(() => message.guild?.members.unban(banUser?.id as UserResolvable))
+            ModLog(true, caseNumberSet, message.guild?.id, "Soft-Ban", message.author.id, message, client, Date.now())
+
         } else if (!Number.isNaN(args[1])) {
             let reason = args.slice(2).join(" ")
             if (!reason) { reason = "No reason provided" }
@@ -72,6 +79,8 @@ module.exports = {
                 .setColor(guildSettings.color)
             message.channel.send({ content: `<:arrow_right:967329549912248341> **${banUser.user.tag}** has been soft-banned (Warns **${warns}**)`, embeds: [warnEmbed] })
             banUser.ban({ reason: reason, days: parseInt(args[1]) }).catch((err: any) => console.log(err)).then(() => message.guild?.members.unban(banUser?.id as UserResolvable))
+            ModLog(true, caseNumberSet, message.guild?.id, "Soft-Ban", message.author.id, message, client, Date.now())
+
         }
 
     },

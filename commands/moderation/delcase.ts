@@ -1,6 +1,7 @@
 import { Client, Message, MessageActionRow, MessageButton, MessageEmbed, ButtonInteraction, Interaction } from "discord.js";
 const Guild = require("../../models/guild");
 const Cases = require("../../models/cases");
+const ModLog = require('../../functions/modlogs')
 module.exports = {
     commands: ['delcase', 'unwarn'],
     minArgs: 1,
@@ -31,6 +32,7 @@ module.exports = {
             caseNumber: args[0],
         })
         message.channel.send({ embeds: [caseDeleted] })
+        ModLog(false, 0, message.guild?.id, "Case Deleted", message.author.id, message, client, Date.now())
         
     },
 }

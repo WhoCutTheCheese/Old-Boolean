@@ -1,6 +1,7 @@
 import { Client, Message, MessageActionRow, MessageButton, MessageEmbed, ButtonInteraction, Interaction } from "discord.js";
 const Guild = require("../../models/guild");
 const Cases = require("../../models/cases");
+const ModLog = require("../../functions/modlogs");
 module.exports = {
     commands: ['warn', 'w'],
     minArgs: 1,
@@ -44,7 +45,7 @@ module.exports = {
             .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Reason:** ${reason}`)
             .setColor(guildSettings.color)
         message.channel.send({ content: `<:arrow_right:967329549912248341> **${warnUser.user.tag}** has been warned (Warns **${warns}**)`, embeds: [warnEmbed] })
-
+        ModLog(true, caseNumberSet, message.guild?.id, "Warn", message.author.id, message, client, Date.now())
         
     },
 }

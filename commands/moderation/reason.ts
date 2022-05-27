@@ -1,11 +1,11 @@
 import { Client, Message, MessageActionRow, MessageButton, MessageEmbed, ButtonInteraction, Interaction } from "discord.js";
 const Guild = require("../../models/guild");
 const Cases = require("../../models/cases");
-const Config = require('../../models/config');
+const ModLog = require("../../functions/modlogs");
 module.exports = {
-    commands: ['case', 'findcase', 'lookup'],
-    minArgs: 1,
-    expectedArgs: "[Case Number]",
+    commands: ['reason', 'r'],
+    minArgs: 2,
+    expectedArgs: "[Case Number] [New Reason]",
     cooldown: 1,
     userPermissions: ["MANAGE_MESSAGES"],
     callback: async (client: Client, bot: any, message: Message, args: string[]) => {
@@ -22,13 +22,25 @@ module.exports = {
         })
         if(warns === 0) { return message.channel.send({ content: "This guild does not have any cases!" }) }
         if(!delCase) { return message.channel.send({ content: "I was unable to acquire that case." }) }
-        const caseInfo = new MessageEmbed()
-            .setTitle(`Case #${args[0]}`)
+        if(!args[1]) { return message.channel.send({ content: "Enter a new reason." }) }
+        let reason = args.slice(1).join(" ")
+        if (reason.length > 250) { return message.channel.send({ content: "Reason exceeds maximum size! (250 Characters)" }) }
+
+        await Cases.findOneAndUpdate({
+            guildID: message.guild?.id,
+            caseNumber: args[0],
+        }, {
+            caseReason: reason,
+        })
+        const successEmbed = new MessageEmbed()
+            .setTitle(`Case #${delCase.caseNumber}`)
             .setColor(guildSettigns.color)
-            .setDescription(`Case against <@${delCase.userID}>`)
-            .addField("Case Information", `**Mod:** <@${delCase.modID}>\n**Case Type:** ${delCase.caseType}\n**Reason:** ${delCase.caseReason}\n**Date:** <t:${Math.round(delCase.date / 1000)}:D>`)
-            .setFooter({ text: `Requesred by ${message.author.tag}`, iconURL: message.author.displayAvatarURL({ dynamic: true }) || "" })
-        message.channel.send({ embeds: [caseInfo] })
+            .setDescription(`**Case reason has been updated to**: ${reason}`)
+            .setTimestamp()
+        message.channel.send({ embeds: [successEmbed] })
+        ModLog(false, 0, message.guild?.id, "Edit Reason", message.author.id, message, client, Date.now())
+
+
         
     },
 }
