@@ -74,10 +74,10 @@ module.exports = (commandOptions: { commands: any; userPermissions?: never[] | u
 }
 const bot = require('../package.json')
 const talkedRecently = new Set();
-
 module.exports.listen = (client: any) => {
     try {
         client.on('messageCreate', async (message: Message) => {
+            
             const { member, content, guild } = message
             GuildSchema.findOne({
                 guildID: message.guild?.id
@@ -154,15 +154,7 @@ module.exports.listen = (client: any) => {
                         return message.channel.send({ content: "This command is currently disabled! Join our support server for more information." })
                     }
                 }
-                if (talkedRecently.has(message.author.id)) {
-                    return message.channel.send({ content: `You must wait ${cooldown} second(s) before using this again!` }).catch((err: any) => console.log(err));
-                } else {
-                    talkedRecently.add(message.author.id);
-                    setTimeout(() => {
-                        // Removes the user from the set after a minute
-                        talkedRecently.delete(message.author.id);
-                    }, cooldown * 1000);
-                }
+
                 // Ensure the user has the required permissions
                 for (const _permission of userPermissions) {
                     if (!member?.permissions.has(userPermissions)) {
@@ -196,6 +188,16 @@ module.exports.listen = (client: any) => {
                     return
                 }
 
+                if (talkedRecently.has(message.author.id)) {
+                    return message.channel.send({ content: `You must wait ${cooldown} second(s) before using this again!` }).catch((err: any) => console.log(err));
+                } else {
+                    talkedRecently.add(message.author.id);
+                    setTimeout(() => {
+                        // Removes the user from the set after a minute
+                        talkedRecently.delete(message.author.id);
+                    }, cooldown * 1000);
+                }
+                
                 // Handle the custom command code
                 callback(client, bot, message, args, args.join(' '), client).catch((err: any) => console.log(err));
             }

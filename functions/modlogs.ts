@@ -3,7 +3,7 @@ const Guild = require("../models/guild")
 const ConfigSchema = require("../models/config")
 const Cases = require("../models/cases")
 declare global {
-    var ModLog: any;
+    var ModLog: Function;
 }
 globalThis.ModLog = async function (punishment: boolean, caseID: number, serverID: string, action: string, actionUser: string, message: Message, client: Client, date: number) {
     const caseFind = await Cases.findOne({
