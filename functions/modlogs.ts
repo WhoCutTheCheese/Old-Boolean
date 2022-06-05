@@ -2,7 +2,10 @@ import { Client, Message, MessageEmbed, TextChannel, User, Permissions } from 'd
 const Guild = require("../models/guild")
 const ConfigSchema = require("../models/config")
 const Cases = require("../models/cases")
-module.exports = async function (punishment: boolean, caseID: number, serverID: string, action: string, actionUser: string, message: Message, client: Client, date: number) {
+declare global {
+    var ModLog: any;
+}
+globalThis.ModLog = async function (punishment: boolean, caseID: number, serverID: string, action: string, actionUser: string, message: Message, client: Client, date: number) {
     const caseFind = await Cases.findOne({
         guildID: serverID,
         caseNumber: caseID,

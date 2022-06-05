@@ -1,7 +1,6 @@
 import { Client, Message, MessageActionRow, MessageButton, MessageEmbed, ButtonInteraction, Interaction } from "discord.js";
 const Guild = require("../../models/guild");
 const Cases = require("../../models/cases");
-const ModLog = require("../../functions/modlogs");
 module.exports = {
     commands: ['reason', 'r'],
     minArgs: 2,

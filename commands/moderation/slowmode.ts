@@ -1,7 +1,6 @@
 import { Client, Message, MessageEmbed, TextChannel, Permissions } from "discord.js";
 const Guild = require("../../models/guild");
 const Cases = require("../../models/cases");
-const ModLog = require("../../functions/modlogs");
 module.exports = {
     commands: ['slowmode', 'slow', 'cooldown'],
     minArgs: 1,

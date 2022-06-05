@@ -1,7 +1,5 @@
 import { MessageEmbed, Client, Message, TextChannel, Permissions } from 'discord.js'
 const Guild = require('../../models/guild');
-const Config = require("../../models/config");
-const ModLog = require('../../functions/modlogs')
 module.exports = {
     commands: ['unlockdown', 'uld'],
     minArgs: 0,

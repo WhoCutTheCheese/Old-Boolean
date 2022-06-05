@@ -1,7 +1,6 @@
 import { Client, Message, MessageEmbed, Permissions } from "discord.js";
 const Guild = require("../../models/guild");
 const Cases = require("../../models/cases");
-const ModLog = require("../../functions/modlogs");
 const Config = require("../../models/config")
 module.exports = {
     commands: ['check', 'ch'],

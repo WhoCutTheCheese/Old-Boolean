@@ -1,6 +1,5 @@
 import { Client, Message, TextChannel, Permissions } from "discord.js";
 const Guild = require("../../models/guild");
-const ModLog = require('../../functions/modlogs')
 module.exports = {
     commands: ['purge', 'clear'],
     minArgs: 1,
