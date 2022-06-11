@@ -1,5 +1,5 @@
 import { MessageEmbed, Permissions, Client, Message, GuildMember, User } from 'discord.js'
-const Guild = require('../../models/guild');
+import Guild from "../../models/guild";
 module.exports = {
     commands: ['userinfo', 'uinfo', 'user-info', 'whois'],
     minArgs: 0,

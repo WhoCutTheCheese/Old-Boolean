@@ -9,4 +9,4 @@ let Schema = new mongoose.Schema({
     totalCases: Number,
 })
 
-module.exports = mongoose.model('guild', Schema)
+export = mongoose.model('guild', Schema)

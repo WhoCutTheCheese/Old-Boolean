@@ -1,5 +1,5 @@
-import { Client, Collection, Interaction, Permissions, MessageEmbed, Message } from 'discord.js';
-const Guild = require('../../models/guild');
+import { Client, MessageEmbed, Message } from 'discord.js';
+import Guild from "../../models/guild";
 module.exports = {
     commands: ['av', 'avatar', 'pfp'],
     minArgs: 0,

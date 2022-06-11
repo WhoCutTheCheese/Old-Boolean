@@ -1,6 +1,6 @@
 import { MessageEmbed, Client, Message } from 'discord.js';
 const Tokens = require('../../models/tokens');
-const Guild = require("../../models/guild");
+import Guild from "../../models/guild";
 module.exports = {
     commands: ["premium"],
     minArgs: 1,

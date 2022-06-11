@@ -1,5 +1,5 @@
 import { Client, Message, MessageEmbed, TextChannel } from 'discord.js';
-const Guild = require("../../models/guild");
+import Guild from "../../models/guild";
 module.exports = {
     commands: ['serverinfo', 'sinfo', 'server-info', 'si'],
     minArgs: 0,

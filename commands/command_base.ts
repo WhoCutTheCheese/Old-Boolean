@@ -1,7 +1,7 @@
 import { Client, Message } from 'discord.js';
 import mongoose from 'mongoose';
-const GuildSchema = require('../models/guild');
-const ConfigSchema = require("../models/config")
+import GuildSchema from "../models/guild";
+import ConfigSchema from "../models/cases";
 const validatePermissions = (userPermissions: any) => {
     const validPermissions = [
         'CREATE_INSTANT_INVITE',

@@ -1,7 +1,5 @@
 import { MessageEmbed, Client, Message, TextChannel, Permissions } from 'discord.js'
-const Guild = require('../../models/guild');
-const Config = require("../../models/config");
-const ms = require('ms');
+import Guild from "../../models/guild";
 module.exports = {
     commands: ['lockdown', 'ld'],
     minArgs: 0,

@@ -1,14 +1,6 @@
-import {
-    ButtonInteraction,
-    Client,
-    Message,
-    MessageActionRow,
-    MessageEmbed,
-    MessageSelectMenu,
-    SelectMenuInteraction
-} from 'discord.js';
+import { ButtonInteraction, Client, Message, MessageActionRow, MessageEmbed, MessageSelectMenu, } from 'discord.js';
+import Guild from "../../models/guild";
 try {
-    const Guild = require("../../models/guild");
     module.exports = {
         commands: ['help'],
         minArgs: 0,

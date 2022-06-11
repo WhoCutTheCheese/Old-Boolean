@@ -1,8 +1,8 @@
 import { Client, Message, MessageActionRow, MessageButton, MessageEmbed, ButtonInteraction, Interaction } from 'discord.js';
+import Cases from "../../models/cases";
 try {
     const _ = require("lodash");
     const Guild = require("../../models/guild");
-    const Cases = require("../../models/cases");
     module.exports = {
         commands: ['h', 'history'],
         minArgs: 1,

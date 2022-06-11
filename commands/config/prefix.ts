@@ -1,6 +1,5 @@
-const Guild = require("../../models/guild");
-import { Permissions, MessageEmbed, Client, Message } from 'discord.js'
-const ModLog = require('../../functions/modlogs')
+import { MessageEmbed, Client, Message } from 'discord.js';
+import Guild from "../../models/guild";
 module.exports = {
     commands: ["prefix", "p"],
     minArgs: 1,

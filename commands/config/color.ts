@@ -1,5 +1,5 @@
-const Guild = require("../../models/guild");
-import { Permissions, MessageEmbed, Client, ColorResolvable, Message } from 'discord.js';
+import { MessageEmbed, Client, ColorResolvable, Message } from 'discord.js';
+import Guild from "../../models/guild";
 module.exports = {
     commands: ["color", "c"],
     minArgs: 1,

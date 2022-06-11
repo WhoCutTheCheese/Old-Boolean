@@ -10,4 +10,4 @@ let Schema = new mongoose.Schema({
     adminRoleID: Array,
 })
 
-module.exports = mongoose.model('config', Schema)
+export = mongoose.model('config', Schema)

@@ -12,4 +12,4 @@ let Schema = new mongoose.Schema({
     date: String,
 })
 
-module.exports = mongoose.model('cases', Schema)
+export = mongoose.model('cases', Schema)

@@ -1,6 +1,6 @@
 import { Client, Message, MessageEmbed, Permissions } from "discord.js"
-const Guild = require('../../models/guild');
-const Cases = require('../../models/cases');
+import Guild from "../../models/guild";
+import Cases from "../../models/cases";
 const Config = require('../../models/config');
 
 const ms = require('ms')
