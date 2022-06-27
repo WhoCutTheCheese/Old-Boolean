@@ -1,5 +1,6 @@
 import { MessageEmbed, Client, Message, TextChannel, Permissions } from 'discord.js'
 import Guild from "../../models/guild";
+import ErrorLog from "../../functions/errorlog";
 module.exports = {
     commands: ['unlockdown', 'uld'],
     minArgs: 0,
@@ -7,6 +8,7 @@ module.exports = {
     userPermissions: ["MANAGE_MESSAGES"],
     expectedArgs: "(#Channel || all)",
     callback: async (client: Client, bot: any, message: Message, args: string[]) => {
+        try {
         if(!message.guild?.me?.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS)) {
             return message.channel.send({ content: "I don't have permission to unlockdown! Run **!!check** to finish setting me up!" })
         }
@@ -18,7 +20,7 @@ module.exports = {
             if (args[0] !== "all") {
                 (message.channel as TextChannel).permissionOverwrites.edit((message.channel as TextChannel).guild.id, {
                     SEND_MESSAGES: null,
-                });
+                }).catch((err: Error) => ErrorLog(message.guild!, "PERMISSION_OVERWITE_FUNCTION", err, client, message, `${message.author.id}`, `unlockdown.ts`))
                 const successEmbed2 = new MessageEmbed()
                     .setColor(guildSettings.color)
                     .setDescription(`Channel unlocked!`)
@@ -29,7 +31,7 @@ module.exports = {
                     if (!channel.permissionsFor((message.channel as TextChannel).guild.roles.everyone).has("SEND_MESSAGES")) {
                         await channel.permissionOverwrites.edit((message.channel as TextChannel).guild.id, {
                             SEND_MESSAGES: null,
-                        });
+                        }).catch((err: Error) => ErrorLog(message.guild!, "PERMISSION_OVERWITE_FUNCTION", err, client, message, `${message.author.id}`, `unlockdown.ts`))
                     }
                 });
                 const successEmbed = new MessageEmbed()
@@ -41,7 +43,7 @@ module.exports = {
         } else if (channel) {
             (channel as TextChannel).permissionOverwrites.edit((channel as TextChannel).guild.id, {
                 SEND_MESSAGES: null,
-            });
+            }).catch((err: Error) => {ErrorLog(message.guild!, "PERMISSION_OVERWRITE_FUNCTION", err, client, message, `${message.author.id}`, `unlockdown.ts`)})
             const successEmbed = new MessageEmbed()
                 .setColor(guildSettings.color)
                 .setDescription(`You have unlocked <#${channel.id}>.`)
@@ -53,5 +55,8 @@ module.exports = {
             ModLog(false, 0, message.guild?.id, "Channel Unlocked", message.author.id, message, client, Date.now())
 
             }
+        } catch { (err: Error) => {
+            ErrorLog(message.guild!, "UNLOCKDOWN_COMMAND", err, client, message, `${message.author.id}`, `unlockdown.ts`)
+        } }
     },
 }

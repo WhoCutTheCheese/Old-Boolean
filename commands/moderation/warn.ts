@@ -1,6 +1,7 @@
 import { Client, Message, MessageEmbed } from "discord.js";
 import Guild from "../../models/guild";
 import Cases from "../../models/cases";
+import ErrorLog from "../../functions/errorlog";
 module.exports = {
     commands: ['warn', 'w'],
     minArgs: 1,
@@ -8,6 +9,7 @@ module.exports = {
     cooldown: 1,
     userPermissions: ["MANAGE_MESSAGES"],
     callback: async (client: Client, bot: any, message: Message, args: string[]) => {
+        try {
         let warnUser = message.mentions.members?.first() || message.guild?.members.cache.get(args[0]);
         if(!warnUser) { return message.channel.send({ content: "I was unable to find that user!" }) }
         let reason = args.slice(1).join(" ")
@@ -34,7 +36,7 @@ module.exports = {
             caseLength: "None",
             date: Date.now(),
         })
-        newCases.save().catch()
+        newCases.save().catch((err: Error) => ErrorLog(message.guild!, "NEW_CASE_FUNCTION", err, client, message, `${message.author.id}`, `warn.ts`))
         await Guild.findOneAndUpdate({
             guildID: message.guild?.id,
         }, {
@@ -45,6 +47,8 @@ module.exports = {
             .setColor(guildSettings.color)
         message.channel.send({ content: `<:arrow_right:967329549912248341> **${warnUser.user.tag}** has been warned (Warns **${warns}**)`, embeds: [warnEmbed] })
         ModLog(true, caseNumberSet, message.guild?.id, "Warn", message.author.id, message, client, Date.now())
-        
+    } catch { (err: Error) => {
+        ErrorLog(message.guild!, "WARN_COMMAND", err, client, message, `${message.author.id}`, `warn.ts`)
+    } }
     },
 }

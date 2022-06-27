@@ -1,11 +1,13 @@
 import { MessageEmbed, MessageActionRow, MessageButton, Client, Message } from 'discord.js'
 import Guild from "../../models/guild";
+import ErrorLog from "../../functions/errorlog";
 module.exports = {
     commands: ['invite', 'add'],
     minArgs: 0,
     maxArgs: 0,
     cooldown: 1,
     callback: async (client: Client, bot: { version: string }, message: Message, args: string[]) => {
+        try {
         const guildSettings = await Guild.findOne({
             guildID: message.guild?.id,
         })
@@ -33,5 +35,8 @@ module.exports = {
             .setColor(guildSettings.color)
             .setDescription("Boolean is an easy-to-use and in-depth moderation bot with all the features you need to keep your user in check!")
         message.channel.send({ embeds: [invite], components: [row] })
+        } catch { (err: Error) => {
+            ErrorLog(message.guild!, "INVITE_COMMAND", err, client, message, `${message.author.id}`, `invite.ts`)
+        } }
     },
 }

@@ -5,4 +5,4 @@ let Schema = new mongoose.Schema({
     userName: String,
     tokens: Number,
 })
-module.exports = mongoose.model('tokens', Schema)
+export = mongoose.model('tokens', Schema)

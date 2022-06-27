@@ -1,15 +1,16 @@
 import { Client, Message, MessageActionRow, MessageButton, MessageEmbed, ButtonInteraction, Interaction } from 'discord.js';
 import Cases from "../../models/cases";
-try {
-    const _ = require("lodash");
-    const Guild = require("../../models/guild");
-    module.exports = {
-        commands: ['h', 'history'],
-        minArgs: 1,
-        cooldown: 0,
-        expectedArgs: "(@User/User ID)",
-        userPermissions: ["MANAGE_MESSAGES"],
-        callback: async (client: Client, bot: any, message: Message, args: string[]) => {
+import Guild from "../../models/guild";
+import ErrorLog from "../../functions/errorlog";
+const _ = require("lodash");
+module.exports = {
+    commands: ['h', 'history'],
+    minArgs: 1,
+    cooldown: 0,
+    expectedArgs: "(@User/User ID)",
+    userPermissions: ["MANAGE_MESSAGES"],
+    callback: async (client: Client, bot: any, message: Message, args: string[]) => {
+        try {
             let histUser = message.mentions.members?.first() || message.guild?.members.cache.get(args[0]);
             if (!histUser) { return message.channel.send({ content: "I was unable to find that user!" }) }
             let arr = [];
@@ -48,7 +49,7 @@ try {
                 .setDescription(`${bitches[numbers]}`)
                 .setFooter({ text: `Requested by ${message.author.tag}`, iconURL: message.author.displayAvatarURL({ dynamic: true }) })
                 .setColor(guildSettings.color)
-            const waitingOmgUwU = message.channel.send({ embeds: [testEmbed], components: [invite] }).catch().then((resultMessage: any) => {
+            const waitingOmgUwU = message.channel.send({ embeds: [testEmbed], components: [invite] }).catch((err: Error) => ErrorLog(message.guild!, "HISTORY_MESSAGE", err, client, message, `${message.author.id}`, `history.ts`)).then((resultMessage: any) => {
                 const filter = (Interaction: Interaction) => {
                     if (Interaction.user.id === message.author.id) return true;
                 }
@@ -68,7 +69,7 @@ try {
                             .setDescription(`${bitches[numbers]}`)
                             .setFooter({ text: `Requested by ${message.author.tag}`, iconURL: message.author.displayAvatarURL({ dynamic: true }) })
                             .setColor(guildSettings.color)
-                        resultMessage.edit({ embeds: [testEmbed], components: [invite] }).catch((err: any) => console.log(err))
+                        resultMessage.edit({ embeds: [testEmbed], components: [invite] }).catch((err: Error) => ErrorLog(message.guild!, "HISTORY_BACK_PAGE_FUNCTION", err, client, message, `${message.author.id}`, `history.ts`))
                     } else if (id === `forward.${i.user.id}`) {
                         if (numbers === bitches.length) { return }
                         numbers = numbers + 1;
@@ -77,7 +78,7 @@ try {
                             .setDescription(`${bitches[numbers]}`)
                             .setFooter({ text: `Requested by ${message.author.tag}`, iconURL: message.author.displayAvatarURL({ dynamic: true }) })
                             .setColor(guildSettings.color)
-                        resultMessage.edit({ embeds: [testEmbed], components: [invite] }).catch((err: any) => console.log(err))
+                        resultMessage.edit({ embeds: [testEmbed], components: [invite] }).catch((err: Error) => ErrorLog(message.guild!, "HISTORY_FORWARD_PAGE_FUNCTION", err, client, message, `${message.author.id}`, `history.ts`))
                     } else if (id === `close.${i.user.id}`) {
                         invite.components[0].setDisabled(true)
                         invite.components[1].setDisabled(true)
@@ -87,7 +88,7 @@ try {
                             .setDescription(`${bitches[numbers]}`)
                             .setFooter({ text: `Requested by ${message.author.tag}`, iconURL: message.author.displayAvatarURL({ dynamic: true }) })
                             .setColor(guildSettings.color)
-                        resultMessage.edit({ embeds: [testEmbed], components: [invite] }).catch((err: any) => console.log(err))
+                        resultMessage.edit({ embeds: [testEmbed], components: [invite] }).catch((err: Error) => ErrorLog(message.guild!, "HISTORY_FORCE_END_INTERACTION", err, client, message, `${message.author.id}`, `history.ts`))
                     }
                 })
                 Buttoncollector.on('end', async (i: ButtonInteraction) => {
@@ -99,13 +100,14 @@ try {
                         .setDescription(`${bitches[numbers]}`)
                         .setFooter({ text: `Requested by ${message.author.tag} - Interaction Timed Out`, iconURL: message.author.displayAvatarURL({ dynamic: true }) })
                         .setColor(guildSettings.color)
-                    resultMessage.edit({ embeds: [testEmbed], components: [invite] }).catch((err: any) => console.log(err))
+                    resultMessage.edit({ embeds: [testEmbed], components: [invite] }).catch((err: Error) => ErrorLog(message.guild!, "HIASTORY_INTERACTION_END", err, client, message, `${message.author.id}`, `history.ts`))
 
                 })
-            }).catch((err: any) => console.log(err))
-
-        },
-    }
-} catch (err) {
-    console.error(err)
+            }).catch((err: Error) => ErrorLog(message.guild!, "HISTORY_THEN_FUNCTION", err, client, message, `${message.author.id}`, `history.ts`))
+        } catch {
+            (err: Error) => {
+                ErrorLog(message.guild!, "HISTORY_COMMAND", err, client, message, `${message.author.id}`, `history.ts`)
+            }
+        }
+    },
 }

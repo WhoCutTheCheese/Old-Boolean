@@ -1,41 +1,42 @@
 import { ButtonInteraction, Client, Message, MessageActionRow, MessageEmbed, MessageSelectMenu, } from 'discord.js';
 import Guild from "../../models/guild";
-try {
-    module.exports = {
-        commands: ['help'],
-        minArgs: 0,
-        maxArgs: 1,
-        cooldown: 2,
-        expectedArgs: ["(Command/Category)"],
-        callback: async (client: Client, bot: { version: string }, message: Message, args: string[]) => {
+import ErrorLog from "../../functions/errorlog";
+module.exports = {
+    commands: ['help'],
+    minArgs: 0,
+    maxArgs: 1,
+    cooldown: 2,
+    expectedArgs: ["(Command/Category)"],
+    callback: async (client: Client, bot: { version: string }, message: Message, args: string[]) => {
+        try {
             const guildSettings = await Guild.findOne({
                 guildID: message.guild?.id
             })
             const row = new MessageActionRow().addComponents(
                 new MessageSelectMenu()
-                .setCustomId(`help-menu.${message.author.id}`)
-                .setPlaceholder("Select a command category!")
-                .addOptions([{
-                    label: "User Commands",
-                    value: "first",
-                    emoji: "🎮",
-                }, {
-                    label: "Mod Commands",
-                    value: "second",
-                    emoji: "🔨",
-                }, {
-                    label: "Config Commands",
-                    value: "third",
-                    emoji: "⚙",
-                }, {
-                    label: "Admin Commands",
-                    value: "forth",
-                    emoji: "☄",
-                }, {
-                    label: "Change Log",
-                    value: "fifth",
-                    emoji: "⬆",
-                }]))
+                    .setCustomId(`help-menu.${message.author.id}`)
+                    .setPlaceholder("Select a command category!")
+                    .addOptions([{
+                        label: "User Commands",
+                        value: "first",
+                        emoji: "🎮",
+                    }, {
+                        label: "Mod Commands",
+                        value: "second",
+                        emoji: "🔨",
+                    }, {
+                        label: "Config Commands",
+                        value: "third",
+                        emoji: "⚙",
+                    }, {
+                        label: "Admin Commands",
+                        value: "forth",
+                        emoji: "☄",
+                    }, {
+                        label: "Change Log",
+                        value: "fifth",
+                        emoji: "⬆",
+                    }]))
             switch (args[0]) {
                 case "ping":
                 case "p":
@@ -280,8 +281,10 @@ try {
                         })
                     })
             }
-        },
-    }
-} catch (err) {
-    console.log(err)
+        } catch {
+            (err: Error) => {
+                ErrorLog(message.guild!, "HELP_COMMAND", err, client, message, `${message.author.id}`, `help.ts`)
+            }
+        }
+    },
 }

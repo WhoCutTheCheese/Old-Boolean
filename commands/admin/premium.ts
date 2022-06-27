@@ -1,12 +1,12 @@
 import { MessageEmbed, Client, Message } from 'discord.js';
-const Tokens = require('../../models/tokens');
+import Tokens from "../../models/tokens";
 import Guild from "../../models/guild";
 module.exports = {
     commands: ["premium"],
     minArgs: 1,
     maxArgs: 1,
     expectedArgs: "[Redeem/Revoke/Status/Balance]",
-    userPermissions: [ "MANAGE_GUILD" ],
+    userPermissions: ["MANAGE_GUILD"],
     callback: async (client: Client, bot: { version: string }, message: Message, args: string[]) => {
         const hasToken = await Tokens.findOne({
             userID: message.author.id,
@@ -40,7 +40,8 @@ module.exports = {
                     .setTitle("Premium Enabled")
                     .setColor(guildSettings.color)
                     .setDescription("Thank you for supporting Boolean! You can revoke premium to get your token back at any time.")
-                    .setFooter({ text: "Premium enabled by " + message.author.tag, iconURL: message.author.displayAvatarURL({ dynamic: true })
+                    .setFooter({
+                        text: "Premium enabled by " + message.author.tag, iconURL: message.author.displayAvatarURL({ dynamic: true })
                     })
                 message.channel.send({ embeds: [premiumEnabled] })
                 break;

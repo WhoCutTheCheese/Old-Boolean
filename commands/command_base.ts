@@ -1,7 +1,8 @@
-import { Client, Message } from 'discord.js';
+import { Client, Message, Permissions } from 'discord.js';
 import mongoose from 'mongoose';
 import GuildSchema from "../models/guild";
 import ConfigSchema from "../models/cases";
+import ErrorLog from "../functions/errorlog";
 const validatePermissions = (userPermissions: any) => {
     const validPermissions = [
         'CREATE_INSTANT_INVITE',
@@ -75,9 +76,8 @@ module.exports = (commandOptions: { commands: any; userPermissions?: never[] | u
 const bot = require('../package.json')
 const talkedRecently = new Set();
 module.exports.listen = (client: any) => {
-    try {
-        client.on('messageCreate', async (message: Message) => {
-            
+    client.on('messageCreate', async (message: Message) => {
+        try {
             const { member, content, guild } = message
             GuildSchema.findOne({
                 guildID: message.guild?.id
@@ -94,35 +94,18 @@ module.exports.listen = (client: any) => {
                         totalCases: 0,
                     })
                     newGuild.save()
-                        .catch((err: any) => console.error(err))
-                        message.channel.send({ content: "Uh Oh! This server doesn't have a file! I'm creating one for you now." })
-                        return;       
+                        .catch((err: Error) => ErrorLog(message.guild!, "NEW_GUILD_FILE_SAVE", err, client, message, `${message.author.id}`, `command_base.ts`))
+                    message.channel.send({ content: "Uh Oh! This server doesn't have a file! I'm creating one for you now." }).catch((err: Error) => ErrorLog(message.guild!, "NO_FILE", err, client, message, `${message.author.id}`, `command_base.ts`))
                 }
             }));
-            const config = ConfigSchema.findOne({
-                guildID: message.guild?.id,
-            }, (err: any, config: any) => {
-                if (err) console.error(err)
-                if (!config) {
-                    const newConfig = new ConfigSchema({
-                        _id: new mongoose.Types.ObjectId(),
-                        guildID: message.guild?.id,
-                        muteRoleID: "None",
-                        modLogChannel: "None",
-                        joinRoleID: "None",
-                        modRoleID: [],
-                        adminRoleID: [],
-                    });
-                    newConfig.save()
-                        .catch((err: any) => console.error(err))
-                };
-                return;
-            });
             const serverSettings = await GuildSchema.findOne({
                 guildID: message.guild?.id
             })
+            const configFiles = await ConfigSchema.findOne({
+                guildID: message.guild?.id
+            })
             let prefix
-            if(!serverSettings) {
+            if (!serverSettings) {
                 prefix = "!!"
             } else {
                 prefix = serverSettings.prefix
@@ -137,7 +120,7 @@ module.exports.listen = (client: any) => {
                 if (!command) {
                     return
                 }
-                const {
+                let {
                     userPermissions,
                     permissionError = 'You do not have permission to execute this command.',
                     requiredRoles = [],
@@ -151,32 +134,31 @@ module.exports.listen = (client: any) => {
                 // A command has been ran
                 if (devOnly === true) {
                     if (message.author.id !== "493453098199547905") {
-                        return message.channel.send({ content: "This command is currently disabled! Join our support server for more information." })
+                        return message.channel.send({ content: "This command is currently disabled! Join our support server for more information." }).catch((err: Error) => ErrorLog(message.guild!, "DEV_ONLY_MESSAGE", err, client, message, `${message.author.id}`, `command_base.ts`))
                     }
                 }
 
+
                 // Ensure the user has the required permissions
+
                 for (const _permission of userPermissions) {
                     if (!member?.permissions.has(userPermissions)) {
-                        message.reply({ content: permissionError }).catch((err: any) => console.log(err));
+                        message.reply({ content: permissionError }).catch((err: Error) => ErrorLog(message.guild!, "PERMISSION_ERROR_MESSAGE", err, client, message, `${message.author.id}`, `command_base.ts`));
                         return
                     }
                 }
 
                 // Ensure the user has the required roles
                 for (const requiredRole of requiredRoles) {
-                    const role = guild?.roles.cache.find(
-                        (role: { name: any; }) => role.name === requiredRole
-                    )
+                    const role = guild?.roles.cache.find((role: { name: any; }) => role.name === requiredRole)
 
                     if (!role || !member?.roles.cache.has(role.id)) {
                         message.reply({
                             content: `You must have the "${requiredRole}" role to use this command.`
-                        }).catch((err: any) => console.log(err));
+                        }).catch((err: Error) => ErrorLog(message.guild!, "REQUIRED_ROLES_MESSAGE", err, client, message, `${message.author.id}`, `command_base.ts`));
                         return
                     }
                 }
-
                 // Ensure we have the correct number of args
                 if (
                     args.length < minArgs ||
@@ -184,12 +166,12 @@ module.exports.listen = (client: any) => {
                 ) {
                     message.reply({
                         content: `Incorrect syntax! Use ${name} ${expectedArgs}`
-                    }).catch((err: any) => console.log(err));
+                    }).catch((err: any) => ErrorLog(message.guild!, "ARGS_MESSAGE", err, client, message, `${message.author.id}`, `command_base.ts`));
                     return
                 }
 
                 if (talkedRecently.has(message.author.id)) {
-                    return message.channel.send({ content: `You must wait ${cooldown} second(s) before using this again!` }).catch((err: any) => console.log(err));
+                    return message.channel.send({ content: `You must wait ${cooldown} second(s) before using this again!` }).catch((err: Error) => ErrorLog(message.guild!, "COOLDOWN_MESSAGE", err, client, message, `${message.author.id}`, `command_base.ts`));
                 } else {
                     talkedRecently.add(message.author.id);
                     setTimeout(() => {
@@ -197,12 +179,12 @@ module.exports.listen = (client: any) => {
                         talkedRecently.delete(message.author.id);
                     }, cooldown * 1000);
                 }
-                
+
                 // Handle the custom command code
-                callback(client, bot, message, args, args.join(' '), client).catch((err: any) => console.log(err));
+                callback(client, bot, message, args, args.join(' '), client).catch((err: Error) => ErrorLog(message.guild!, "COMMAND_CALLBACK", err, client, message, `${message.author.id}`, `command_base.ts`));
             }
-        });
-    } catch (err) {
-        console.error(err)
-    }
+        } catch (err) {
+            ErrorLog(message.guild!, "MESSAGE_EVENT", err, client, message, `${message.author.id}`, `command_base.ts`)
+        }
+    });
 }

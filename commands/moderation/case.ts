@@ -1,6 +1,7 @@
 import { Client, Message, MessageActionRow, MessageButton, MessageEmbed, ButtonInteraction, Interaction } from "discord.js";
 import Guild from "../../models/guild";
 import Cases from "../../models/cases";
+import ErrorLog from "../../functions/errorlog";
 module.exports = {
     commands: ['case', 'findcase', 'lookup'],
     minArgs: 1,
@@ -8,6 +9,7 @@ module.exports = {
     cooldown: 1,
     userPermissions: ["MANAGE_MESSAGES"],
     callback: async (client: Client, bot: any, message: Message, args: string[]) => {
+        try {
         if(Number.isNaN(parseInt(args[0]))) { return message.channel.send({ content: "Invalid case number." }) }
         const guildSettigns = await Guild.findOne({
             guildID: message.guild?.id
@@ -28,6 +30,8 @@ module.exports = {
             .addField("Case Information", `**Mod:** <@${delCase.modID}>\n**Case Type:** ${delCase.caseType}\n**Reason:** ${delCase.caseReason}\n**Date:** <t:${Math.round(delCase.date / 1000)}:D>`)
             .setFooter({ text: `Requesred by ${message.author.tag}`, iconURL: message.author.displayAvatarURL({ dynamic: true }) || "" })
         message.channel.send({ embeds: [caseInfo] })
-        
+    } catch { (err: Error) => {
+        ErrorLog(message.guild!, "CASE_COMMAND", err, client, message, `${message.author.id}`, `case.ts`)
+    }}
     },
 }

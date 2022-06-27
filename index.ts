@@ -3,11 +3,10 @@ import Dotenv from 'dotenv';
 import fs from 'fs';
 import path from "path";
 import mongoose from "mongoose";
-const Tokens = require('./models/tokens');
-const GuildSchema = require("./models/guild");
-const ConfigSchema = require('./models/config');
+import Tokens from './models/tokens';
+import GuildSchema from "./models/guild";
+import ConfigSchema from "./models/config";
 Dotenv.config()
-
 const client = new Client({
     intents: [
         Intents.FLAGS.GUILDS,
@@ -112,4 +111,24 @@ client.on('guildDelete', async guild => {
         guildID: guild.id,
     })
 });
+client.on("messageCreate", async message => {
+    const config = ConfigSchema.findOne({
+        guildID: message.guild?.id,
+    }, (err: any, config: any) => {
+        if (err) console.error(err)
+        if (!config) {
+            const newConfig = new ConfigSchema({
+                _id: new mongoose.Types.ObjectId(),
+                guildID: message.guild?.id,
+                muteRoleID: "None",
+                modLogChannel: "None",
+                joinRoleID: "None",
+                modRoleID: [ "None" ],
+                adminRoleID: [ "None" ],
+            });
+            newConfig.save()
+                .catch((err: any) => console.error(err))
+        };
+    });
+})
 client.login(process.env.token);
