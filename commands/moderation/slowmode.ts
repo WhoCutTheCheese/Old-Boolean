@@ -7,6 +7,7 @@ module.exports = {
     maxArgs: 1,
     expectedArgs: "[Time-frame]",
     cooldown: 1,
+    staffPart: "Mod",
     userPermissions: ["MANAGE_MESSAGES"],
     callback: async (client: Client, bot: any, message: Message, args: string[]) => {
         try {

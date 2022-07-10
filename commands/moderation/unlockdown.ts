@@ -5,6 +5,7 @@ module.exports = {
     commands: ['unlockdown', 'uld'],
     minArgs: 0,
     cooldown: 5,
+    staffPart: "Mod",
     userPermissions: ["MANAGE_MESSAGES"],
     expectedArgs: "(#Channel || all)",
     callback: async (client: Client, bot: any, message: Message, args: string[]) => {

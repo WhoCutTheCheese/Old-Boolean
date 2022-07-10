@@ -6,6 +6,7 @@ module.exports = {
     minArgs: 1,
     maxArgs: 1,
     expectedArgs: "[Hex code]",
+    staffPart: "Admin",
     cooldown: 0,
     userPermissions: ['MANAGE_GUILD'],
     callback: async (client: Client, bot: { version: string }, message: Message, args: string[]) => {

@@ -8,6 +8,7 @@ module.exports = {
     maxArgs: 1,
     expectedArgs: "[Prefix]",
     cooldown: 10,
+    staffPart: "Admin",
     userPermissions: ['MANAGE_GUILD'],
     callback: async (client: Client, bot: { version: string }, message: Message, args: string[]) => {
         try {

@@ -7,7 +7,7 @@ module.exports = {
     minArgs: 0,
     maxArgs: 0,
     cooldown: 10,
-    allowedStaffRole: "Mod",
+    staffPart: "Admin",
     userPermissions: ["ADMINISTRATOR"],
     callback: async (client: Client, bot: { version: string }, message: Message, args: string[]) => {
         try {

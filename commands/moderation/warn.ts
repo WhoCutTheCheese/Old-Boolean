@@ -7,6 +7,7 @@ module.exports = {
     minArgs: 1,
     expectedArgs: "[@User/User ID] (Reason)",
     cooldown: 1,
+    staffPart: "Mod",
     userPermissions: ["MANAGE_MESSAGES"],
     callback: async (client: Client, bot: any, message: Message, args: string[]) => {
         try {

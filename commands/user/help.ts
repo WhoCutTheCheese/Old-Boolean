@@ -198,7 +198,7 @@ module.exports = {
                         .setColor(guildSettings.color)
                         .addField("User Commands", "`ping`, `userinfo`, `serverinfo`, `avatar`, `botinfo`, `invite`, `help`")
                         .addField("Moderation Commands", "`warn`, `mute`, `kick`, `ban`, `softban`, `history`, `purge`, `lockdown`, `unlockdown`, `delcase`, `reason`, `slowmode`, `nickname`")
-                        .addField("Config Commands", "`config`, `prefix`, `color`, `check`, `permission`, `modlogset`, `muterole`, `joinrole`")
+                        .addField("Config Commands", "`config`, `prefix`, `color`, `check`, `adminroleset`, `modroleset`, `modlogset`, `muterole`, `joinrole`")
                         .addField("Administration Commands", "`deleteallcases`, `premium`")
                         .setFooter({ text: `${message.guild?.name} - v${bot.version}`, iconURL: message.guild?.iconURL({ dynamic: true }) || "" })
                     message.channel.send({

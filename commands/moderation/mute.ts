@@ -6,6 +6,7 @@ import ErrorLog from "../../functions/errorlog";
 const ms = require('ms')
 module.exports = {
     commands: ['mute', 'm', 'silence'],
+    staffPart: "Mod",
     minArgs: 1,
     cooldown: 3,
     expectedArgs: "[@User/User ID] (Time || Reason) {Reason}",

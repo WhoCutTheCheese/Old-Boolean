@@ -1,7 +1,7 @@
 import { Client, Message, Permissions } from 'discord.js';
 import mongoose from 'mongoose';
 import GuildSchema from "../models/guild";
-import ConfigSchema from "../models/cases";
+import ConfigSchema from "../models/config";
 import ErrorLog from "../functions/errorlog";
 const validatePermissions = (userPermissions: any) => {
     const validPermissions = [
@@ -129,6 +129,7 @@ module.exports.listen = (client: any) => {
                     expectedArgs = [],
                     cooldown = 0,
                     devOnly = false,
+                    staffPart = "Everyone",
                     callback,
                 } = command
                 // A command has been ran
@@ -140,23 +141,39 @@ module.exports.listen = (client: any) => {
 
 
                 // Ensure the user has the required permissions
-
+                let hasPermission
                 for (const _permission of userPermissions) {
                     if (!member?.permissions.has(userPermissions)) {
-                        message.reply({ content: permissionError }).catch((err: Error) => ErrorLog(message.guild!, "PERMISSION_ERROR_MESSAGE", err, client, message, `${message.author.id}`, `command_base.ts`));
-                        return
+                        hasPermission = false
                     }
                 }
-
                 // Ensure the user has the required roles
-                for (const requiredRole of requiredRoles) {
-                    const role = guild?.roles.cache.find((role: { name: any; }) => role.name === requiredRole)
-
-                    if (!role || !member?.roles.cache.has(role.id)) {
-                        message.reply({
-                            content: `You must have the "${requiredRole}" role to use this command.`
-                        }).catch((err: Error) => ErrorLog(message.guild!, "REQUIRED_ROLES_MESSAGE", err, client, message, `${message.author.id}`, `command_base.ts`));
-                        return
+                let hasRoles
+                if (hasPermission === false) {
+                    if (staffPart === "Mod") {
+                        if (configFiles.modRoleID.length != 0) {
+                            requiredRoles = configFiles.modRoleID
+                        } else {
+                            return message.reply({ content: permissionError })
+                        }
+                    } else if (staffPart === "Admin") {
+                        if (configFiles.adminRoleID.length != 0) {
+                            requiredRoles = configFiles.adminRoleID
+                        } else {
+                            return message.reply({ content: permissionError })
+                        }
+                    }
+                    for (const requiredRole of requiredRoles) {
+                        const role = guild?.roles.cache.get(requiredRole);
+                        if (!member?.roles.cache.has(requiredRole)) {
+                           hasRoles = false
+                        } else {
+                            hasRoles = true
+                            break;
+                        }
+                    }
+                    if(hasRoles == false) {
+                        return message.reply({ content: permissionError });
                     }
                 }
                 // Ensure we have the correct number of args

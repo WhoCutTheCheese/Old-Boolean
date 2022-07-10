@@ -6,6 +6,7 @@ module.exports = {
     commands: ['kick', 'k'],
     minArgs: 1,
     expectedArgs: "[@User/User ID] (Reason)",
+    staffPart: "Mod",
     cooldown: 2,
     userPermissions: ["MANAGE_MESSAGES"],
     callback: async (client: Client, bot: any, message: Message, args: string[]) => {

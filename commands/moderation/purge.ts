@@ -5,6 +5,7 @@ module.exports = {
     minArgs: 1,
     maxArgs: 1,
     userPermission: ["MANAGE_MESSAGES"],
+    staffPart: "Mod",
     expectedArgs: "[Limit]",
     callback: async (client: Client, bot: any, message: Message, args: string[]) => {
         try {
