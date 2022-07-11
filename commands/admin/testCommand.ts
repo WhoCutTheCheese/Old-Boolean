@@ -9,13 +9,8 @@ module.exports = {
     cooldown: 0,
     devOnly: true,
     callback: async (client: Client, bot: { version: string }, message: Message, args: string[]) => {
-        try {
-            const person = message.guild?.members.cache.get("493453098199547905")
-            person?.kick().catch((err: Error) => ErrorLog(message.guild!, "TEST_COMMAND_KICK_FUNCTION", err, client, message, `${message.author.id}`, `testCommand.ts`))
-        } catch {
-            (err: Error) => {
-                ErrorLog(message.guild!, "TEST_COMMAND", err, client, message, `${message.author.id}`, `testCommand.ts`)
-            }
-        }
+        const exDate = new Date();
+        exDate.setMinutes(exDate.getMinutes() - 100)
+        if(exDate < new Date()) { console.log("Yes.") }
     },
 }

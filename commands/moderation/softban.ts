@@ -12,10 +12,11 @@ module.exports = {
     callback: async (client: Client, bot: any, message: Message, args: string[]) => {
         try {
             if (!message.guild?.me?.permissions.has(Permissions.FLAGS.BAN_MEMBERS)) {
-                return message.channel.send({ content: "I don't have permission to edit slowmode! Run **!!check** to finish setting me up!" })
+                return message.channel.send({ content: "I don't have permission to ban members! Run **!!check** to finish setting me up!" })
             }
             let banUser = message.mentions.members?.first() || message.guild?.members.cache.get(args[0]);
             if (!banUser) { return message.channel.send({ content: "I was unable to find that user!" }) }
+            if (banUser.roles.highest.position >= message.member!.roles.highest.position) { return message.channel.send({ content: "You cannot issue punishments to users above or equal to you." }) }
             if (banUser.id === message.author.id) { return message.channel.send({ content: "You cannot issue punishments to yourself." }) }
             const guildSettings = await Guild.findOne({
                 guildID: message.guild?.id,
@@ -46,9 +47,8 @@ module.exports = {
                 }, {
                     totalCases: caseNumberSet,
                 })
-                if (banUser.roles.highest.position > message.member!.roles.highest.position) { return message.channel.send({ content: "You may not issue punishments to a user higher then you." }) }
                 if (banUser.id === message.guild.ownerId) { return message.channel.send({ content: "Unable to issue punishments to this user!" }) }
-                if (!banUser.bannable) { return message.channel.send({ content: "I am unable to ban this user, make I have valid permissions and this user is not above you!" }) }
+                if (!banUser.bannable) { return message.channel.send({ content: "I am unable to ban this user!" }) }
                 const warnEmbed = new MessageEmbed()
                     .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Reason:** ${reason}`)
                     .setColor(guildSettings.color)
@@ -77,7 +77,6 @@ module.exports = {
                 }, {
                     totalCases: caseNumberSet,
                 })
-                if (banUser.roles.highest.position > message.member!.roles.highest.position) { return message.channel.send({ content: "You may not issue punishments to a user higher then you." }) }
                 const warnEmbed = new MessageEmbed()
                     .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Reason:** ${reason}`)
                     .setColor(guildSettings.color)

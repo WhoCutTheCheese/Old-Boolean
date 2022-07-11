@@ -1,4 +1,4 @@
-import { Client, Intents, Message } from 'discord.js';
+import { Client, Intents, Message, User } from 'discord.js';
 import Dotenv from 'dotenv';
 import fs from 'fs';
 import path from "path";
@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 import Tokens from './models/tokens';
 import GuildSchema from "./models/guild";
 import ConfigSchema from "./models/config";
-Dotenv.config()
+import Bans from "./models/ban";
 const client = new Client({
     intents: [
         Intents.FLAGS.GUILDS,
@@ -40,12 +40,23 @@ client.on('ready', async () => {
         }
     }
 
+    setInterval(check, 1000 * 60);
+
     readCommands('commands')
     commandBase.listen(client);
-    await mongoose.connect(`${process.env.mongoose}`, { keepAlive: true })
+    await mongoose.connect(`mongodb+srv://SmartSky:CheeseCake101@booleanstorage.3ud4r.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`, { keepAlive: true })
     console.log("Boolean has started!")
 });
-
+import Config from "./models/config";
+client.on('guildMemberAdd', async member => {
+    const nonGuildMember = client.users.cache.get(member.id)
+    if(nonGuildMember?.bot) { return; }
+    const configSettings = await Config.findOne({
+        guildID: member.guild.id,
+    })
+    if(configSettings.joinRoleID === "None") { return; }
+    member.roles.add(configSettings.joinRoleID)
+})
 client.on('guildCreate', async guild => {
     const serverSettings = await GuildSchema.findOne({
         guildID: guild.id
@@ -131,4 +142,22 @@ client.on("messageCreate", async message => {
         };
     });
 })
+const check = async () => {
+    const results = await Bans.find({
+        caseEndDate: { $lt: new Date() },
+    })
+    if(!results) { return; }
+    for (const result of results) {
+        const { guildID, userID } = result
+        const guild = await client.guilds.fetch(guildID);
+        await Bans.deleteMany({
+            caseEndDate: { $lt: new Date() },
+        })
+        guild.members.unban(userID).catch((err: Error) => console.error(err))
+
+    }
+
+
+}
+check()
 client.login(process.env.token);
