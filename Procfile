@@ -1,1 +1,1 @@
-web: ts-node index.ts
+worker: ts-node index.ts
