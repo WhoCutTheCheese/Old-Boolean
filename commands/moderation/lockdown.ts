@@ -2,7 +2,7 @@ import { MessageEmbed, Client, Message, TextChannel, Permissions } from 'discord
 import Guild from "../../models/guild";
 import ErrorLog from "../../functions/errorlog";
 module.exports = {
-    commands: ['lockdown', 'ld'],
+    commands: ['lockdown', 'ld', 'lock'],
     minArgs: 0,
     cooldown: 5,
     staffPart: "Admin",

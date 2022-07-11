@@ -8,7 +8,7 @@ module.exports = {
     expectedArgs: "[@User/User ID] (Reason)",
     staffPart: "Mod",
     cooldown: 2,
-    userPermissions: ["MANAGE_MESSAGES"],
+    userPermissions: ["KICK_MEMBERS"],
     callback: async (client: Client, bot: any, message: Message, args: string[]) => {
         try {
             if (!message.guild?.me?.permissions.has(Permissions.FLAGS.KICK_MEMBERS)) { return message.channel.send({ content: "I don't have permission to kick! Run **!!check** to finish setting me up!" }) }

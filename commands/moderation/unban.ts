@@ -19,6 +19,7 @@ module.exports = {
             let banUser = await client.users.fetch(args[0]).catch((err) => message.channel.send({ content: "Unknown user!" }).then(() => console.log(err)));
             if (banUser?.id === message.author.id) { return message.channel.send({ content: "You're not banned..." }) }
             message.guild.members.unban(banUser!.id).then((user: any) => {
+                ModLog(true, 0, message.guild?.id, "Unban", message.author.id, message, client, Date.now())
                 return message.channel.send("Member unbanned!")
             }).catch((err: Error) => {
                 return message.channel.send("Member is not banned or doesn't exist!")

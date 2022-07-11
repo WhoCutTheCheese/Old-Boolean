@@ -14,14 +14,14 @@ module.exports = {
         const guildSettings = await Guild.findOne({
             guildID: message.guild?.id,
         })
-        if (!hasToken) {
-            return message.channel.send({ content: "You don't have any premium tokens!" })
-        }
-        if (hasToken.tokens === 0) {
-            return message.channel.send({ content: "You don't have any premium tokens!" })
-        }
         switch (args[0]) {
             case "redeem":
+                if (!hasToken) {
+                    return message.channel.send({ content: "You don't have any premium tokens!" })
+                }
+                if (hasToken.tokens === 0) {
+                    return message.channel.send({ content: "You don't have any premium tokens!" })
+                }
                 if (guildSettings.premium === true) {
                     return message.channel.send({ content: "This guild already has premium enabled! " })
                 }

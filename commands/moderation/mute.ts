@@ -10,6 +10,7 @@ module.exports = {
     minArgs: 1,
     cooldown: 3,
     expectedArgs: "[@User/User ID] (Time || Reason) {Reason}",
+    userPermissions: ["MODERATE_MEMBERS"],
     callback: async (client: Client, bot: any, message: Message, args: string[]) => {
         try {
             if (!message.guild?.me?.permissions.has(Permissions.FLAGS.MODERATE_MEMBERS) || !message.guild?.me?.permissions.has(Permissions.FLAGS.MANAGE_ROLES)) {

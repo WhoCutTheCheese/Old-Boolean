@@ -7,7 +7,7 @@ module.exports = {
     expectedArgs: "[@User/User ID] [New Name || Reset]",
     staffPart: "Mod",
     cooldown: 2,
-    userPermissions: ["MANAGE_MESSAGES"],
+    userPermissions: ["MANAGE_NICKNAMES"],
     callback: async (client: Client, bot: any, message: Message, args: string[]) => {
         try {
             if (!message.guild?.me?.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES)) {

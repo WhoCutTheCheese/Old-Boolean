@@ -95,7 +95,7 @@ module.exports.listen = (client: any) => {
                     })
                     newGuild.save()
                         .catch((err: Error) => ErrorLog(message.guild!, "NEW_GUILD_FILE_SAVE", err, client, message, `${message.author.id}`, `command_base.ts`))
-                    message.channel.send({ content: "Uh Oh! This server doesn't have a file! I'm creating one for you now." }).catch((err: Error) => ErrorLog(message.guild!, "NO_FILE", err, client, message, `${message.author.id}`, `command_base.ts`))
+                        .then(message.channel.send({ content: "Uh Oh! This server doesn't have a file! I'm creating one for you now." }).catch((err: Error) => ErrorLog(message.guild!, "NO_FILE", err, client, message, `${message.author.id}`, `command_base.ts`)))
                 }
             }));
             const serverSettings = await GuildSchema.findOne({
@@ -134,7 +134,8 @@ module.exports.listen = (client: any) => {
                 } = command
                 // A command has been ran
                 if (devOnly === true) {
-                    if (message.author.id !== "493453098199547905") {
+                    const devs = ["648598769449041946", "493453098199547905"]
+                    if (!devs.includes(message.author.id)) {
                         return message.channel.send({ content: "This command is currently disabled! Join our support server for more information." }).catch((err: Error) => ErrorLog(message.guild!, "DEV_ONLY_MESSAGE", err, client, message, `${message.author.id}`, `command_base.ts`))
                     }
                 }
@@ -198,6 +199,7 @@ module.exports.listen = (client: any) => {
                 }
 
                 // Handle the custom command code
+                talkedRecently.clear()
                 callback(client, bot, message, args, args.join(' '), client).catch((err: Error) => ErrorLog(message.guild!, "COMMAND_CALLBACK", err, client, message, `${message.author.id}`, `command_base.ts`));
             }
         } catch (err) {

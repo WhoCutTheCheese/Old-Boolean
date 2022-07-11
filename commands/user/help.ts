@@ -144,7 +144,7 @@ module.exports = {
                         .setTitle("🛠 Warn Help")
                         .setColor(guildSettings.color)
                         .setDescription("Issue a warning to a user.\n<:arrow_right:967329549912248341> **Usage:** `warn [@User/User ID] (Reason)`\n<:arrow_right:967329549912248341> **Aliases** `warn`, `w`\n<:arrow_right:967329549912248341> **Cooldown** `1s`")
-                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `MANAGE_MESSAGES`\n<:arrow:974101312818004009> **Allowed Role(s):** PLACEHOLDER\n<:arrow:974101312818004009> **Warns Til Mute:** `PLACEHOLDER NUMBER`")
+                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `MANAGE_MESSAGES`\n<:arrow:974101312818004009> **Allowed Role(s):** \`MODERATORS\`")
                         .setFooter({
                             text: `Requested by ${message.author.tag}`,
                             iconURL: message.author.displayAvatarURL({
@@ -162,7 +162,7 @@ module.exports = {
                         .setTitle("🛠 Mute Help")
                         .setColor(guildSettings.color)
                         .setDescription("Prevent a user from talking for an amount of time.\n<:arrow_right:967329549912248341> **Usage:** `mute [@User/User ID] (Time || Reason) {Reason}`\n<:arrow_right:967329549912248341> **Aliases** `mute`, `m`, `silence`\n<:arrow_right:967329549912248341> **Cooldown** `1s`")
-                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `MODERATE_MEMBERS`\n<:arrow:974101312818004009> **Allowed Role(s):** PLACEHOLDER\n<:arrow:974101312818004009> **Warns Til Mute:** `PLACEHOLDER NUMBER`")
+                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `MODERATE_MEMBERS`\n<:arrow:974101312818004009> **Allowed Role(s):** \`MODERATORS\`\n<:arrow:974101312818004009> **Warns Til Mute:** `PLACEHOLDER NUMBER`")
                         .setFooter({
                             text: `Requested by ${message.author.tag}`,
                             iconURL: message.author.displayAvatarURL({
@@ -179,7 +179,7 @@ module.exports = {
                         .setTitle("🛠 Kick Help")
                         .setColor(guildSettings.color)
                         .setDescription("Kick a user from the guild.\n<:arrow_right:967329549912248341> **Usage:** `mute [@User/User ID] (Reason)`\n<:arrow_right:967329549912248341> **Aliases** `mute`, `m`, `silence`\n<:arrow_right:967329549912248341> **Cooldown** `1s`")
-                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `MODERATE_MEMBERS`\n<:arrow:974101312818004009> **Allowed Role(s):** PLACEHOLDER\n<:arrow:974101312818004009> **Warns Till Mute:** `PLACEHOLDER NUMBER`")
+                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `KICK_MEMBERS`\n<:arrow:974101312818004009> **Allowed Role(s):** \`MODERATORS\`")
                         .setFooter({
                             text: `Requested by ${message.author.tag}`,
                             iconURL: message.author.displayAvatarURL({
@@ -190,6 +190,214 @@ module.exports = {
                         embeds: [kickHelpEmbed]
                     })
                     break;
+                case "unmute":
+                case "um":
+                    const unmuteEmbed = new MessageEmbed()
+                        .setTitle("🛠 Unmute Help")
+                        .setColor(guildSettings.color)
+                        .setDescription("Unmute a user.\n<:arrow_right:967329549912248341> **Usage:** `unmute [@User/User ID]`\n<:arrow_right:967329549912248341> **Aliases** `unmute`, `um`\n<:arrow_right:967329549912248341> **Cooldown** `1s`")
+                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `MODERATE_MEMBERS`\n<:arrow:974101312818004009> **Allowed Role(s):** \`MODERATORS\`")
+                        .setFooter({
+                            text: `Requested by ${message.author.tag}`,
+                            iconURL: message.author.displayAvatarURL({
+                                dynamic: true
+                            })
+                        })
+                    message.channel.send({
+                        embeds: [unmuteEmbed]
+                    })
+                    break;
+                case "unban":
+                case "ub":
+                    const unbanEmbed = new MessageEmbed()
+                        .setTitle("🛠 Unban Help")
+                        .setColor(guildSettings.color)
+                        .setDescription("Unban a user.\n<:arrow_right:967329549912248341> **Usage:** `unban [@User/User ID]`\n<:arrow_right:967329549912248341> **Aliases** `unban`, `ub`\n<:arrow_right:967329549912248341> **Cooldown** `1s`")
+                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `BAN_MEMBERS`\n<:arrow:974101312818004009> **Allowed Role(s):** \`MODERATORS\`")
+                        .setFooter({
+                            text: `Requested by ${message.author.tag}`,
+                            iconURL: message.author.displayAvatarURL({
+                                dynamic: true
+                            })
+                        })
+                    message.channel.send({
+                        embeds: [unbanEmbed]
+                    })
+                    break;
+                case "ban":
+                case "b":
+                    const banEmbed = new MessageEmbed()
+                        .setTitle("🛠 Ban Help")
+                        .setColor(guildSettings.color)
+                        .setDescription("Ban a user.\n<:arrow_right:967329549912248341> **Usage:** `unban [@User/User ID] (Time || Reason) {Reason}`\n<:arrow_right:967329549912248341> **Aliases** `ban`, `b`\n<:arrow_right:967329549912248341> **Cooldown** `1s`")
+                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `BAN_MEMBERS`\n<:arrow:974101312818004009> **Allowed Role(s):** \`MODERATORS\`")
+                        .setFooter({
+                            text: `Requested by ${message.author.tag}`,
+                            iconURL: message.author.displayAvatarURL({
+                                dynamic: true
+                            })
+                        })
+                    message.channel.send({
+                        embeds: [banEmbed]
+                    })
+                    break;
+                case "softban":
+                case "sb":
+                    const softBanEmbed = new MessageEmbed()
+                        .setTitle("🛠 SoftBan Help")
+                        .setColor(guildSettings.color)
+                        .setDescription("Bans an immediately unbans a member to clear all their messages.\n<:arrow_right:967329549912248341> **Usage:** `unban [@User/User ID] (Days to Delete)`\n<:arrow_right:967329549912248341> **Aliases** `softban`, `sb`\n<:arrow_right:967329549912248341> **Cooldown** `1s`")
+                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `BAN_MEMBERS`\n<:arrow:974101312818004009> **Allowed Role(s):** \`MODERATORS\`")
+                        .setFooter({
+                            text: `Requested by ${message.author.tag}`,
+                            iconURL: message.author.displayAvatarURL({
+                                dynamic: true
+                            })
+                        })
+                    message.channel.send({
+                        embeds: [softBanEmbed]
+                    })
+                    break;
+                case "history":
+                case "h":
+                    const historyHelpEmbed = new MessageEmbed()
+                        .setTitle("🛠 History Help")
+                        .setColor(guildSettings.color)
+                        .setDescription("Show a user's punishment history.\n<:arrow_right:967329549912248341> **Usage:** `history (@User/User ID)`\n<:arrow_right:967329549912248341> **Aliases** `history`, `h`\n<:arrow_right:967329549912248341> **Cooldown** `5s`")
+                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `MANAGE_MESSAGES`\n<:arrow:974101312818004009> **Allowed Role(s):** \`MODERATORS\`")
+                        .setFooter({
+                            text: `Requested by ${message.author.tag}`,
+                            iconURL: message.author.displayAvatarURL({
+                                dynamic: true
+                            })
+                        })
+                    message.channel.send({
+                        embeds: [historyHelpEmbed]
+                    })
+                    break;
+                case "purge":
+                case "clear":
+                    const purgeHelpEmbed = new MessageEmbed()
+                        .setTitle("🛠 Purge Help")
+                        .setColor(guildSettings.color)
+                        .setDescription("Clear a number of messages.\n<:arrow_right:967329549912248341> **Usage:** `purge [Number]`\n<:arrow_right:967329549912248341> **Aliases** `purge`, `clear`\n<:arrow_right:967329549912248341> **Cooldown** `5s`")
+                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `MANAGE_MESSAGES`\n<:arrow:974101312818004009> **Allowed Role(s):** \`MODERATORS\`")
+                        .setFooter({
+                            text: `Requested by ${message.author.tag}`,
+                            iconURL: message.author.displayAvatarURL({
+                                dynamic: true
+                            })
+                        })
+                    message.channel.send({
+                        embeds: [purgeHelpEmbed]
+                    })
+                    break;
+                case "lockdown":
+                case "ld":
+                case "lock":
+                    const lockdownHelp = new MessageEmbed()
+                        .setTitle("🛠 Lockdown Help")
+                        .setColor(guildSettings.color)
+                        .setDescription("Sets perms for \@everyone to :x: in that channel.\n<:arrow_right:967329549912248341> **Usage:** `lockdown [#channel || Channel ID]`\n<:arrow_right:967329549912248341> **Aliases** `lockdown`, `ld`, `lock`\n<:arrow_right:967329549912248341> **Cooldown** `5s`")
+                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `MANAGE_MESSAGES`\n<:arrow:974101312818004009> **Allowed Role(s):** \`MODERATORS\`")
+                        .setFooter({
+                            text: `Requested by ${message.author.tag}`,
+                            iconURL: message.author.displayAvatarURL({
+                                dynamic: true
+                            })
+                        })
+                    message.channel.send({
+                        embeds: [lockdownHelp]
+                    })
+                    break;
+                case "unlockdown":
+                case "uld":
+                case "unlock":
+                    const unLockdownHelp = new MessageEmbed()
+                        .setTitle("🛠 Unlockdown Help")
+                        .setColor(guildSettings.color)
+                        .setDescription("Sets perms for \@everyone to :check: in that channel.\n<:arrow_right:967329549912248341> **Usage:** `unlockdown [#channel || Channel ID]`\n<:arrow_right:967329549912248341> **Aliases** `unlockdown`, `uld`, `unlock`\n<:arrow_right:967329549912248341> **Cooldown** `5s`")
+                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `MANAGE_MESSAGES`\n<:arrow:974101312818004009> **Allowed Role(s):** \`MODERATORS\`")
+                        .setFooter({
+                            text: `Requested by ${message.author.tag}`,
+                            iconURL: message.author.displayAvatarURL({
+                                dynamic: true
+                            })
+                        })
+                    message.channel.send({
+                        embeds: [unLockdownHelp]
+                    })
+                    break;
+                case "delcase":
+                case "unwarn":
+                    const delcaseHelp = new MessageEmbed()
+                        .setTitle("🛠 Delcase Help")
+                        .setColor(guildSettings.color)
+                        .setDescription("Delete a case from a user's history.\n<:arrow_right:967329549912248341> **Usage:** `delcase [@User || User ID] [Case Number]`\n<:arrow_right:967329549912248341> **Aliases** `delcalse`, `unwarn`\n<:arrow_right:967329549912248341> **Cooldown** `5s`")
+                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `MANAGE_MESSAGES`\n<:arrow:974101312818004009> **Allowed Role(s):** \`MODERATORS\`")
+                        .setFooter({
+                            text: `Requested by ${message.author.tag}`,
+                            iconURL: message.author.displayAvatarURL({
+                                dynamic: true
+                            })
+                        })
+                    message.channel.send({
+                        embeds: [delcaseHelp]
+                    })
+                    break;
+                case "reason":
+                case "r":
+                    const reasonHelp = new MessageEmbed()
+                        .setTitle("🛠 Reason Help")
+                        .setColor(guildSettings.color)
+                        .setDescription("Change the reason of a case.\n<:arrow_right:967329549912248341> **Usage:** `reason [Case Number] [New Reason]`\n<:arrow_right:967329549912248341> **Aliases** `reason`, `r`\n<:arrow_right:967329549912248341> **Cooldown** `5s`")
+                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `MANAGE_MESSAGES`\n<:arrow:974101312818004009> **Allowed Role(s):** \`MODERATORS\`")
+                        .setFooter({
+                            text: `Requested by ${message.author.tag}`,
+                            iconURL: message.author.displayAvatarURL({
+                                dynamic: true
+                            })
+                        })
+                    message.channel.send({
+                        embeds: [reasonHelp]
+                    })
+                    break;
+                case "slowmode":
+                case "slow":
+                case "cooldown":
+                    const slowmodeHelp = new MessageEmbed()
+                        .setTitle("🛠 Slowmode Help")
+                        .setColor(guildSettings.color)
+                        .setDescription("Set the slowmode of a channel.\n<:arrow_right:967329549912248341> **Usage:** `slowmode [Number (in seconds)]`\n<:arrow_right:967329549912248341> **Aliases** `slowmode`, `slow`, `cooldown`\n<:arrow_right:967329549912248341> **Cooldown** `5s`")
+                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `MANAGE_MESSAGES`\n<:arrow:974101312818004009> **Allowed Role(s):** \`MODERATORS\`")
+                        .setFooter({
+                            text: `Requested by ${message.author.tag}`,
+                            iconURL: message.author.displayAvatarURL({
+                                dynamic: true
+                            })
+                        })
+                    message.channel.send({
+                        embeds: [slowmodeHelp]
+                    })
+                    break;
+                case "nickname":
+                case "nick":
+                case "n":
+                    const nicknameHelp = new MessageEmbed()
+                        .setTitle("🛠 Nickname Help")
+                        .setColor(guildSettings.color)
+                        .setDescription("Change a user's nickname.\n<:arrow_right:967329549912248341> **Usage:** `nickname [@User || User ID] [New Nickname]`\n<:arrow_right:967329549912248341> **Aliases** `nickname`, `nick`, `n`\n<:arrow_right:967329549912248341> **Cooldown** `5s`")
+                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `MANAGE_NICKNAMES`\n<:arrow:974101312818004009> **Allowed Role(s):** \`MODERATORS\`")
+                        .setFooter({
+                            text: `Requested by ${message.author.tag}`,
+                            iconURL: message.author.displayAvatarURL({
+                                dynamic: true
+                            })
+                        })
+                    message.channel.send({
+                        embeds: [nicknameHelp]
+                    })
+                    break;
                 default:
                     const chingChong = new MessageEmbed()
                         .setTitle("<:tasklist:967443053063327774> Help\n")
@@ -197,7 +405,7 @@ module.exports = {
                         .addField("Current Guild Settings", `Prefix: \`${guildSettings.prefix}\`\nEmbed Color: \`#${guildSettings.color}\`\nPremium Status: \`${guildSettings.premium}\``)
                         .setColor(guildSettings.color)
                         .addField("User Commands", "`ping`, `userinfo`, `serverinfo`, `avatar`, `botinfo`, `invite`, `help`")
-                        .addField("Moderation Commands", "`warn`, `mute`, `kick`, `ban`, `softban`, `history`, `purge`, `lockdown`, `unlockdown`, `delcase`, `reason`, `slowmode`, `nickname`")
+                        .addField("Moderation Commands", "`warn`, `mute`, `kick`, `ban`, `softban`, `unban`, `unmute`, `history`, `purge`, `lockdown`, `unlockdown`, `delcase`, `reason`, `slowmode`, `nickname`")
                         .addField("Config Commands", "`config`, `prefix`, `color`, `check`, `adminroleset`, `modroleset`, `modlogset`, `muterole`, `joinrole`")
                         .addField("Administration Commands", "`deleteallcases`, `premium`")
                         .setFooter({ text: `${message.guild?.name} - v${bot.version}`, iconURL: message.guild?.iconURL({ dynamic: true }) || "" })
@@ -238,7 +446,7 @@ module.exports = {
                                         .setTitle("🔨 Moderation Commands")
                                         .setColor(guildSettings.color)
                                         .setDescription("List of powerful moderation commands to keep your users in check!\nRun `help [Command]` to get information about a command.")
-                                        .addField("Commands 1/2", "<:arrow_right:967329549912248341> **Warn** - Issue a warning to a user\n<:arrow_right:967329549912248341> **Mute** - Mute a user\n<:arrow_right:967329549912248341> **Kick** - Kick a user\n<:arrow_right:967329549912248341> **Ban** - Ban a user\n<:arrow_right:967329549912248341> **History** - View a user's cases\n<:arrow_right:967329549912248341> **Purge** - Bulk delete messages", true)
+                                        .addField("Commands 1/2", "<:arrow_right:967329549912248341> **Warn** - Issue a warning to a user\n<:arrow_right:967329549912248341> **Mute** - Mute a user\n<:arrow_right:967329549912248341> **Kick** - Kick a user\n<:arrow_right:967329549912248341> **Ban** - Ban a user\n<:arrow_right:967329549912248341> **Unban** - Unban a user\n<:arrow_right:967329549912248341> **Unmute** - Unmute a user\n<:arrow_right:967329549912248341> **History** - View a user's cases\n<:arrow_right:967329549912248341> **Purge** - Bulk delete messages", true)
                                         .addField("Commands 2/2", "<:arrow_right:967329549912248341> **Lockdown** - Removes talk for @everyone\n<:arrow_right:967329549912248341> **Unlockdown** - Adds talk for @everyone\n<:arrow_right:967329549912248341> **Delcase** - Delete a case\n<:arrow_right:967329549912248341> **Reason** - Change the reason of a case\n<:arrow_right:967329549912248341> **Slowmode** - Add slowmode to channel\n<:arrow_right:967329549912248341> **Nickname** - Change a user's nick", true)
                                     resultMessage.edit({
                                         embeds: [modCommands],
