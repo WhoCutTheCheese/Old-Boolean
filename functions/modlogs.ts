@@ -43,6 +43,7 @@ globalThis.ModLog = async function (punishment: boolean, caseID: number, serverI
             modLogEmbed.setDescription(`<:user:977391493218181120> **User:** ${(findUser as User).tag}\n> [${caseFind.userID}]\n> [<@${caseFind.userID}>]\n<:folder:977391492790362173> **Mod:** ${message.author.tag}\n> [${message.author.id}]\n> [<@${message.author.id}>]\n> Permission Level: [${permLevel}]\n<:pencil:977391492916207636> **Action:** ${caseFind.caseType}\n> [Case #${caseFind.caseNumber}]\n**Reason:** ${caseFind.caseReason}\n**Duration:** ${caseFind.caseLength}\n**Channel:** <#${message.channel.id}>\n**Date:** <t:${Math.round(caseFind.date / 1000)}:D>`)
         }
         const channel = message.guild?.channels.cache.find((c: any) => c.id === configFind.modLogChannel);
+        if(!channel) { return; }
         (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
     } else if (punishment === false) {
         const findUser = await client.users.fetch(actionUser).catch((err) => console.log(err))
@@ -53,6 +54,7 @@ globalThis.ModLog = async function (punishment: boolean, caseID: number, serverI
             .setColor(serverSettings.color)
             .setTimestamp()
         const channel = message.guild?.channels.cache.find((c: any) => c.id === configFind.modLogChannel);
+        if(!channel) { return; }
         (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
 
     }

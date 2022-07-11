@@ -1,7 +1,8 @@
-import { Client, Message, MessageEmbed, Permissions } from "discord.js";
+import { Client, Message, MessageEmbed, Permissions, TextChannel } from "discord.js";
 import Guild from "../../models/guild";
 import Cases from "../../models/cases";
 import ErrorLog from "../../functions/errorlog";
+import configFiles from "../../models/cases";
 module.exports = {
     commands: ['kick', 'k'],
     minArgs: 1,
@@ -20,6 +21,9 @@ module.exports = {
             if (kickUser.id === message.author.id) { return message.channel.send({ content: "You cannot issue punishments to yourself." }) }
             const guildSettings = await Guild.findOne({
                 guildID: message.guild?.id,
+            })
+            const config = await configFiles.findOne({
+                guildID: message.guild.id
             })
             const warns = await Cases.countDocuments({
                 guildID: message.guild?.id,
@@ -50,6 +54,23 @@ module.exports = {
                 .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Reason:** ${reason}`)
                 .setColor(guildSettings.color)
             message.channel.send({ content: `<:arrow_right:967329549912248341> **${kickUser.user.tag}** has been kicked from the guild (Warns **${warns}**)`, embeds: [warnEmbed] })
+            if (config.dmOnPunish == true) {
+                const youWereWarned = new MessageEmbed()
+                    .setAuthor({ name: "You were muted in " + message.guild?.name, iconURL: message.guild?.iconURL({ dynamic: true }) || "" })
+                    .setColor(guildSettings.color)
+                    .setDescription("You have been muted in " + message.guild?.name + ` 
+                    
+                    **__Details:__** ${reason}
+                    > **Date:** <t:${Math.round(Date.now() / 1000)}:D>
+                    > **Case:** ${caseNumberSet}
+                    > **Current Warns:** ${warns}`)
+                    .setTimestamp()
+                kickUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
+                    const channel = message.guild?.channels.cache.find((c: any) => c.id === config.modLogChannel);
+                    if(!channel) { return; }
+                    return (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                })
+            }
             kickUser.kick(reason).catch((err: Error) => ErrorLog(message.guild!, "KICK_FUNCTION", err, client, message, `${message.author.id}`, `kick.ts`))
             ModLog(true, caseNumberSet, message.guild?.id, "Kick", message.author.id, message, client, Date.now())
         } catch {

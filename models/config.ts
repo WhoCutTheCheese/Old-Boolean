@@ -6,6 +6,7 @@ let Schema = new mongoose.Schema({
     muteRoleID: String,
     modLogChannel: String,
     joinRoleID: String,
+    dmOnPunish: Boolean,
     modRoleID: Array,
     adminRoleID: Array,
 })

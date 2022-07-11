@@ -162,7 +162,7 @@ module.exports = {
                         .setTitle("🛠 Mute Help")
                         .setColor(guildSettings.color)
                         .setDescription("Prevent a user from talking for an amount of time.\n<:arrow_right:967329549912248341> **Usage:** `mute [@User/User ID] (Time || Reason) {Reason}`\n<:arrow_right:967329549912248341> **Aliases** `mute`, `m`, `silence`\n<:arrow_right:967329549912248341> **Cooldown** `1s`")
-                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `MODERATE_MEMBERS`\n<:arrow:974101312818004009> **Allowed Role(s):** \`MODERATORS\`\n<:arrow:974101312818004009> **Warns Til Mute:** `PLACEHOLDER NUMBER`")
+                        .addField("Command Settings", "<:arrow:974101312818004009> **Permission:** `MODERATE_MEMBERS`\n<:arrow:974101312818004009> **Allowed Role(s):** \`MODERATORS\`\n<:arrow:974101312818004009> **Warns Til Mute:** `Coming Soon`")
                         .setFooter({
                             text: `Requested by ${message.author.tag}`,
                             iconURL: message.author.displayAvatarURL({
@@ -405,7 +405,7 @@ module.exports = {
                         .addField("Current Guild Settings", `Prefix: \`${guildSettings.prefix}\`\nEmbed Color: \`#${guildSettings.color}\`\nPremium Status: \`${guildSettings.premium}\``)
                         .setColor(guildSettings.color)
                         .addField("User Commands", "`ping`, `userinfo`, `serverinfo`, `avatar`, `botinfo`, `invite`, `help`")
-                        .addField("Moderation Commands", "`warn`, `mute`, `kick`, `ban`, `softban`, `unban`, `unmute`, `history`, `purge`, `lockdown`, `unlockdown`, `delcase`, `reason`, `slowmode`, `nickname`")
+                        .addField("Moderation Commands", "`warn`, `mute`, `kick`, `ban`, `softban`, `unban`, `unmute`, `dmonpunish`, `history`, `purge`, `lockdown`, `unlockdown`, `delcase`, `reason`, `slowmode`, `nickname`")
                         .addField("Config Commands", "`config`, `prefix`, `color`, `check`, `adminroleset`, `modroleset`, `modlogset`, `muterole`, `joinrole`")
                         .addField("Administration Commands", "`deleteallcases`, `premium`")
                         .setFooter({ text: `${message.guild?.name} - v${bot.version}`, iconURL: message.guild?.iconURL({ dynamic: true }) || "" })

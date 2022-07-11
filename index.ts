@@ -134,8 +134,9 @@ client.on("messageCreate", async message => {
                 muteRoleID: "None",
                 modLogChannel: "None",
                 joinRoleID: "None",
-                modRoleID: [ "None" ],
-                adminRoleID: [ "None" ],
+                dmOnPunish: true,
+                modRoleID: [],
+                adminRoleID: [],
             });
             newConfig.save()
                 .catch((err: any) => console.error(err))

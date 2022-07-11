@@ -1,7 +1,8 @@
-import { Client, Message, MessageEmbed, UserResolvable, Permissions } from "discord.js";
+import { Client, Message, MessageEmbed, UserResolvable, Permissions, TextChannel } from "discord.js";
 import Guild from "../../models/guild";
 import Cases from "../../models/cases";
 import ErrorLog from "../../functions/errorlog";
+import configFiles from "../../models/config";
 module.exports = {
     commands: ['softban', 'sb'],
     minArgs: 1,
@@ -20,6 +21,9 @@ module.exports = {
             if (banUser.id === message.author.id) { return message.channel.send({ content: "You cannot issue punishments to yourself." }) }
             const guildSettings = await Guild.findOne({
                 guildID: message.guild?.id,
+            })
+            let configSettings = await configFiles.findOne({
+                guildID: message.guild?.id
             })
             const warns = await Cases.countDocuments({
                 guildID: message.guild?.id,
@@ -53,6 +57,23 @@ module.exports = {
                     .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Reason:** ${reason}`)
                     .setColor(guildSettings.color)
                 message.channel.send({ content: `<:arrow_right:967329549912248341> **${banUser.user.tag}** has been soft-banned (Warns **${warns}**)`, embeds: [warnEmbed] })
+                if (configSettings.dmOnPunish == true) {
+                    const youWereWarned = new MessageEmbed()
+                        .setAuthor({ name: "You have been soft-banned from " + message.guild?.name, iconURL: message.guild?.iconURL({ dynamic: true }) || "" })
+                        .setColor(guildSettings.color)
+                        .setDescription("You have been soft-banned from " + message.guild?.name + ` 
+                        
+                        **__Details:__** ${reason}
+                        > **Date:** <t:${Math.round(Date.now() / 1000)}:D>
+                        > **Case:** ${caseNumberSet}
+                        > **Current Warns:** ${warns}`)
+                        .setTimestamp()
+                    banUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
+                        const channel = message.guild?.channels.cache.find((c: any) => c.id === configSettings.modLogChannel);
+                        if(!channel) { return; }
+                        return (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                    })
+                }
                 banUser.ban({ reason: reason, days: 7 }).catch((err: Error) => ErrorLog(message.guild!, "BAN_FUNCTION", err, client, message, `${message.author.id}`, `softban.ts`)).then(() => message.guild?.members.unban(banUser?.id as UserResolvable))
                 ModLog(true, caseNumberSet, message.guild?.id, "Soft-Ban", message.author.id, message, client, Date.now())
 
@@ -81,6 +102,23 @@ module.exports = {
                     .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Reason:** ${reason}`)
                     .setColor(guildSettings.color)
                 message.channel.send({ content: `<:arrow_right:967329549912248341> **${banUser.user.tag}** has been soft-banned (Warns **${warns}**)`, embeds: [warnEmbed] })
+                if (configSettings.dmOnPunish == true) {
+                    const youWereWarned = new MessageEmbed()
+                        .setAuthor({ name: "You have been soft-banned from " + message.guild?.name, iconURL: message.guild?.iconURL({ dynamic: true }) || "" })
+                        .setColor(guildSettings.color)
+                        .setDescription("You have been soft-banned from " + message.guild?.name + ` 
+                        
+                        **__Details:__** ${reason}
+                        > **Date:** <t:${Math.round(Date.now() / 1000)}:D>
+                        > **Case:** ${caseNumberSet}
+                        > **Current Warns:** ${warns}`)
+                        .setTimestamp()
+                    banUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
+                        const channel = message.guild?.channels.cache.find((c: any) => c.id === configSettings.modLogChannel);
+                        if(!channel) { return; }
+                        return (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                    })
+                }
                 banUser.ban({ reason: reason, days: parseInt(args[1]) }).catch((err: Error) => ErrorLog(message.guild!, "BAN_FUNCTION", err, client, message, `${message.author.id}`, `softban.ts`)).then(() => message.guild?.members.unban(banUser?.id as UserResolvable))
                 ModLog(true, caseNumberSet, message.guild?.id, "Soft-Ban", message.author.id, message, client, Date.now())
 

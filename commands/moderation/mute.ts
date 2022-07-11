@@ -1,4 +1,4 @@
-import { Client, Message, MessageEmbed, Permissions } from "discord.js"
+import { Client, Message, MessageEmbed, Permissions, TextChannel } from "discord.js"
 import Guild from "../../models/guild";
 import Cases from "../../models/cases";
 import Config from '../../models/config';
@@ -19,6 +19,9 @@ module.exports = {
             const guildSettings = await Guild.findOne({
                 guildID: message.guild?.id,
             })
+            const config = await Config.findOne({
+                guildID: message.guild?.id,
+            })
             let muteUser = message.mentions.members?.first() || message.guild?.members.cache.get(args[0]);
             if (!muteUser) { return message.channel.send({ content: "I was unable to find that user!" }) }
             if (muteUser.roles.highest.position > message.member!.roles.highest.position) { return message.channel.send({ content: "You may not issue punishments to a user higher then you." }) }
@@ -29,9 +32,6 @@ module.exports = {
                 let reason = args.slice(1).join(" ")
                 if (!reason) { reason = "No reason provided" }
                 if (reason.length > 250) { return message.channel.send({ content: "Reason exceeds maximum size! (250 Characters)" }) }
-                const config = await Config.findOne({
-                    guildID: message.guild?.id,
-                })
                 if (!config) { return message.channel.send({ content: "An unknown error occurred, contact support if this persists." }) }
                 if (config.muteRoleID === "None") { return message.channel.send({ content: "You do not have a mute role!" }) }
                 const muteRole = message.guild?.roles.cache.get(config.muteRoleID)
@@ -58,6 +58,23 @@ module.exports = {
                     userID: muteUser.id,
                     caseType: "Warn",
                 })
+                if (config.dmOnPunish == true) {
+                    const youWereWarned = new MessageEmbed()
+                        .setAuthor({ name: "You were muted in " + message.guild?.name, iconURL: message.guild?.iconURL({ dynamic: true }) || "" })
+                        .setColor(guildSettings.color)
+                        .setDescription("You have been muted in " + message.guild?.name + ` 
+                        
+                        **__Details:__** ${reason}
+                        > **Date:** <t:${Math.round(Date.now() / 1000)}:D>
+                        > **Case:** ${caseNumberSet}
+                        > **Current Warns:** ${warns}`)
+                        .setTimestamp()
+                    muteUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
+                        const channel = message.guild?.channels.cache.find((c: any) => c.id === config.modLogChannel);
+                        if(!channel) { return; }
+                        return (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                    })
+                }
                 muteUser.roles.add(muteRole).catch((err: Error) => ErrorLog(message.guild!, "ADDED_MUTE_ROLE", err, client, message, `${message.author.id}`, `mute.ts`));
                 const muteEmbed = new MessageEmbed()
                     .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Duration:** Permanent | **Reason:** ${reason}`)
@@ -100,6 +117,23 @@ module.exports = {
                         .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Duration:** ${time} second(s) | **Reason:** ${reason}`)
                         .setColor(guildSettings.color)
                     message.channel.send({ content: `<:arrow_right:967329549912248341> **${muteUser.user.tag}** has been muted (Warns **${warns}**)`, embeds: [muteEmbed] })
+                    if (config.dmOnPunish == true) {
+                        const youWereWarned = new MessageEmbed()
+                            .setAuthor({ name: "You were muted in " + message.guild?.name, iconURL: message.guild?.iconURL({ dynamic: true }) || "" })
+                            .setColor(guildSettings.color)
+                            .setDescription("You have been muted in " + message.guild?.name + ` 
+                            
+                            **__Details:__** ${reason}
+                            > **Date:** <t:${Math.round(Date.now() / 1000)}:D>
+                            > **Case:** ${caseNumberSet}
+                            > **Current Warns:** ${warns}`)
+                            .setTimestamp()
+                        muteUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
+                            const channel = message.guild?.channels.cache.find((c: any) => c.id === config.modLogChannel);
+                            if(!channel) { return; }
+                            return (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                        })
+                    }
                     muteUser.timeout(ms(`${time}s`), reason).catch((err: Error) => ErrorLog(message.guild!, "TIMEOUT_FUNCTION", err, client, message, `${message.author.id}`, `mute.ts`))
                     ModLog(true, caseNumberSet, message.guild?.id, "Mute", message.author.id, message, client, Date.now())
                 } else if (args[1].endsWith("m")) {
@@ -135,6 +169,23 @@ module.exports = {
                         .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Duration:** ${time} minutes(s) | **Reason:** ${reason}`)
                         .setColor(guildSettings.color)
                     message.channel.send({ content: `<:arrow_right:967329549912248341> **${muteUser.user.tag}** has been muted (Warns **${warns}**)`, embeds: [muteEmbed] })
+                    if (config.dmOnPunish == true) {
+                        const youWereWarned = new MessageEmbed()
+                            .setAuthor({ name: "You were muted in " + message.guild?.name, iconURL: message.guild?.iconURL({ dynamic: true }) || "" })
+                            .setColor(guildSettings.color)
+                            .setDescription("You have been muted in " + message.guild?.name + ` 
+                            
+                            **__Details:__** ${reason}
+                            > **Date:** <t:${Math.round(Date.now() / 1000)}:D>
+                            > **Case:** ${caseNumberSet}
+                            > **Current Warns:** ${warns}`)
+                            .setTimestamp()
+                        muteUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
+                            const channel = message.guild?.channels.cache.find((c: any) => c.id === config.modLogChannel);
+                            if(!channel) { return; }
+                            return (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                        })
+                    }
                     muteUser.timeout(ms(`${time}m`), reason).catch((err: Error) => ErrorLog(message.guild!, "TIMEOUT_FUNCTION", err, client, message, `${message.author.id}`, `mute.ts`))
                     ModLog(true, caseNumberSet, message.guild?.id, "Mute", message.author.id, message, client, Date.now())
                 } else if (args[1].endsWith("h")) {
@@ -170,6 +221,23 @@ module.exports = {
                         .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Duration:** ${time} hour(s) | **Reason:** ${reason}`)
                         .setColor(guildSettings.color)
                     message.channel.send({ content: `<:arrow_right:967329549912248341> **${muteUser.user.tag}** has been muted (Warns **${warns}**)`, embeds: [muteEmbed] })
+                    if (config.dmOnPunish == true) {
+                        const youWereWarned = new MessageEmbed()
+                            .setAuthor({ name: "You were muted in " + message.guild?.name, iconURL: message.guild?.iconURL({ dynamic: true }) || "" })
+                            .setColor(guildSettings.color)
+                            .setDescription("You have been muted in " + message.guild?.name + ` 
+                            
+                            **__Details:__** ${reason}
+                            > **Date:** <t:${Math.round(Date.now() / 1000)}:D>
+                            > **Case:** ${caseNumberSet}
+                            > **Current Warns:** ${warns}`)
+                            .setTimestamp()
+                        muteUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
+                            const channel = message.guild?.channels.cache.find((c: any) => c.id === config.modLogChannel);
+                            if(!channel) { return; }
+                            return (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                        })
+                    }
                     muteUser.timeout(ms(`${time}h`), reason)
                     ModLog(true, caseNumberSet, message.guild?.id, "Mute", message.author.id, message, client, Date.now())
                 } else if (args[1].endsWith("d")) {
@@ -206,6 +274,23 @@ module.exports = {
                         .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Duration:** ${time} day(s) | **Reason:** ${reason}`)
                         .setColor(guildSettings.color)
                     message.channel.send({ content: `<:arrow_right:967329549912248341> **${muteUser.user.tag}** has been muted (Warns **${warns}**)`, embeds: [muteEmbed] })
+                    if (config.dmOnPunish == true) {
+                        const youWereWarned = new MessageEmbed()
+                            .setAuthor({ name: "You were muted in " + message.guild?.name, iconURL: message.guild?.iconURL({ dynamic: true }) || "" })
+                            .setColor(guildSettings.color)
+                            .setDescription("You have been muted in " + message.guild?.name + ` 
+                            
+                            **__Details:__** ${reason}
+                            > **Date:** <t:${Math.round(Date.now() / 1000)}:D>
+                            > **Case:** ${caseNumberSet}
+                            > **Current Warns:** ${warns}`)
+                            .setTimestamp()
+                        muteUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
+                            const channel = message.guild?.channels.cache.find((c: any) => c.id === config.modLogChannel);
+                            if(!channel) { return; }
+                            return (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                        })
+                    }
                     muteUser.timeout(ms(`${time}d`), reason).catch((err: Error) => ErrorLog(message.guild!, "TIMEOUT_FUNCTION", err, client, message, `${message.author.id}`, `mute.ts`))
                     ModLog(true, caseNumberSet, message.guild?.id, "Mute", message.author.id, message, client, Date.now())
                 }
