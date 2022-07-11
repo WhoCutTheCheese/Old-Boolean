@@ -40,6 +40,7 @@ client.on('ready', async () => {
         }
     }
 
+    
     setInterval(check, 1000 * 60);
 
     readCommands('commands')
