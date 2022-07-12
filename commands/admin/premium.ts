@@ -9,7 +9,7 @@ module.exports = {
     userPermissions: ["MANAGE_GUILD"],
     callback: async (client: Client, bot: { version: string }, message: Message, args: string[]) => {
         const hasToken = await Tokens.findOne({
-            userID: message.author.id,
+            userID: message.author?.id,
         })
         const guildSettings = await Guild.findOne({
             guildID: message.guild?.id,
@@ -84,6 +84,7 @@ module.exports = {
                 break;
             case "balance":
             case "bal":
+                if(!hasToken) { return message.reply("You have no tokens >:)") }
                 const hoeEmbed = new MessageEmbed()
                     .setAuthor({ name: `${message.author.tag}'s Balance`, iconURL: message.author.displayAvatarURL({ dynamic: true }) })
                     .setDescription(`**Tokens:** ${hasToken.tokens}`)
