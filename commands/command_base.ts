@@ -78,32 +78,17 @@ const talkedRecently = new Set();
 module.exports.listen = (client: any) => {
     client.on('messageCreate', async (message: Message) => {
         try {
+            if(!message.guild?.me?.permissions.has(Permissions.FLAGS.SEND_MESSAGES)) { return; }
+            if(!message.guild?.me?.permissions.has(Permissions.FLAGS.EMBED_LINKS)) { return; }
             const { member, content, guild } = message
-            GuildSchema.findOne({
-                guildID: message.guild?.id
-            }, ((err: any, guild: any) => {
-                if (err) console.error(err)
-                if (!guild) {
-                    const newGuild = new GuildSchema({
-                        _id: new mongoose.Types.ObjectId(),
-                        guildID: message.guild?.id,
-                        prefix: "!!",
-                        color: `5865F2`,
-                        premium: false,
-                        premiumHolder: "None",
-                        totalCases: 0,
-                    })
-                    newGuild.save()
-                        .catch((err: Error) => ErrorLog(message.guild!, "NEW_GUILD_FILE_SAVE", err, client, message, `${message.author.id}`, `command_base.ts`))
-                        .then(message.channel.send({ content: "Uh Oh! This server doesn't have a file! I'm creating one for you now." }).catch((err: Error) => ErrorLog(message.guild!, "NO_FILE", err, client, message, `${message.author.id}`, `command_base.ts`)))
-                }
-            }));
             const serverSettings = await GuildSchema.findOne({
                 guildID: message.guild?.id
             })
             const configFiles = await ConfigSchema.findOne({
                 guildID: message.guild?.id
             })
+            if(!serverSettings) { return message.reply("Please wait, I wasn't able to make a file when I joined!") }
+            if(!configFiles) { return message.reply("Uh Oh! The config file has problems!") }
             let prefix
             if (!serverSettings) {
                 prefix = "!!"

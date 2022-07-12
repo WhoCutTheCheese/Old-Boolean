@@ -58,44 +58,6 @@ client.on('guildMemberAdd', async member => {
     if(configSettings.joinRoleID === "None") { return; }
     member.roles.add(configSettings.joinRoleID)
 })
-client.on('guildCreate', async guild => {
-    const serverSettings = await GuildSchema.findOne({
-        guildID: guild.id
-    }, ((err: any, guild: any) => {
-        if (err) console.error(err)
-        if (!guild) {
-            const newGuild = new GuildSchema({
-                _id: new mongoose.Types.ObjectId(),
-                guildID: guild.id,
-                prefix: "!!",
-                color: `5865F2`,
-                premium: false,
-                premiumHolder: "None",
-                totalCases: 0,
-            })
-            newGuild.save()
-                .catch((err: any) => console.error(err))
-        }
-    }));
-    const config = ConfigSchema.findOne({
-        guildID: guild.id,
-    }, (err: any, config: any) => {
-        if (err) console.error(err)
-        if (!config) {
-            const newConfig = new ConfigSchema({
-                _id: new mongoose.Types.ObjectId(),
-                guildID: guild.id,
-                muteRoleID: "None",
-                modLogChannel: "None",
-                joinRoleID: "None",
-                modRoleID: [],
-                adminRoleID: [],
-            });
-            newConfig.save()
-                .catch((err: any) => console.error(err))
-        };
-    });
-});
 client.on('guildDelete', async guild => {
     const guildS = await GuildSchema.findOne({
         guildID: guild.id,
@@ -124,7 +86,7 @@ client.on('guildDelete', async guild => {
     })
 });
 client.on("messageCreate", async message => {
-    const config = ConfigSchema.findOne({
+    ConfigSchema.findOne({
         guildID: message.guild?.id,
     }, (err: any, config: any) => {
         if (err) console.error(err)
@@ -143,6 +105,25 @@ client.on("messageCreate", async message => {
                 .catch((err: any) => console.error(err))
         };
     });
+    GuildSchema.findOne({
+        guildID: message.guild?.id
+    }, ((err: any, guild: any) => {
+        if (err) console.error(err)
+        if (!guild) {
+            const newGuild = new GuildSchema({
+                _id: new mongoose.Types.ObjectId(),
+                guildID: message.guild?.id,
+                prefix: "!!",
+                color: `5865F2`,
+                premium: false,
+                premiumHolder: "None",
+                totalCases: 0,
+            })
+            newGuild.save()
+                .catch((err: Error) => console.error(err))
+                return;
+            }
+    }));
 })
 const check = async () => {
     const results = await Bans.find({

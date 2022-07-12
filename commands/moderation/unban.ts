@@ -13,7 +13,7 @@ module.exports = {
     userPermissions: ["BAN_MEMBERS"],
     callback: async (client: Client, bot: any, message: Message, args: string[]) => {
         try {
-            if (!message.guild?.me?.permissions.has(Permissions.FLAGS.MANAGE_GUILD)) {
+            if (!message.guild?.me?.permissions.has(Permissions.FLAGS.BAN_MEMBERS)) {
                 return message.channel.send({ content: "I don't have permission to remove bans! Run **!!check** to finish setting me up!" })
             }
             let banUser = await client.users.fetch(args[0]).catch((err) => message.channel.send({ content: "Unknown user!" }).then(() => console.log(err)));
