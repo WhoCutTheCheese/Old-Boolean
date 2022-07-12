@@ -3,7 +3,7 @@ import Guild from "../../models/guild";
 import Config from "../../models/config";
 import ErrorLog from "../../functions/errorlog";
 module.exports = {
-    commands: ['modlog', 'ml'],
+    commands: ['modlog', 'ml', 'modlogset'],
     minArgs: 1,
     expectedArgs: "",
     staffPart: "Admin",

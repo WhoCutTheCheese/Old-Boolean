@@ -84,16 +84,9 @@ module.exports = {
                 break;
             case "balance":
             case "bal":
-                const warnings = await Guild.find({
-                    premiumHolder: message.author.id,
-                })
-                let serversList = ""
-                for (const warn of warnings) {
-                    serversList += `${warn.guildName}, `
-                }
                 const hoeEmbed = new MessageEmbed()
                     .setAuthor({ name: `${message.author.tag}'s Balance`, iconURL: message.author.displayAvatarURL({ dynamic: true }) })
-                    .setDescription(`**Tokens:** ${hasToken.tokens}\n**Active Servers**\n${serversList}`)
+                    .setDescription(`**Tokens:** ${hasToken.tokens}`)
                     .setColor(guildSettings.color)
                     .setFooter({ text: `Requested by ${message.author.tag}`, iconURL: message.author.displayAvatarURL({ dynamic: true }) })
                 message.channel.send({ embeds: [hoeEmbed] })
