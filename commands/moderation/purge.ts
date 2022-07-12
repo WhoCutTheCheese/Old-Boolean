@@ -16,8 +16,8 @@ module.exports = {
 
             if (!amount) { return message.channel.send({ content: "Please specify the amount of messages you want me to delete" }) }
             if (amount > 100 || amount < 1) { return message.channel.send({ content: "Number must be between 1 - 100" }) }
-
-            (message.channel as TextChannel).bulkDelete(amount).catch((err: Error) => {
+            let messages = await message.channel.messages.fetch({ limit: amount });
+            (message.channel as TextChannel).bulkDelete(messages).catch((err: Error) => {
                 message.channel.send({ content: ':x: Due to Discord Limitations, I cannot delete messages older than 14 days' })
             })
             ModLog(false, 0, message.guild?.id, "Purge", message.author.id, message, client, Date.now())
