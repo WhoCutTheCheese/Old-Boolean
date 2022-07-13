@@ -479,7 +479,14 @@ module.exports = {
                                     const changeLog = new MessageEmbed()
                                         .setTitle("📰 Change Log")
                                         .setColor(guildSettings.color)
-                                        .setDescription(`**Boolean - v${bot.version}** | Release\n\nNothing here yet! Check out the [wiki](https://google.com) for information on Boolean's features.`)
+                                        .setDescription(`**Boolean - v${bot.version}** | Auto Mute
+
+                                        Boolean can now automatically mute a user with a specified amount of warns.
+                                        By default this limit is \`3\` but can be changed by running \`!!automute warnsmute [Number]\`
+                                        When exceeded the user will be muted for 10 minutes. Have any feedback? Join our [support server](https://discord.gg/G2EhQCZZfh)
+
+                                        
+                                        **Boolean - v1.0.0** | Release\n\nNothing here yet! Check out the [wiki](https://google.com) for information on Boolean's features.`)
                                     resultMessage.edit({
                                         embeds: [changeLog],
                                         components: [row],

@@ -9,6 +9,7 @@ let Schema = new mongoose.Schema({
     dmOnPunish: Boolean,
     modRoleID: Array,
     adminRoleID: Array,
+    warnsBeforeMute: Number,
 })
 
 export = mongoose.model('config', Schema)
