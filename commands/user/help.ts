@@ -406,7 +406,7 @@ module.exports = {
                         .setColor(guildSettings.color)
                         .addField("User Commands", "`ping`, `userinfo`, `serverinfo`, `avatar`, `botinfo`, `invite`, `help`")
                         .addField("Moderation Commands", "`warn`, `mute`, `kick`, `ban`, `softban`, `unban`, `unmute`, `history`, `purge`, `lockdown`, `unlockdown`, `delcase`, `reason`, `slowmode`, `nickname`")
-                        .addField("Config Commands", "`config`, `prefix`, `color`, `check`, `adminroleset`, `modroleset`, `dmonpunish`, `modlogset`, `muterole`, `joinrole`")
+                        .addField("Config Commands", "`config`, `prefix`, `color`, `check`, `automute`, `adminroleset`, `modroleset`, `dmonpunish`, `modlogset`, `muterole`, `joinrole`")
                         .addField("Administration Commands", "`deleteallcases`, `premium`")
                         .setFooter({ text: `${message.guild?.name} - v${bot.version}`, iconURL: message.guild?.iconURL({ dynamic: true }) || "" })
                     message.channel.send({
@@ -458,7 +458,7 @@ module.exports = {
                                         .setTitle("⚙ Configuration Commands")
                                         .setColor(guildSettings.color)
                                         .setDescription("List of commands to setup Boolean!\nRun `help [Command]` to get information about a command.")
-                                        .addField("Commands 1/1", "<:arrow_right:967329549912248341> **Config** - View the server's current settings\n<:arrow_right:967329549912248341> **Prefix** - Set Boolean's prefix\n<:arrow_right:967329549912248341> :coin: **Color** - Change Boolean's embed color\n<:arrow_right:967329549912248341> **Check** - Check what permissions Boolean needs to work\n<:arrow_right:967329549912248341> **Permission** - Set permissions for command/categories\n<:arrow_right:967329549912248341> **Modlogset** - Set the mod logging channel\n<:arrow_right:967329549912248341> **Muterole** - Set the mute role\n<:arrow_right:967329549912248341> **Joinrole** - Set the role given to users when they join", true)
+                                        .addField("Commands 1/1", "<:arrow_right:967329549912248341> **Config** - View the server's current settings\n<:arrow_right:967329549912248341> **Prefix** - Set Boolean's prefix\n<:arrow_right:967329549912248341> :coin: **Color** - Change Boolean's embed color\n<:arrow_right:967329549912248341> **Check** - Check what permissions Boolean needs to work\n<:arrow_right:967329549912248341> **Permission** - Set permissions for command/categories\n<:arrow_right:967329549912248341> **Modlogset** - Set the mod logging channel\n<:arrow_right:967329549912248341> **Muterole** - Set the mute role\n<:arrow_right:967329549912248341> **Joinrole** - Set the role given to users when they join\n<:arrow_right:967329549912248341> **Automute** - Set the amount of warns for automute", true)
                                     resultMessage.edit({
                                         embeds: [configCommands],
                                         components: [row],
