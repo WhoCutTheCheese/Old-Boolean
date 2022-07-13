@@ -58,6 +58,46 @@ client.on('guildMemberAdd', async member => {
     if(configSettings.joinRoleID === "None") { return; }
     member.roles.add(configSettings.joinRoleID)
 })
+client.on("guildCreate", async guild => {
+    ConfigSchema.findOne({
+        guildID: guild?.id,
+    }, (err: any, config: any) => {
+        if (err) console.error(err)
+        if (!config) {
+            const newConfig = new ConfigSchema({
+                _id: new mongoose.Types.ObjectId(),
+                guildID: guild?.id,
+                muteRoleID: "None",
+                modLogChannel: "None",
+                joinRoleID: "None",
+                dmOnPunish: true,
+                modRoleID: [],
+                adminRoleID: [],
+            });
+            newConfig.save()
+                .catch((err: any) => console.error(err))
+        };
+    });
+    GuildSchema.findOne({
+        guildID: guild?.id
+    }, ((err: any, guild: any) => {
+        if (err) console.error(err)
+        if (!guild) {
+            const newGuild = new GuildSchema({
+                _id: new mongoose.Types.ObjectId(),
+                guildID: guild?.id,
+                prefix: "!!",
+                color: `5865F2`,
+                premium: false,
+                premiumHolder: "None",
+                totalCases: 0,
+            })
+            newGuild.save()
+                .catch((err: Error) => console.error(err))
+                return;
+            }
+    }));
+})
 client.on('guildDelete', async guild => {
     const guildS = await GuildSchema.findOne({
         guildID: guild.id,
