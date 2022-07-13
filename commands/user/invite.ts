@@ -26,7 +26,7 @@ module.exports = {
                 .setLabel("Vote")
                 .setEmoji("🔗")
                 .setStyle("LINK")
-                .setURL("https://google.com"),
+                .setURL("https://top.gg/bot/966634522106036265"),
 
         )
 
