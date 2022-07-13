@@ -73,6 +73,8 @@ client.on("guildCreate", async guild => {
                 dmOnPunish: true,
                 modRoleID: [],
                 adminRoleID: [],
+                warnsBeforeMute: 3,
+
             });
             newConfig.save()
                 .catch((err: any) => console.error(err))
@@ -140,6 +142,7 @@ client.on("messageCreate", async message => {
                 dmOnPunish: true,
                 modRoleID: [],
                 adminRoleID: [],
+                warnsBeforeMute: 3,
             });
             newConfig.save()
                 .catch((err: any) => console.error(err))
