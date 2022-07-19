@@ -80,10 +80,15 @@ module.exports.listen = (client: any) => {
         try {
             if(!message.guild?.me?.permissions.has(Permissions.FLAGS.SEND_MESSAGES)) { return; }
             if(!message.guild?.me?.permissions.has(Permissions.FLAGS.EMBED_LINKS)) { return; }
+            const me = message.mentions.members?.first()
             const { member, content, guild } = message
             const serverSettings = await GuildSchema.findOne({
                 guildID: message.guild?.id
             })
+            if(me?.id === client.me.id) {
+                message.channel.send({ content: `My prefix is: \`${serverSettings.prefix}\`` })
+                return true;
+            }
             const configFiles = await ConfigSchema.findOne({
                 guildID: message.guild?.id
             })

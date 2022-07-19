@@ -1,7 +1,6 @@
 import { Client, Message, MessageActionRow, MessageButton, MessageEmbed, ButtonInteraction, Interaction } from "discord.js";
 import Guild from "../../models/guild";
 import Cases from "../../models/cases";
-import ErrorLog from "../../functions/errorlog";
 module.exports = {
     commands: ['case', 'findcase', 'lookup'],
     minArgs: 1,
@@ -32,7 +31,7 @@ module.exports = {
             .setFooter({ text: `Requesred by ${message.author.tag}`, iconURL: message.author.displayAvatarURL({ dynamic: true }) || "" })
         message.channel.send({ embeds: [caseInfo] })
     } catch { (err: Error) => {
-        ErrorLog(message.guild!, "CASE_COMMAND", err, client, message, `${message.author.id}`, `case.ts`)
+        return "An error occurred, please constact a developer if this persists!"
     }}
     },
 }

@@ -8,7 +8,7 @@ const ms = require("ms");
 module.exports = {
     commands: ['ban', 'b'],
     minArgs: 1,
-    expectedArgs: "[@User/User ID] (Reason || Days) {Reason}",
+    expectedArgs: "[@User\|\| User ID] (Reason \|\| Days) {Reason}",
     cooldown: 2,
     staffPart: "Mod",
     userPermissions: ["BAN_MEMBERS"],
@@ -73,7 +73,7 @@ module.exports = {
                         .setTimestamp()
                     banUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
                         const channel = message.guild?.channels.cache.find((c: any) => c.id === configSettings.modLogChannel);
-                        if(!channel) { return; }
+                        if (!channel) { return; }
                         return (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
                     })
                 }
@@ -123,7 +123,7 @@ module.exports = {
                                 .setTimestamp()
                             banUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
                                 const channel = message.guild?.channels.cache.find((c: any) => c.id === configSettings.modLogChannel);
-                                if(!channel) { return; }
+                                if (!channel) { return; }
                                 return (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
                             })
                         }
@@ -159,57 +159,57 @@ module.exports = {
                     if (!reason) { reason = "No reason provided" }
                     if (reason.length > 250) { return message.channel.send({ content: "Reason exceeds maximum size! (250 Characters)" }) }
                     const expires = new Date()
-                expires.setSeconds(expires.getSeconds() + time!)
-                const cock = await new Bans({
-                    guildID: message.guild.id,
-                    userID: banUser.id,
-                    caseNumber: 0,
-                    caseEndDate: expires,
-                })
-                cock.save().catch((err: Error) => console.log(err))
-                if (banUser.id === message.guild.ownerId) { return message.channel.send({ content: "Unable to issue punishments to this user!" }) }
-                if (!banUser.bannable) { return message.channel.send({ content: "I am unable to ban this user!" }) }
-                const caseNumberSet = guildSettings.totalCases + 1;
-                if (configSettings.dmOnPunish == true) {
-                    const youWereWarned = new MessageEmbed()
-                        .setAuthor({ name: "You have been banned from " + message.guild?.name, iconURL: message.guild?.iconURL({ dynamic: true }) || "" })
-                        .setColor(guildSettings.color)
-                        .setDescription("You were banned from " + message.guild?.name + ` 
+                    expires.setSeconds(expires.getSeconds() + time!)
+                    const cock = await new Bans({
+                        guildID: message.guild.id,
+                        userID: banUser.id,
+                        caseNumber: 0,
+                        caseEndDate: expires,
+                    })
+                    cock.save().catch((err: Error) => console.log(err))
+                    if (banUser.id === message.guild.ownerId) { return message.channel.send({ content: "Unable to issue punishments to this user!" }) }
+                    if (!banUser.bannable) { return message.channel.send({ content: "I am unable to ban this user!" }) }
+                    const caseNumberSet = guildSettings.totalCases + 1;
+                    if (configSettings.dmOnPunish == true) {
+                        const youWereWarned = new MessageEmbed()
+                            .setAuthor({ name: "You have been banned from " + message.guild?.name, iconURL: message.guild?.iconURL({ dynamic: true }) || "" })
+                            .setColor(guildSettings.color)
+                            .setDescription("You were banned from " + message.guild?.name + ` 
                         
                         **__Details:__** ${reason}
                         > **Duration:** ${time1 + type}
                         > **Date:** <t:${Math.round(Date.now() / 1000)}:D>
                         > **Case:** ${caseNumberSet}
                         > **Current Warns:** ${warns}`)
-                        .setTimestamp()
-                    banUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
-                        const channel = message.guild?.channels.cache.find((c: any) => c.id === configSettings.modLogChannel);
-                        if(!channel) { return; }
-                        return (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                            .setTimestamp()
+                        banUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
+                            const channel = message.guild?.channels.cache.find((c: any) => c.id === configSettings.modLogChannel);
+                            if (!channel) { return; }
+                            return (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                        })
+                    }
+                    banUser.ban({ reason: reason })
+                    const newCases = await new Cases({
+                        guildID: message.guild?.id,
+                        userID: banUser.id,
+                        modID: message.author.id,
+                        caseType: "Ban",
+                        caseReason: reason,
+                        caseNumber: caseNumberSet,
+                        caseLength: time1 + type,
+                        date: Date.now(),
                     })
-                }
-                banUser.ban({ reason: reason })
-                const newCases = await new Cases({
-                    guildID: message.guild?.id,
-                    userID: banUser.id,
-                    modID: message.author.id,
-                    caseType: "Ban",
-                    caseReason: reason,
-                    caseNumber: caseNumberSet,
-                    caseLength: time1 + type,
-                    date: Date.now(),
-                })
-                newCases.save().catch((err: Error) => ErrorLog(message.guild!, "NEW_CASE_FUNCTION", err, client, message, `${message.author.id}`, `ban.ts`))
-                await Guild.findOneAndUpdate({
-                    guildID: message.guild?.id,
-                }, {
-                    totalCases: caseNumberSet,
-                })
-                const banEmbed = new MessageEmbed()
-                    .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Reason:** ${reason}`)
-                    .setColor(guildSettings.color)
-                message.channel.send({ content: `<:arrow_right:967329549912248341> **${banUser.user.tag}** has been banned. **Duration:** ${time1 + type} (Warns **${warns}**)`, embeds: [banEmbed] })
-                ModLog(true, caseNumberSet, message.guild?.id, "Ban", message.author.id, message, client, Date.now())
+                    newCases.save().catch((err: Error) => ErrorLog(message.guild!, "NEW_CASE_FUNCTION", err, client, message, `${message.author.id}`, `ban.ts`))
+                    await Guild.findOneAndUpdate({
+                        guildID: message.guild?.id,
+                    }, {
+                        totalCases: caseNumberSet,
+                    })
+                    const banEmbed = new MessageEmbed()
+                        .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Reason:** ${reason}`)
+                        .setColor(guildSettings.color)
+                    message.channel.send({ content: `<:arrow_right:967329549912248341> **${banUser.user.tag}** has been banned. **Duration:** ${time1 + type} (Warns **${warns}**)`, embeds: [banEmbed] })
+                    ModLog(true, caseNumberSet, message.guild?.id, "Ban", message.author.id, message, client, Date.now())
                 } else {
                     let reason = args.slice(1).join(" ")
                     if (!reason) { reason = "No reason provided" }
@@ -251,7 +251,7 @@ module.exports = {
                             .setTimestamp()
                         banUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
                             const channel = message.guild?.channels.cache.find((c: any) => c.id === configSettings.modLogChannel);
-                            if(!channel) { return; }
+                            if (!channel) { return; }
                             return (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
                         })
                     }
