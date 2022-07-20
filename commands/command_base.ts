@@ -88,8 +88,8 @@ module.exports.listen = (client: any) => {
             const configFiles = await ConfigSchema.findOne({
                 guildID: message.guild?.id
             })
-            if(!serverSettings) { return message.reply("Please wait, I wasn't able to make a file when I joined!") }
-            if(!configFiles) { return message.reply("Uh Oh! The config file has problems!") }
+            if(!serverSettings) { return message.reply("Please wait, I wasn't able to make a file when I joined!").catch((err: Error) => console.error(err)) }
+            if(!configFiles) { return message.reply("Uh Oh! The config file has problems!").catch((err: Error) => console.error(err)) }
             let prefix
             if (!serverSettings) {
                 prefix = "!!"
