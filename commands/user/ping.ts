@@ -1,3 +1,4 @@
+import { Message } from "discord.js";
 import { ICommand } from "wokcommands";
 
 export default {
@@ -15,10 +16,9 @@ export default {
                     resultMessage.edit({ content: `<:check:966796856975835197> Bot Latency: **${ping}ms**, API Latency: **${client.ws.ping}ms**` })
                 })
             } else if (interaction) {
-                await interaction.channel?.send({ content: "🔃 Calculating..." }).then(resultMessage => {
-                    const ping = resultMessage.createdTimestamp - interaction.createdTimestamp
-                    resultMessage.edit({ content: `<:check:966796856975835197> Bot Latency: **${ping}ms**, API Latency: **${client.ws.ping}ms**` })
-                })
+                const resultMessage = await interaction.reply({ content: "🔃 Calculating...", fetchReply: true })
+                const ping = (resultMessage as Message).createdTimestamp - interaction.createdTimestamp
+                interaction.editReply({ content: `<:check:966796856975835197> Bot Latency: **${ping}ms**, API Latency: **${client.ws.ping}ms**` })
             }
         } catch {
             ((err: Error) => {
