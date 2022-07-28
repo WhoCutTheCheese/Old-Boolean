@@ -491,17 +491,17 @@ export default {
                                         .setDescription(`**Boolean - v${bot.version}** | Slash Commands & More!
                                         > Boolean has been effectively rewritten, every command now supports slash commands, a few renamed, and many changes. This update also should help Boolean's stability, but we'll see!
                                         > 
-                                        > :plus: **!!<command> **->** !!<command> & /<command>**
-                                        > :plus: Security and stability updates
-                                        > :plus: Mod logs will now display more accurate details on the command ran
-                                        > :plus: https://discordbotlist.com/bots/boolean button added to **!!invite**
-                                        > :plus: Completely new command handler that supports slash command and improves stability
-                                        > :plus: Ability to disabled commands via **!!command**
-                                        > :plus: Unban & Unmute now create a case file & will show up on a user's history
-                                        > :plus: Added "DM User When Punished" to **!!config**
+                                        > <:plus:979475666963681320> **!!<command> **->** !!<command> & /<command>**
+                                        > <:plus:979475666963681320> Security and stability updates
+                                        > <:plus:979475666963681320> Mod logs will now display more accurate details on the command ran
+                                        > <:plus:979475666963681320> https://discordbotlist.com/bots/boolean button added to **!!invite**
+                                        > <:plus:979475666963681320> Completely new command handler that supports slash command and improves stability
+                                        > <:plus:979475666963681320> Ability to disabled commands via **!!command**
+                                        > <:plus:979475666963681320> Unban & Unmute now create a case file & will show up on a user's history
+                                        > <:plus:979475666963681320> Added "DM User When Punished" to **!!config**
                                         > 
-                                        > :recommended: **Modroleset** & **Adminroleset** renamed to: **Modrole** & **Adminrole**
-                                        > :recommended:  **!!dmonpunish** renamed to: **dm**
+                                        > <:recommended:979475658000437258> **Modroleset** & **Adminroleset** renamed to: **Modrole** & **Adminrole**
+                                        > <:recommended:979475658000437258>  **!!dmonpunish** renamed to: **dm**
                                         > 
                                         > :octagonal_sign:  *These are very large changes, you probably will encounter bugs. Please report these if they arise, thanks! Also! Some settings have been reset, such as your server prefix since some database changes were made.*
                                         
