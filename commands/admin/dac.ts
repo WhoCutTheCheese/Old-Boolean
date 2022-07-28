@@ -1,14 +1,23 @@
-import { Client, Message, MessageActionRow, MessageButton, MessageEmbed, ButtonInteraction, Interaction } from 'discord.js'
-import Guild from "../../models/guild";
+import { ICommand } from "wokcommands";
+import { ButtonInteraction, ColorResolvable, MessageActionRow, MessageButton, MessageEmbed, Interaction } from "discord.js";
+import Config from "../../models/config";
 import Cases from "../../models/cases";
-import ErrorLog from "../../functions/errorlog";
-module.exports = {
-    commands: ['deleteallcases', 'clearallcases', 'wipeallcases', 'dac'],
+import Guild from "../../models/guild";
+import Tokens from "../../models/tokens";
+export default {
+    category: "Administration",
+    description: "Delete all cases.",
+    aliases: ["deleteallcases", "delete=all=cases"],
+    slash: false,
     maxArgs: 0,
-    minargs: 0,
-    cooldown: 60,
-    callback: async (client: Client, bot: { version: string }, message: Message, args: string[]) => {
+    cooldown: "5s",
+
+
+    callback: async ({ message, client, args }) => {
         try {
+            const configuration = await Config.findOne({
+                guildID: message.guild?.id
+            })
             if (message.author.id !== message.guild?.ownerId) { return message.channel.send({ content: "You cannot use this!" }) }
             const invite = new MessageActionRow().addComponents(
                 new MessageButton()
@@ -16,12 +25,9 @@ module.exports = {
                     .setStyle("DANGER")
                     .setCustomId(`confirm.${message.author.id}`),
             )
-            const guildSettings = await Guild.findOne({
-                guildID: message.guild?.id,
-            })
             const deleteallcasesEmbed = new MessageEmbed()
                 .setTitle("Delete All Cases?")
-                .setColor(guildSettings.color)
+                .setColor(configuration.embedColor)
                 .setDescription("**WARNING** This will delete all case files stored by Boolean. This means that Boolean will NOT be able to fetch old punishments after clicking confirm.")
             message.channel.send({ embeds: [deleteallcasesEmbed], components: [invite] }).then((resultMessage: any) => {
                 const filter = (Interaction: Interaction) => {
@@ -39,9 +45,9 @@ module.exports = {
                         invite.components[0].setDisabled(true)
                         const deleteallcasesEmbed = new MessageEmbed()
                             .setTitle("Delete All Cases")
-                            .setColor(guildSettings.color)
+                            .setColor(configuration.embedColor)
                             .setDescription("Boolean has deleted all case files in this guild!")
-                        resultMessage.edit({ embeds: [deleteallcasesEmbed], components: [invite] }).catch((err: Error) => ErrorLog(message.guild!, "EDIT_FUNCTION", err, client, message, `${message.author.id}`, `mute.ts`))
+                        resultMessage.edit({ embeds: [deleteallcasesEmbed], components: [invite] }).catch((err: Error) => console.error(err))
                         await Cases.deleteMany({
                             guildID: message.guild?.id,
                         })
@@ -52,11 +58,12 @@ module.exports = {
                         })
                     }
                 })
-            }).catch((err: Error) => ErrorLog(message.guild!, "EDIT_MESSAGE", err, client, message, `${message.author.id}`, `dac.ts`))
+            }).catch((err: Error) => console.error(err))
         } catch {
             (err: Error) => {
-                ErrorLog(message.guild!, "DAC_COMMAND", err, client, message, `${message.author.id}`, `dac.ts`)
+                console.error(err);
+                return "An error occurred running this command! If this persists PLEASE contact us.";
             }
         }
-    },
-}
+    }
+} as ICommand

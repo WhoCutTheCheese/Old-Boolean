@@ -1,11 +1,18 @@
-import { Client, Message, MessageActionRow, MessageButton, MessageEmbed, ButtonInteraction, Interaction } from "discord.js";
-module.exports = {
-    commands: ['whyarewestillhere', 'breakingpoint', '3dsaul'],
+import { ICommand } from "wokcommands";
+export default {
+    category: "User",
+    description: "Browwwwwww bo be no no no WOWW",
+    slash: false,
+    aliases: ['whyarewestillhere', 'breakingpoint'],
     minArgs: 0,
     maxArgs: 0,
     expectedArgs: "",
-    cooldown: 1,
-    callback: async (client: Client, bot: any, message: Message, args: string[]) => {
-        message.reply("https://media.discordapp.net/attachments/819578916275617804/977631812413161502/lv_0_20220516161756.mp4")       
-    },
-}
+    cooldown: "5s",
+    hidden: true,
+
+    callback: async ({ message }) => {
+        if(message) {
+            message.reply("https://media.discordapp.net/attachments/819578916275617804/977631812413161502/lv_0_20220516161756.mp4")
+        }
+    }
+} as ICommand

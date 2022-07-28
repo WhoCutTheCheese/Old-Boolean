@@ -7,6 +7,7 @@ import Tokens from './models/tokens';
 import GuildSchema from "./models/guild";
 import ConfigSchema from "./models/config";
 import Bans from "./models/ban";
+import WOKcommands from "wokcommands";
 const client = new Client({
     intents: [
         Intents.FLAGS.GUILDS,
@@ -24,28 +25,19 @@ client.on('ready', async () => {
     client.user?.setActivity('The Aether | !!help', {
         type: "WATCHING",
     });
-    const baseFile = 'command_base.ts'
-    const commandBase = require(`./commands/${baseFile}`)
 
-    const readCommands = (dir: string) => {
-        const files = fs.readdirSync(path.join(__dirname, dir))
-        for (const file of files) {
-            const stat = fs.lstatSync(path.join(__dirname, dir, file))
-            if (stat.isDirectory()) {
-                readCommands(path.join(dir, file))
-            } else if (file !== baseFile) {
-                const option = require(path.join(__dirname, dir, file))
-                commandBase(option)
-            }
-        }
-    }
-
+    new WOKcommands(client, {
+        commandsDir: path.join(__dirname, 'commands'),
+        typeScript: true,
+        dbOptions: {
+            keepAlive: true
+        },
+        mongoUri: "mongodb+srv://SmartSky:CheeseCake101@booleanstorage.3ud4r.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
+        botOwners: ["493453098199547905", "648598769449041946"],
+      })
+      .setDefaultPrefix("!!")
     
     setInterval(check, 1000 * 60);
-
-    readCommands('commands')
-    commandBase.listen(client);
-    await mongoose.connect(`mongodb+srv://SmartSky:CheeseCake101@booleanstorage.3ud4r.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`, { keepAlive: true })
     console.log("Boolean has started!")
 });
 import Config from "./models/config";
@@ -70,6 +62,7 @@ client.on("guildCreate", async guild => {
                 muteRoleID: "None",
                 modLogChannel: "None",
                 joinRoleID: "None",
+                embedColor: "5865F2",
                 dmOnPunish: true,
                 modRoleID: [],
                 adminRoleID: [],
@@ -88,8 +81,6 @@ client.on("guildCreate", async guild => {
             const newGuild = new GuildSchema({
                 _id: new mongoose.Types.ObjectId(),
                 guildID: guild?.id,
-                prefix: "!!",
-                color: `5865F2`,
                 premium: false,
                 premiumHolder: "None",
                 totalCases: 0,
@@ -139,6 +130,7 @@ client.on("messageCreate", async message => {
                 muteRoleID: "None",
                 modLogChannel: "None",
                 joinRoleID: "None",
+                embedColor: "5865F2",
                 dmOnPunish: true,
                 modRoleID: [],
                 adminRoleID: [],
@@ -156,8 +148,6 @@ client.on("messageCreate", async message => {
             const newGuild = new GuildSchema({
                 _id: new mongoose.Types.ObjectId(),
                 guildID: message.guild?.id,
-                prefix: "!!",
-                color: `5865F2`,
                 premium: false,
                 premiumHolder: "None",
                 totalCases: 0,

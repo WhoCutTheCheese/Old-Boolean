@@ -1,27 +1,54 @@
-import { Client, Message, MessageActionRow, MessageButton, MessageEmbed, ButtonInteraction, Interaction } from 'discord.js'
-import Guild from "../../models/guild";
+import { ICommand } from "wokcommands";
+import { Message, MessageEmbed, TextChannel } from "discord.js";
+import Config from "../../models/config";
 import Cases from "../../models/cases";
-import ErrorLog from "../../functions/errorlog";
-module.exports = {
-    commands: ['stats'],
+export default {
+    category: "Administration",
+    description: "Boolean information.",
+    slash: "both",
+    aliases: [],
     maxArgs: 0,
-    minargs: 0,
-    cooldown: 0,
-    devOnly: true,
-    callback: async (client: Client, bot: { version: string }, message: Message, args: string[]) => {
-        const guildSettings = await Guild.findOne({
-            guildID: message.guild?.id
-        })
-        message.channel.send({ content: "Fetching stats..." }).then((result: Message) => {
-            const statsEmbed = new MessageEmbed()
+    cooldown: "5s",
+    ownerOnly: true,
+    hidden: true,
+
+    callback: async ({ message, interaction, client }) => {
+        try {
+            if (message) {
+                const configuration = await Config.findOne({
+                    guildID: message.guild?.id
+                })
+                message.channel.send({ content: "Fetching stats..." }).then((result: Message) => {
+                    const statsEmbed = new MessageEmbed()
+                        .setAuthor({ name: `${client.user?.username} Stats`, iconURL: client.user?.displayAvatarURL({ dynamic: true }) || "" })
+                        .setColor(configuration.embedColor)
+                        .addFields(
+                            { name: "Total Guilds", value: `${client.guilds.cache.size}` },
+                            { name: "Cached Users", value: `${client.users.cache.size}` },
+                            { name: "Ram Usage", value: `\`${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} MB\` / \`512 MB\`` }
+                        )
+                    result.edit({ embeds: [statsEmbed] })
+                })
+                return true;
+            } else if (interaction) {
+                const configuration = await Config.findOne({
+                    guildID: interaction.guild?.id
+                })
+                const statsEmbed2 = new MessageEmbed()
                 .setAuthor({ name: `${client.user?.username} Stats`, iconURL: client.user?.displayAvatarURL({ dynamic: true }) || "" })
-                .setColor(guildSettings.color)
+                .setColor(configuration.embedColor)
                 .addFields(
                     { name: "Total Guilds", value: `${client.guilds.cache.size}` },
                     { name: "Cached Users", value: `${client.users.cache.size}` },
                     { name: "Ram Usage", value: `\`${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} MB\` / \`512 MB\`` }
                 )
-            result.edit({ embeds: [statsEmbed] })
-        })
-    },
-}
+                interaction.reply({ embeds: [statsEmbed2] })
+            }
+        } catch {
+            (err: Error) => {
+                console.error(err);
+                return "An error occurred running this command! If this persists PLEASE contact us.";
+            }
+        }
+    }
+} as ICommand
