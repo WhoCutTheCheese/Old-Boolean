@@ -15,6 +15,7 @@ export default {
                     resultMessage.edit({ content: `<:check:966796856975835197> Bot Latency: **${ping}ms**, API Latency: **${client.ws.ping}ms**` })
                 })
             } else if (interaction) {
+                await interaction.deferReply();
                 await interaction.channel?.send({ content: "🔃 Calculating..." }).then(resultMessage => {
                     const ping = resultMessage.createdTimestamp - interaction.createdTimestamp
                     resultMessage.edit({ content: `<:check:966796856975835197> Bot Latency: **${ping}ms**, API Latency: **${client.ws.ping}ms**` })
