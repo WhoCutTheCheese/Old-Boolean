@@ -1,4 +1,4 @@
-import { Client, Intents, Message, User } from 'discord.js';
+import { Client, Intents, Message, MessageEmbed, User, WebhookClient } from 'discord.js';
 import Dotenv from 'dotenv';
 import fs from 'fs';
 import path from "path";
@@ -51,6 +51,15 @@ client.on('guildMemberAdd', async member => {
     member.roles.add(configSettings.joinRoleID)
 })
 client.on("guildCreate", async guild => {
+    const webhook = new WebhookClient({ url: "https://discord.com/api/webhooks/1004515583469043722/8PZOWpUWZ22i-sqL3zaFLIdtjFa_LAW6PazXCa8JlOy2fPa2CkNeuT9VIKrMllwUG3fO" })
+    const joinEmbed = new MessageEmbed()
+        .setAuthor({ name: "Server Added", iconURL: guild.iconURL({ dynamic: true }) || "" })
+        .setDescription(`__**Server Information**__
+        > **Name:** ${guild.name}
+        > **ID:** ${guild.id}
+        > **Members:** ${guild.memberCount}`)
+        .setColor("BLURPLE")
+    webhook.send({ embeds: [joinEmbed] })
     ConfigSchema.findOne({
         guildID: guild?.id,
     }, (err: any, config: any) => {
