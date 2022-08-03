@@ -23,8 +23,8 @@ export default {
                         .setAuthor({ name: `${client.user?.username} Stats`, iconURL: client.user?.displayAvatarURL({ dynamic: true }) || "" })
                         .setColor(configuration.embedColor)
                         .addFields(
-                            { name: "Total Guilds", value: `${client.guilds.cache.size}` },
-                            { name: "Cached Users", value: `${client.users.cache.size}` },
+                            { name: "Total Guilds", value: `${client.guilds.cache.size.toLocaleString()}` },
+                            { name: "Cached Users", value: `${client.users.cache.size.toLocaleString()}` },
                             { name: "Ram Usage", value: `\`${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} MB\` / \`512 MB\`` }
                         )
                     result.edit({ embeds: [statsEmbed] })
@@ -38,8 +38,8 @@ export default {
                 .setAuthor({ name: `${client.user?.username} Stats`, iconURL: client.user?.displayAvatarURL({ dynamic: true }) || "" })
                 .setColor(configuration.embedColor)
                 .addFields(
-                    { name: "Total Guilds", value: `${client.guilds.cache.size}` },
-                    { name: "Cached Users", value: `${client.users.cache.size}` },
+                    { name: "Total Guilds", value: `${client.guilds.cache.size.toLocaleString()}` },
+                    { name: "Cached Users", value: `${client.users.cache.size.toLocaleString()}` },
                     { name: "Ram Usage", value: `\`${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} MB\` / \`512 MB\`` }
                 )
                 interaction.reply({ embeds: [statsEmbed2] })
