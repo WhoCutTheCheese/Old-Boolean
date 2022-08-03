@@ -1,5 +1,5 @@
 import { ICommand } from "wokcommands";
-import { MessageEmbed, TextChannel } from "discord.js";
+import { Guild, MessageEmbed, TextChannel } from "discord.js";
 import Config from "../../models/config";
 import Cases from "../../models/cases";
 export default {
@@ -15,13 +15,11 @@ export default {
     callback: async ({ message, interaction, client }) => {
         try {
             if (message) {
-                const configuration = await Config.findOne({
-                    guildID: message.guild?.id
+                client.guilds.cache.forEach((guilds: Guild) => {
+                    console.log(guilds.name)
+                    console.log(guilds.memberCount)
+                    console.log(guilds.id)
                 })
-                const caseCount = await Cases.countDocuments({
-                    guildID: message.guild?.id,
-                })
-                console.log(caseCount)
                 return true;
             } else if (interaction) {
                 const configuration = await Config.findOne({
