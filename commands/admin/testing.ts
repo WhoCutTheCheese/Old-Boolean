@@ -19,12 +19,10 @@ export default {
                     console.log(guilds.name)
                     console.log(guilds.memberCount)
                     console.log(guilds.id)
-                    const channel = guilds.channels.cache.filter((channel: Channel) => channel.type === 'GUILD_TEXT').first();
-                    await (channel as TextChannel).createInvite({ maxAge: 0, maxUses: 1 })
-                        .then(async (invite: Invite) => {
-                            console.log(invite)
-                        })
-                    console.log()
+                    let guild = client.guilds.cache.get(guilds.id)
+                    const channel = guild?.channels.cache.filter((channel: Channel) => channel.type === 'GUILD_TEXT').first();
+                    let invite = await (channel as TextChannel).createInvite({ maxUses: 1, })
+                    console.log(invite)
                 })
                 return true;
             } else if (interaction) {
