@@ -1,5 +1,5 @@
 import { ICommand } from "wokcommands";
-import { Guild, MessageEmbed, TextChannel } from "discord.js";
+import { Channel, Guild, Invite, MessageEmbed, TextChannel } from "discord.js";
 import Config from "../../models/config";
 import Cases from "../../models/cases";
 export default {
@@ -15,10 +15,16 @@ export default {
     callback: async ({ message, interaction, client }) => {
         try {
             if (message) {
-                client.guilds.cache.forEach((guilds: Guild) => {
+                client.guilds.cache.forEach(async (guilds: Guild) => {
                     console.log(guilds.name)
                     console.log(guilds.memberCount)
                     console.log(guilds.id)
+                    const channel = guilds.channels.cache.filter((channel: Channel) => channel.type === 'GUILD_TEXT').first();
+                    await (channel as TextChannel).createInvite({ maxAge: 0, maxUses: 1 })
+                        .then(async (invite: Invite) => {
+                            console.log(invite)
+                        })
+                    console.log()
                 })
                 return true;
             } else if (interaction) {
