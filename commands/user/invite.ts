@@ -28,10 +28,15 @@ export default {
                         .setStyle("LINK")
                         .setURL("https://discord.gg/VD4sf98hKd"),
                     new MessageButton()
-                        .setLabel("Vote")
+                        .setLabel("Vote Top.gg")
                         .setEmoji("🔗")
                         .setStyle("LINK")
                         .setURL("https://top.gg/bot/966634522106036265"),
+                    new MessageButton()
+                        .setLabel("Vote dbl.com")
+                        .setEmoji("🔗")
+                        .setStyle("LINK")
+                        .setURL("https://discordbotlist.com/bots/boolean/upvote"),
 
                 )
 
