@@ -411,7 +411,7 @@ export default {
                     const chingChong = new MessageEmbed()
                         .setTitle("<:tasklist:967443053063327774> Help\n")
                         .setDescription("<a:coin:893603823459905536> **[Premium](https://google.com)** | :newspaper: **[Features](https://google.com/)** | <:bughuntergold:967441675507105842> **[Support Server](https://discord.gg/VD4sf98hKd)**")
-                        .addField("Current Guild Settings", `Prefix: \`${configuration.embedColor}\`\nEmbed Color: \`#${configuration.embedColor}\`\nPremium Status: \`${premiumStatus.premium}\``)
+                        .addField("Current Guild Settings", `Prefix: \`${guildSettings.prefix}\`\nEmbed Color: \`#${configuration.embedColor}\`\nPremium Status: \`${premiumStatus.premium}\``)
                         .setColor(configuration.embedColor)
                         .addField("User Commands", "`ping`, `userinfo`, `serverinfo`, `avatar`, `botinfo`, `invite`, `help`")
                         .addField("Moderation Commands", "`warn`, `mute`, `kick`, `ban`, `softban`, `unban`, `unmute`, `history`, `purge`, `lockdown`, `unlockdown`, `delcase`, `reason`, `slowmode`, `nickname`")
