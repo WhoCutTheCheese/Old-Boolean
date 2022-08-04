@@ -1,4 +1,4 @@
-import { Client, ClientVoiceManager, Intents, Message, MessageEmbed, User, WebhookClient } from 'discord.js';
+import { Client, ClientVoiceManager, Guild, Intents, Message, MessageEmbed, User, WebhookClient } from 'discord.js';
 import Dotenv from 'dotenv';
 import fs from 'fs';
 import path from "path";
@@ -34,23 +34,35 @@ client.on('ready', async () => {
         },
         mongoUri: "mongodb+srv://SmartSky:CheeseCake101@booleanstorage.3ud4r.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
         botOwners: ["493453098199547905", "648598769449041946"],
-      })
-      .setDefaultPrefix("!!")
-    
+    })
+        .setDefaultPrefix("!!")
+
     setInterval(check, 1000 * 60);
     console.log("Boolean has started!")
 });
 import Config from "./models/config";
 client.on('guildMemberAdd', async member => {
     const nonGuildMember = client.users.cache.get(member.id)
-    if(nonGuildMember?.bot) { return; }
+    if (nonGuildMember?.bot) { return; }
     const configSettings = await Config.findOne({
         guildID: member.guild.id,
     })
-    if(configSettings.joinRoleID === "None") { return; }
+    if (configSettings.joinRoleID === "None") { return; }
     member.roles.add(configSettings.joinRoleID)
 })
-client.on("guildCreate", async guild => {
+client.on("guildCreate", async (guild: Guild) => {
+    const webhook = new WebhookClient({ url: "https://discord.com/api/webhooks/1004515583469043722/8PZOWpUWZ22i-sqL3zaFLIdtjFa_LAW6PazXCa8JlOy2fPa2CkNeuT9VIKrMllwUG3fO" })
+    const embed = new MessageEmbed()
+        .setAuthor({ name: "Server Added", iconURL: guild.iconURL({ dynamic: true }) || "" })
+        .setColor("GREEN")
+        .setDescription(`**__Server Information__**
+        > **Name:** ${guild.name}
+        > **ID:** ${guild.id}
+        > **Members:** ${guild.memberCount}
+        
+        > **Added:** <t:${Math.round(Date.now() / 1000)}:D> (<t:${Math.round(Date.now() / 1000)}:R>)`)
+        .setThumbnail(guild.iconURL({ dynamic: true }) || "")
+    webhook.send({ embeds: [embed] })
     ConfigSchema.findOne({
         guildID: guild?.id,
     }, (err: any, config: any) => {
@@ -73,28 +85,36 @@ client.on("guildCreate", async guild => {
                 .catch((err: any) => console.error(err))
         };
     });
-    GuildSchema.findOne({
-        guildID: guild?.id
-    }, ((err: any, guild: any) => {
-        if (err) console.error(err)
-        if (!guild) {
-            const newGuild = new GuildSchema({
-                _id: new mongoose.Types.ObjectId(),
-                guildID: guild?.id,
-                premium: false,
-                premiumHolder: "None",
-                totalCases: 0,
-            })
-            newGuild.save()
-                .catch((err: Error) => console.error(err))
-                return;
-            }
-    }));
+    const guildShit = await GuildSchema.findOne({
+        guildID: guild.id
+    })
+    if(!guildShit) {
+        const newGuild = new GuildSchema({
+            guildID: guild.id,
+            premium: false,
+            premiumHolder: "None",
+            totalCases: 0,
+        })
+        newGuild.save()
+    }
 })
 client.on('guildDelete', async guild => {
+    const webhook = new WebhookClient({ url: "https://discord.com/api/webhooks/1004515583469043722/8PZOWpUWZ22i-sqL3zaFLIdtjFa_LAW6PazXCa8JlOy2fPa2CkNeuT9VIKrMllwUG3fO" })
+    const embed = new MessageEmbed()
+        .setAuthor({ name: "Server Removed", iconURL: guild.iconURL({ dynamic: true }) || "" })
+        .setColor("RED")
+        .setDescription(`**__Server Information__**
+        > **Name:** ${guild.name}
+        > **ID:** ${guild.id}
+        > **Members:** ${guild.memberCount}
+        
+        > **Removed:** <t:${Math.round(Date.now() / 1000)}:D> (<t:${Math.round(Date.now() / 1000)}:R>)`)
+        .setThumbnail(guild.iconURL({ dynamic: true }) || "")
+    webhook.send({ embeds: [embed] })
     const guildS = await GuildSchema.findOne({
         guildID: guild.id,
     });
+    if(!guildS) { return; }
     if (guildS.premium == true) {
         const token = await Tokens.findOne({
             userID: guildS.premiumHolder
@@ -154,15 +174,15 @@ client.on("messageCreate", async message => {
             })
             newGuild.save()
                 .catch((err: Error) => console.error(err))
-                return;
-            }
+            return;
+        }
     }));
 })
 const check = async () => {
     const results = await Bans.find({
         caseEndDate: { $lt: new Date() },
     })
-    if(!results) { return; }
+    if (!results) { return; }
     for (const result of results) {
         const { guildID, userID } = result
         const guild = await client.guilds.fetch(guildID);
@@ -176,4 +196,4 @@ const check = async () => {
 
 }
 check()
-client.login(process.env.token);
+client.login("OTY2NjM0NTIyMTA2MDM2MjY1.G-_YWp.Jt5_WAy2Cjo2McE4XUqaSQCULKOrOQySg-ems0");
