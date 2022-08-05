@@ -140,7 +140,9 @@ client.on('guildDelete', async guild => {
         guildID: guild.id,
     })
 });
+import performAutomod from "./functions/performAutomod";
 client.on("messageCreate", async message => {
+    performAutomod(message, client);
     ConfigSchema.findOne({
         guildID: message.guild?.id,
     }, (err: any, config: any) => {
