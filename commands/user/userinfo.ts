@@ -5,7 +5,7 @@ export default {
     category: "User",
     description: "Get information on ANY user.",
     slash: "both",
-    aliases: ['user-info', 'uinfo'],
+    aliases: ['user-info', 'uinfo', 'whois'],
     minArgs: 0,
     maxArgs: 1,
     expectedArgs: "(@User || User ID)",
