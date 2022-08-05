@@ -34,8 +34,8 @@ export default {
                         .addField("Name:", `${message.author.tag}`, true)
                         .addField("Is Bot", `${message.author.bot}`, false)
                         .addField("General Information:", `**Mention:** <@${message.author.id}>\n**ID:** ${message.author.id}\n**Highest Role:** ${message.member!.roles.highest}\n**Avatar:** [Link](${message.author.displayAvatarURL({ size: 512, dynamic: true })})\n**Display Name:** ${message.author.username}`, false)
-                        .addField('🗓️ Account joined:', `<t:${Math.floor(message.member!.joinedAt!.getTime() / 1000)}:D> (<t:${Math.floor(message.member!.joinedAt!.getTime() / 1000)}:R>)`, true)
-                        .addField('🗓️ Account Created:', `<t:${Math.floor(message.author.createdAt.getTime() / 1000)}:D> (<t:${Math.floor(message.author.createdAt.getTime() / 1000)}:R>)`, true)
+                        .addField('🗓️ Account joined:', `<t:${Math.floor(message.member!.joinedAt!.getTime() / 1000)}:D>\n (<t:${Math.floor(message.member!.joinedAt!.getTime() / 1000)}:R>)`, true)
+                        .addField('🗓️ Account Created:', `<t:${Math.floor(message.author.createdAt.getTime() / 1000)}:D>\n (<t:${Math.floor(message.author.createdAt.getTime() / 1000)}:R>)`, true)
                         .setFooter({ text: `Requested by ${message.author.tag}`, iconURL: message.author.avatarURL({ dynamic: true }) || "" })
                     if (message.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD)) {
                         if (message.member?.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
