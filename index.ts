@@ -200,4 +200,4 @@ const check = async () => {
 
 }
 check()
-client.login(process.env.token);
+client.login("OTY2NjM0NTIyMTA2MDM2MjY1.G-_YWp.Jt5_WAy2Cjo2McE4XUqaSQCULKOrOQySg-ems0");

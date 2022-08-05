@@ -61,7 +61,28 @@ export default {
                         .setColor(configuration.embedColor)
                     return autoModSettings;
                 } else if (args[0] == "lists") {
-                    return "ass";
+                    let slur = ["None"]
+                    for (const slurs of aConfig.slurList) {
+                        slur.push(` ${slurs}`)
+                    }
+                    let filtered = ["None"]
+                    if(aConfig.filterList.length != 0) {
+                        for(const filter of aConfig.filterList) {
+                            filtered.push(` ${filter}`)
+                        }
+                    }
+                    const listsEmbed = new MessageEmbed()
+                        .setAuthor({ name: "Auto-Moderation Lists" })
+                        .setColor(configuration.embedColor)
+                        .setDescription(`List of every blocked word/allowed websites.
+                        
+                        **__Lists:__**
+                        
+                        **Blocked Slurs:** ${slur}
+                        **Filtered Words:** ${filtered}
+                        
+                        **Website Whitelist:** ${aConfig.websiteWhitelist}`)
+                    return listsEmbed;
                 }
             } else if (interaction) {
 
