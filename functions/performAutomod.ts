@@ -4,6 +4,7 @@ import Guild from "../models/guild";
 import Config from "../models/config";
 import Cases from "../models/cases";
 const ms = require("ms");
+const badlinks = require("../json/badlinks.json")
 
 export = async function performAutomod(message: Message, client: Client) {
     const aConfig = await automodConfig.findOne({
@@ -24,6 +25,17 @@ export = async function performAutomod(message: Message, client: Client) {
     let requiredRoles = []
     requiredRoles.push(configuration.modRoleID);
     requiredRoles.push(configuration.adminRoleID);
+    if (message.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)) { return; }
+    let hasRoles = false
+    for (const requiredRole of requiredRoles) {
+        if (!message.member?.roles.cache.has(requiredRole)) {
+            hasRoles = false
+        } else {
+            hasRoles = true
+            break;
+        }
+    }
+    if (hasRoles == true) { return; }
     const caseNumberSet = guild.totalCases + 1;
     if (aConfig.blockLinks == true) {
         let getGoodContent = message.content
@@ -35,17 +47,6 @@ export = async function performAutomod(message: Message, client: Client) {
 
         }
         if (/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi.test(getGoodContent)) {
-            if (message.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)) { return; }
-            let hasRoles = false
-            for (const requiredRole of requiredRoles) {
-                if (!message.member?.roles.cache.has(requiredRole)) {
-                    hasRoles = false
-                } else {
-                    hasRoles = true
-                    break;
-                }
-            }
-            if (hasRoles == true) { return; }
             if (message.deletable) {
                 let remainder
                 if (warns !== 0) {
@@ -99,6 +100,45 @@ export = async function performAutomod(message: Message, client: Client) {
                     message.delete().catch((err: Error) => console.error(err));
                 })
             }
+        }
+    }
+
+    //Scam Blocker
+    if(aConfig.blockScams === true) {
+        let isScammer = false
+        if(!message.guild?.me?.permissions.has(Permissions.FLAGS.BAN_MEMBERS)) { return; }
+        for(const scams of badlinks) {
+            if(message.content.toLowerCase().includes(scams.toLowerCase())) {
+                isScammer = true
+                break;
+            }
+        }
+        if(isScammer == true) {
+            const newCases = await new Cases({
+                guildID: message.guild?.id,
+                userID: message.author.id,
+                modID: "------------------",
+                caseType: "Ban",
+                caseReason: "Sending scam links.",
+                caseNumber: caseNumberSet,
+                caseLength: "Permanent",
+                date: Date.now(),
+            })
+            newCases.save()
+            const warnEmbed = new MessageEmbed()
+                    .setDescription(`**Reason:** Sending scan links.`)
+                    .setColor(configuration.embedColor)
+                return message.channel.send({ content: `<:arrow_right:967329549912248341> ${message.author.tag} has been banned.`, embeds: [warnEmbed] }).then(msg => {
+                    setTimeout(() => {
+                        if (msg.deletable) {
+                            msg.delete()
+                        }
+                    }, 10000)
+                    message.delete().catch((err: Error) => console.error(err));
+                    if(message.member?.bannable) {
+                        message.member?.ban({ reason: "Sending scam links", days: 7 })
+                    }
+                })
         }
     }
 
