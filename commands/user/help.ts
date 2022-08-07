@@ -488,7 +488,24 @@ export default {
                                     const changeLog = new MessageEmbed()
                                         .setTitle("📰 Change Log")
                                         .setColor(configuration.embedColor)
-                                        .setDescription(`**Boolean - v${bot.version}** | Slash Commands & More!
+                                        .setDescription(`**Boolean - v${bot.version}** | Auto Moderation :beta::beta2::beta3:
+                                        > *These features will be coming to Boolean publicly but they are still in beta and are subject to change.*
+                                        > The long awaited AutoMod update is here! Because of Discord built in AutoMod Boolean doesn't and wont support chat filters.
+                                        > 
+                                        > <:plus:979475666963681320> Added command **!!automod & /automod**
+                                        > <:plus:979475666963681320> New Auto-Moderation features
+                                        >       <:pencil:977391492916207636> **Usage:** \`!!automod [Sub Command] [Value]\`
+                                        >       <:recommended:979475658000437258> **Block Links** Block any an all links, with a editable whitelist so you can allow any websites you want.
+                                        >       <:recommended:979475658000437258> **Block Scams** Blocks all Discord Nitro scam websites on file. *Not necessary if Block Links is enabled*
+                                        >       <:recommended:979475658000437258> **Mass Mentions** Block user from mass pinging  users in your server
+                                        >       <:recommended:979475658000437258> **Mentions Cap** Set the cap of mentions people an use to trigger AutoMod.
+                                        >       <:recommended:979475658000437258> **Whitelist** Add a whitelisted website to **Block Links**
+                                        > <:plus:979475666963681320> Database changes (None that affect you, just stability)
+                                        > 
+                                        > ⚠ *If you are to use this update you are obligated to report bugs as it IS still in beta.*
+                                        
+                                        
+                                        **Boolean - v1.1.0** | Slash Commands & More!
                                         > Boolean has been effectively rewritten, every command now supports slash commands, a few renamed, and many changes. This update also should help Boolean's stability, but we'll see!
                                         > 
                                         > <:plus:979475666963681320> **!!<command> **->** !!<command> & /<command>**
@@ -509,12 +526,7 @@ export default {
 
                                         Boolean can now automatically mute a user with a specified amount of warns.
                                         By default this limit is \`3\` but can be changed by running \`!!automute warnsmute [Number]\`
-                                        When exceeded the user will be muted for 10 minutes. Have any feedback? Join our [support server](https://discord.gg/G2EhQCZZfh)
-
-                                        
-                                        **Boolean - v1.0.0** | Release
-                                        
-                                        Nothing here yet! Check out the [wiki](https://google.com) for information on Boolean's features.`)
+                                        When exceeded the user will be muted for 10 minutes. Have any feedback? Join our [support server](https://discord.gg/G2EhQCZZfh)`)
                                     resultMessage.edit({
                                         embeds: [changeLog],
                                         components: [row],
