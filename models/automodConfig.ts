@@ -3,11 +3,9 @@ import mongoose from "mongoose";
 let Schema = new mongoose.Schema({
     guildID: String,
     blockLinks: Boolean,
-    blockSlurs: Boolean,
     blockScams: Boolean,
-    filter: Boolean,
-    slurList: Array,
-    bannedWordsList: Array,
+    massMentions: Boolean,
+    maxMentions: Number,
     websiteWhitelist: Array,
 })
 

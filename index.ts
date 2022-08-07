@@ -1,5 +1,5 @@
 import { Client, ClientVoiceManager, Guild, Intents, Message, MessageEmbed, User, WebhookClient } from 'discord.js';
-import Dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import fs from 'fs';
 import path from "path";
 import mongoose from "mongoose";
@@ -8,6 +8,7 @@ import GuildSchema from "./models/guild";
 import ConfigSchema from "./models/config";
 import Bans from "./models/ban";
 import WOKcommands from "wokcommands";
+dotenv.config();
 const client = new Client({
     intents: [
         Intents.FLAGS.GUILDS,
@@ -32,7 +33,7 @@ client.on('ready', async () => {
         dbOptions: {
             keepAlive: true
         },
-        mongoUri: "mongodb+srv://SmartSky:CheeseCake101@booleanstorage.3ud4r.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
+        mongoUri: process.env.MONGO_URL,
         botOwners: ["493453098199547905", "648598769449041946"],
     })
         .setDefaultPrefix("!!")
@@ -143,27 +144,25 @@ client.on('guildDelete', async guild => {
 import performAutomod from "./functions/performAutomod";
 client.on("messageCreate", async message => {
     performAutomod(message, client);
-    ConfigSchema.findOne({
-        guildID: message.guild?.id,
-    }, (err: any, config: any) => {
-        if (err) console.error(err)
-        if (!config) {
-            const newConfig = new ConfigSchema({
-                _id: new mongoose.Types.ObjectId(),
-                guildID: message.guild?.id,
-                muteRoleID: "None",
-                modLogChannel: "None",
-                joinRoleID: "None",
-                embedColor: "5865F2",
-                dmOnPunish: true,
-                modRoleID: [],
-                adminRoleID: [],
-                warnsBeforeMute: 3,
-            });
-            newConfig.save()
-                .catch((err: any) => console.error(err))
-        };
-    });
+    const configuration = await ConfigSchema.findOne({
+        guildID: message.guild?.id
+    })
+
+    if(!configuration) {
+        const newConfig = new ConfigSchema({
+            guildID: message.guild?.id,
+            muteRoleID: "None",
+            modLogChannel: "None",
+            joinRoleID: "None",
+            embedColor: "5865F2",
+            dmOnPunish: true,
+            modRoleID: [],
+            adminRoleID: [],
+            warnsBeforeMute: 3,
+        })
+        newConfig.save()
+    }
+
     GuildSchema.findOne({
         guildID: message.guild?.id
     }, ((err: any, guild: any) => {
@@ -200,4 +199,5 @@ const check = async () => {
 
 }
 check()
-client.login("OTY2NjM0NTIyMTA2MDM2MjY1.G-_YWp.Jt5_WAy2Cjo2McE4XUqaSQCULKOrOQySg-ems0");
+//client.login(process.env.TOKEN);
+client.login(process.env.BETA_TOKEN);
