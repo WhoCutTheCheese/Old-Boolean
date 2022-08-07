@@ -488,7 +488,7 @@ export default {
                                     const changeLog = new MessageEmbed()
                                         .setTitle("📰 Change Log")
                                         .setColor(configuration.embedColor)
-                                        .setDescription(`**Boolean - v${bot.version}** | Auto Moderation :beta::beta2::beta3:
+                                        .setDescription(`**Boolean - v${bot.version}** | Auto Moderation <:beta:990097699762225152><:beta2:990097700856950834><:beta3:990097701754511390>
                                         > *These features will be coming to Boolean publicly but they are still in beta and are subject to change.*
                                         > The long awaited AutoMod update is here! Because of Discord built in AutoMod Boolean doesn't and wont support chat filters.
                                         > 
