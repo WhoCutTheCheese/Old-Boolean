@@ -74,7 +74,7 @@ export default {
                                 **Usage:** \`!!automod blocklinks true/false\``)
                             return helpBlockEmbed;
                         }
-                        automodConfig.findOneAndUpdate({
+                        await automodConfig.findOneAndUpdate({
                             guildID: message.guild?.id
                         }, {
                             blockLinks: result
