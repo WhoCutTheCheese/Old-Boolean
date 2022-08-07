@@ -33,7 +33,7 @@ client.on('ready', async () => {
         dbOptions: {
             keepAlive: true
         },
-        mongoUri: process.env.MONGO_URL,
+        mongoUri: process.env.mongo_url,
         botOwners: ["493453098199547905", "648598769449041946"],
     })
         .setDefaultPrefix("!!")
@@ -200,4 +200,4 @@ const check = async () => {
 }
 check()
 client.login(process.env.token);
-//client.login(process.env.BETA_TOKEN);
+//client.login(process.env.beta_token);
