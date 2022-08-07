@@ -20,11 +20,11 @@ const client = new Client({
         Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
     ]
 });
-let statuses = [ "C-can you hear that music?", "Stardust to stardust", "NO ONE ESCAPES GRAVITY!", "What was that equation?", "The Aether", "IT'S JUST SO SIMPLE", "Like Newton and apple", "An elementary application", "The universe has no obligation to make sense to you!", "Wholly predictable!", "The universe sings to me", "Het universum zingt voor mij", "Ooh this one has teeth.. Rawr :3" ]
+let statuses = [ "C-can you hear that music?", "Stardust to stardust", "NO ONE ESCAPES GRAVITY!", "What was that equation?", "The Aether", "IT'S JUST SO SIMPLE", "Like Newton and apple", "An elementary application", "The universe has no obligation to make sense to you!", "Wholly predictable!", "The universe sings to me", "Het universum zingt voor mij", "Ooh this one has teeth.. Rawr :3", "Listen to your mommy" ]
 client.on('ready', async () => {
     console.log("Boolean is coding the future")
     client.user?.setStatus('dnd')
-    client.user?.setActivity(`${statuses[randomIntFromInterval(1,12)]} | !!help`, {
+    client.user?.setActivity(`${statuses[randomIntFromInterval(1,statuses.length)]} | !!help`, {
         type: "WATCHING",
     });
 
