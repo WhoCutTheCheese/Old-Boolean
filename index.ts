@@ -199,5 +199,5 @@ const check = async () => {
 
 }
 check()
-//client.login(process.env.TOKEN);
-client.login(process.env.BETA_TOKEN);
+client.login(process.env.TOKEN);
+//client.login(process.env.BETA_TOKEN);

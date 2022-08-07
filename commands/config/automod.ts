@@ -154,10 +154,12 @@ export default {
                                 **Usage:** \`!!automod whitelist [Link]\``)
                             return whitelistHelp;
                         }
+                        let array = aConfig.websiteWhitelist
+                        array.push(args[1])
                         automodConfig.findOneAndUpdate({
                             guildID: message.guild?.id
                         }, {
-                            $push: { websiteWhitelist: args[1] }
+                            websiteWhitelist: array
                         })
                         const whitelistSuccess = new MessageEmbed()
                             .setAuthor({ name: "Website Whitelist", iconURL: message.author.displayAvatarURL({ dynamic: true }) || "" })
