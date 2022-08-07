@@ -23,7 +23,7 @@ const client = new Client({
 client.on('ready', async () => {
     console.log("Boolean is coding the future")
     client.user?.setStatus('dnd')
-    client.user?.setActivity('The Aether | !!help', {
+    client.user?.setActivity('C-Can you hear that music? | !!help', {
         type: "WATCHING",
     });
 
