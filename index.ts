@@ -24,9 +24,10 @@ let statuses = [ "C-can you hear that music?", "Stardust to stardust", "NO ONE E
 client.on('ready', async () => {
     console.log("Boolean is coding the future")
     client.user?.setStatus('dnd')
-    client.user?.setActivity(`${statuses[randomIntFromInterval(1,13)]} | !!help`, {
+    client.user?.setActivity(`${statuses[1]} | !!help`, {
         type: "WATCHING",
     });
+    console.log(randomIntFromInterval(1,13))
 
     new WOKcommands(client, {
         commandsDir: path.join(__dirname, 'commands'),
