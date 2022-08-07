@@ -520,13 +520,7 @@ export default {
                                         > <:recommended:979475658000437258> **Modroleset** & **Adminroleset** renamed to: **Modrole** & **Adminrole**
                                         > <:recommended:979475658000437258>  **!!dmonpunish** renamed to: **dm**
                                         > 
-                                        > :octagonal_sign:  *These are very large changes, you probably will encounter bugs. Please report these if they arise, thanks! Also! Some settings have been reset, such as your server prefix since some database changes were made.*
-                                        
-                                        **Boolean - v1.0.1** | Auto Mute
-
-                                        Boolean can now automatically mute a user with a specified amount of warns.
-                                        By default this limit is \`3\` but can be changed by running \`!!automute warnsmute [Number]\`
-                                        When exceeded the user will be muted for 10 minutes. Have any feedback? Join our [support server](https://discord.gg/G2EhQCZZfh)`)
+                                        > :octagonal_sign:  *These are very large changes, you probably will encounter bugs. Please report these if they arise, thanks! Also! Some settings have been reset, such as your server prefix since some database changes were made.*`)
                                     resultMessage.edit({
                                         embeds: [changeLog],
                                         components: [row],
