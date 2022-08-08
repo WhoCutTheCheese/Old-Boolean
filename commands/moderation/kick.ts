@@ -105,7 +105,9 @@ export default {
                     kickUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
                         const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                         if (!channel) { return; }
-                        return (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                        if(message.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                            (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                        }
                     })
                 }
                 const modLogEmbed = new MessageEmbed()
@@ -118,7 +120,9 @@ export default {
 
                 if (!channel) { return; }
 
-                (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                if(message.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                    (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                }
                 kickUser.kick(reason).catch((err: Error) => console.error(err))
             } else if (interaction) {
                 const configuration = await Config.findOne({
@@ -198,7 +202,9 @@ export default {
                     kickUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
                         const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                         if (!channel) { return; }
-                        return (interaction.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                        if(interaction.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                            (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                        }
                     })
                 }
                 const modLogEmbed = new MessageEmbed()
@@ -211,7 +217,9 @@ export default {
 
                 if (!channel) { return; }
 
-                (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                if(interaction.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                    (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                }
                 kickUser.kick(reason).catch((err: Error) => console.error(err))
             }
         } catch {

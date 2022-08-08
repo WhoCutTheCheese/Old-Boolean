@@ -81,7 +81,9 @@ export default {
                         **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                     const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                     if (!channel) { return; }
-                    (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                    if(message.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                        (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                    }
                 }).catch((err: Error) => {
                     message.channel.send("Member is not banned or doesn't exist!")
                     return;
@@ -145,7 +147,9 @@ export default {
                         **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                     const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                     if (!channel) { return; }
-                    (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                    if(interaction.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                        (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                    }
                 }).catch((err: Error) => {
                     interaction.reply({ content: "Member is not banned or doesn't exist!", ephemeral: true })
                     return;

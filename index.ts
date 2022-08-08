@@ -203,5 +203,5 @@ function randomIntFromInterval(min: number, max: number) { // min and max includ
     return Math.floor(Math.random() * (max - min + 1) + min)
   }
 check()
-client.login(process.env.token);
-//client.login(process.env.beta_token);
+//client.login(process.env.token);
+client.login(process.env.beta_token);

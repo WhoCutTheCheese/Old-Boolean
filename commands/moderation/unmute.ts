@@ -88,8 +88,9 @@ export default {
                             **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                         const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                         if (!channel) { return; }
-                        (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
-
+                        if(message.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                            (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                        }
                     } else {
                         message.channel.send("User is not muted!")
                         return;
@@ -135,8 +136,9 @@ export default {
                         **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                     const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                     if (!channel) { return; }
-                    (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
-
+                    if(message.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                        (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                    }
                 } else if (muteUser?.communicationDisabledUntil) {
                     const caseNumberSet = serverSettings.totalCases + 1;
                     const newCases = await new Cases({
@@ -178,8 +180,9 @@ export default {
                         **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                     const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                     if (!channel) { return; }
-                    (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
-
+                    if(message.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                        (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                    }
                 } else {
                     message.channel.send({ content: "User is not muted." })
                     return;
@@ -250,8 +253,9 @@ export default {
                             **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                         const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                         if (!channel) { return; }
-                        (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
-
+                        if(interaction.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                            (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                        }
                     } else {
                         interaction.reply({ content: "User is not muted!", ephemeral: true  })
                         return;
@@ -297,8 +301,9 @@ export default {
                         **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                     const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                     if (!channel) { return; }
-                    (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
-
+                    if(interaction.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                        (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                    }
                 } else if (muteUser?.communicationDisabledUntil) {
                     const caseNumberSet = serverSettings.totalCases + 1;
                     const newCases = await new Cases({
@@ -340,8 +345,9 @@ export default {
                         **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                     const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                     if (!channel) { return; }
-                    (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
-
+                    if(interaction.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                        (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                    }
                 } else {
                     interaction.reply({ content: "User is not muted.", ephemeral: true })
                     return;

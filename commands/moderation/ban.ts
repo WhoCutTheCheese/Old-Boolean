@@ -122,7 +122,9 @@ export default {
                     banUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
                         const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                         if (!channel) { return; }
-                        (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                        if(message.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                            (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                        }
                         return true;
                     })
                 }
@@ -139,7 +141,9 @@ export default {
 
                 if (!channel) { return; }
 
-                (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                if(message.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                    (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                }
             } else if (/^\d/.test(args[1])) {
                 if (endsWithAny(["s", "m", "h", "d", "w"], args[1])) {
                     let time1 = args[1].replace("s", "").replace("m", "").replace("h", "").replace("d", "").replace("w", "");
@@ -224,7 +228,9 @@ export default {
                             banUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
                                 const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                                 if (!channel) { return; }
-                                (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                                if(message.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                                    (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                                }
                             })
                         }
 
@@ -243,7 +249,9 @@ export default {
                             .setDescription(`<:user:977391493218181120> **User:** ${banUser.user.tag}\n> [${banUser.user.id}]\n> [<@${message.author.id}>]\n<:folder:977391492790362173> **Mod:** ${message.author.tag}\n> [${message.author.id}]\n> [<@${message.author.id}>]\n<:pencil:977391492916207636> **Action:** Ban\n> [Case #${caseNumberSet}]\n**Reason:** ${reason}\n**Channel:** <#${message.channel.id}>\n**Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                         const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                         if (!channel) { return; }
-                        (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                        if(message.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                            (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                        }
 
                     } else {
                         let reason = args.slice(1).join(" ")
@@ -301,7 +309,9 @@ export default {
                             banUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
                                 const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                                 if (!channel) { return; }
-                                return (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                                if(message.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                                    (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                                }
                             })
                         }
                         banUser.ban({ reason: reason, days: 0 }).catch((err: Error) => { console.error(err + " This error was not caught by WOKCommands") })
@@ -313,7 +323,9 @@ export default {
                             .setDescription(`<:user:977391493218181120> **User:** ${banUser.user.tag}\n> [${banUser.user.id}]\n> [<@${message.author.id}>]\n<:folder:977391492790362173> **Mod:** ${message.author.tag}\n> [${message.author.id}]\n> [<@${message.author.id}>]\n<:pencil:977391492916207636> **Action:** Ban\n> [Case #${caseNumberSet}]\n**Reason:** ${reason}\n**Channel:** <#${message.channel.id}>\n**Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                         const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                         if (!channel) { return; }
-                        (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                        if(message.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                            (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                        }
 
                     }
                 } else {
@@ -372,7 +384,9 @@ export default {
                         banUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
                             const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                             if (!channel) { return; }
-                            return (message.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                            if(message.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                                (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                            }
                         })
                     }
 
@@ -386,7 +400,9 @@ export default {
                         .setDescription(`<:user:977391493218181120> **User:** ${banUser.user.tag}\n> [${banUser.user.id}]\n> [<@${message.author.id}>]\n<:folder:977391492790362173> **Mod:** ${message.author.tag}\n> [${message.author.id}]\n> [<@${message.author.id}>]\n<:pencil:977391492916207636> **Action:** Ban\n> [Case #${caseNumberSet}]\n**Reason:** ${reason}\n**Channel:** <#${message.channel.id}>\n**Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                     const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                     if (!channel) { return; }
-                    (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                    if(message.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                        (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                    }
 
                 }
             }
@@ -480,7 +496,9 @@ export default {
                     banUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
                         const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                         if (!channel) { return; }
-                        return (interaction.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                        if(interaction.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                            (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                        }
                     })
                 }
 
@@ -496,7 +514,9 @@ export default {
 
                 if (!channel) { return; }
 
-                (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                if(interaction.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                    (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                }
             } else if (/^\d/.test(args[1])) {
                 if (endsWithAny(["s", "m", "h", "d", "w"], args[1])) {
                     let time1 = args[1].replace("s", "").replace("m", "").replace("h", "").replace("d", "").replace("w", "");
@@ -581,7 +601,9 @@ export default {
                             banUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
                                 const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                                 if (!channel) { return; }
-                                (interaction.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                                if(interaction.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                                    (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                                }
                             })
                         }
 
@@ -600,7 +622,9 @@ export default {
                             .setDescription(`<:user:977391493218181120> **User:** ${banUser.user.tag}\n> [${banUser.user.id}]\n> [<@${interaction.user.id}>]\n<:folder:977391492790362173> **Mod:** ${interaction.user.tag}\n> [${interaction.user.id}]\n> [<@${interaction.user.id}>]\n<:pencil:977391492916207636> **Action:** Ban\n> [Case #${caseNumberSet}]\n**Reason:** ${reason}\n**Channel:** <#${interaction.user.id}>\n**Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                         const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                         if (!channel) { return; }
-                        (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                        if(interaction.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                            (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                        }
 
                     } else {
                         let reason = args.slice(1).join(" ")
@@ -658,7 +682,9 @@ export default {
                             banUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
                                 const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                                 if (!channel) { return; }
-                                return (interaction.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                                if(interaction.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                                    (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                                }
                             })
                         }
                         banUser.ban({ reason: reason, days: 0 }).catch((err: Error) => { console.error(err + " This error was not caught by WOKCommands") })
@@ -670,8 +696,9 @@ export default {
                             .setDescription(`<:user:977391493218181120> **User:** ${banUser.user.tag}\n> [${banUser.user.id}]\n> [<@${interaction.user.id}>]\n<:folder:977391492790362173> **Mod:** ${interaction.user.tag}\n> [${interaction.user.id}]\n> [<@${interaction.user.id}>]\n<:pencil:977391492916207636> **Action:** Ban\n> [Case #${caseNumberSet}]\n**Reason:** ${reason}\n**Channel:** <#${interaction.channel?.id}>\n**Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                         const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                         if (!channel) { return; }
-                        (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
-
+                        if(interaction.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                            (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                        }
                     }
                 } else {
                     let reason = args.slice(1).join(" ")
@@ -729,7 +756,9 @@ export default {
                         banUser.send({ embeds: [youWereWarned] }).catch((err: Error) => {
                             const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                             if (!channel) { return; }
-                            return (interaction.guild?.channels.cache.find(c => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM user." })
+                            if(interaction.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                                (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                            }
                         })
                     }
 
@@ -743,7 +772,9 @@ export default {
                         .setDescription(`<:user:977391493218181120> **User:** ${banUser.user.tag}\n> [${banUser.user.id}]\n> [<@${interaction.user.id}>]\n<:folder:977391492790362173> **Mod:** ${interaction.user.tag}\n> [${interaction.user.id}]\n> [<@${interaction.user.id}>]\n<:pencil:977391492916207636> **Action:** Ban\n> [Case #${caseNumberSet}]\n**Reason:** ${reason}\n**Channel:** <#${interaction.channel?.id}>\n**Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                     const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                     if (!channel) { return; }
-                    (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                    if(interaction.guild?.me?.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) { 
+                        (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+                    }
 
                 }
             }
