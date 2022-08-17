@@ -60,7 +60,7 @@ client.on("guildCreate", async (guild: Guild) => {
         .setDescription(`**__Server Information__**
         > **Name:** ${guild.name}
         > **ID:** ${guild.id}
-        > **Members:** ${guild.memberCount.toLocaleString}
+        > **Members:** ${guild.memberCount.toLocaleString()}
         
         > **Servers:** ${client.guilds.cache.size.toLocaleString()}
         > **Added:** <t:${Math.round(Date.now() / 1000)}:D> (<t:${Math.round(Date.now() / 1000)}:R>)`)
