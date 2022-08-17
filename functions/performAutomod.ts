@@ -22,6 +22,7 @@ export = async function performAutomod(message: Message, client: Client) {
         userID: message.author.id,
         caseType: "Warn",
     })
+    if(message.webhookId) { return; }
     let requiredRoles = []
     requiredRoles.push(configuration.modRoleID);
     requiredRoles.push(configuration.adminRoleID);

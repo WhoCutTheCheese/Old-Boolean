@@ -47,6 +47,7 @@ export default {
                     newAutomod.save()
                     return "Boolean has created an automod file for you! Please run the command again."
                 }
+                if(message.webhookId) { return; }
                 switch (args[0]) {
                     case "help":
                         const automodHelp = new MessageEmbed()
