@@ -3,7 +3,7 @@ export default {
     category: "User",
     description: "Browwwwwww bo be no no no WOWW",
     slash: false,
-    aliases: ['whyarewestillhere', 'breakingpoint'],
+    aliases: ['whyarewestillhere', 'breakingpoint', 'bean'],
     minArgs: 0,
     maxArgs: 0,
     expectedArgs: "",
