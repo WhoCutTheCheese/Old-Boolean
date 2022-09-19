@@ -5,7 +5,7 @@ import fs from "fs";
 import Bans from "./models/bans";
 import { REST } from "@discordjs/rest"
 dotEnv.config()
-const token = process.env.beta_token
+const token = process.env.token
 const client = new Client({
     intents: [
         GatewayIntentBits.GuildBans,
