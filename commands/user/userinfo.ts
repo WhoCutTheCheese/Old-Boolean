@@ -22,7 +22,7 @@ module.exports = {
                 .setThumbnail(interaction.user?.displayAvatarURL() || null)
                 .setColor(color)
                 .addFields(
-                    { name: "Name:", value: `${interaction.user.id}`, inline: true },
+                    { name: "Name:", value: `${interaction.user.tag}`, inline: true },
                     { name: "Is Bot:", value: `${interaction.user.bot}`, inline: true },
                     { name: "General Information:", value: `**Mention:** <@${interaction.user?.id}>\n**ID:** ${interaction.user?.id}\n**Highest Role:** ${(interaction.member as GuildMember).roles.highest}\n**Avatar:** [Link](${interaction.user?.displayAvatarURL({ size: 512 })})\n**Display Name:** ${interaction.user?.username}` },
                     { name: "🗓️ Account Joined:", value: `<t:${Math.floor((interaction.member as GuildMember).joinedAt!.getTime() / 1000)}:D> (<t:${Math.floor((interaction.member as GuildMember).joinedAt!.getTime() / 1000)}:R>)`, inline: true },
