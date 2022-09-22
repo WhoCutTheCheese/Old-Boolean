@@ -11,6 +11,7 @@ module.exports = {
                 .setDescription("Select a user.")
         ),
     async execute(interaction: ChatInputCommandInteraction, client: Client) {
+        if(!interaction.inCachedGuild()) return interaction.reply({ content: "This must be done in a guild.", ephemeral: true })
         const configuration = await Configuration.findOne({
             guildID: interaction.guild?.id
         })
@@ -24,7 +25,7 @@ module.exports = {
                 .addFields(
                     { name: "Name:", value: `${interaction.user.tag}`, inline: true },
                     { name: "Is Bot:", value: `${interaction.user.bot}`, inline: true },
-                    { name: "General Information:", value: `**Mention:** <@${interaction.user?.id}>\n**ID:** ${interaction.user?.id}\n**Highest Role:** ${(interaction.member as GuildMember).roles.highest}\n**Avatar:** [Link](${interaction.user?.displayAvatarURL({ size: 512 })})\n**Display Name:** ${interaction.user?.username}` },
+                    { name: "General Information:", value: `**Mention:** <@${interaction.user?.id}>\n**ID:** ${interaction.user?.id}\n**Highest Role:** ${(interaction.member as GuildMember).roles.highest}\n**Avatar:** [Link](${interaction.user?.displayAvatarURL({ size: 512 })})\n**Display Name:** ${interaction.member.nickname}` },
                     { name: "🗓️ Account Joined:", value: `<t:${Math.floor((interaction.member as GuildMember).joinedAt!.getTime() / 1000)}:D> (<t:${Math.floor((interaction.member as GuildMember).joinedAt!.getTime() / 1000)}:R>)`, inline: true },
                     { name: "🗓️ Account Created:", value: `<t:${Math.floor((interaction.user as User).createdAt.getTime() / 1000)}:D> (<t:${Math.floor((interaction.user as User).createdAt.getTime() / 1000)}:R>)`, inline: true },
                 )
@@ -38,7 +39,7 @@ module.exports = {
             let user2 = interaction.guild.members.cache.get(user.id)
             joinedAt = `<t:${Math.floor((user2 as GuildMember).joinedAt!.getTime() / 1000)}:D> (<t:${Math.floor((user2 as GuildMember).joinedAt!.getTime() / 1000)}:R>)`
             highestRole = (user2 as GuildMember).roles.highest
-            nickname = user2?.user.username
+            nickname = user2?.nickname
         } else {
             joinedAt = "Not Cached/Not In Server"
             highestRole = "Not Cached/Not In Server"
