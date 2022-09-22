@@ -18,6 +18,12 @@ module.exports = {
         const color = configuration?.embedColor as ColorResolvable;
         const user = interaction.options.getUser("user");
         if (!user) {
+            let nickname
+            if(interaction.member.nickname) {
+                nickname = interaction.member.nickname
+            } else {
+                nickname = interaction.user.username
+            }
             const userInfoAuthor = new EmbedBuilder()
                 .setAuthor({ name: `${interaction.user?.username}`, iconURL: interaction.user?.avatarURL() || undefined })
                 .setThumbnail(interaction.user?.displayAvatarURL() || null)
@@ -25,7 +31,7 @@ module.exports = {
                 .addFields(
                     { name: "Name:", value: `${interaction.user.tag}`, inline: true },
                     { name: "Is Bot:", value: `${interaction.user.bot}`, inline: true },
-                    { name: "General Information:", value: `**Mention:** <@${interaction.user?.id}>\n**ID:** ${interaction.user?.id}\n**Highest Role:** ${(interaction.member as GuildMember).roles.highest}\n**Avatar:** [Link](${interaction.user?.displayAvatarURL({ size: 512 })})\n**Display Name:** ${interaction.member.nickname}` },
+                    { name: "General Information:", value: `**Mention:** <@${interaction.user?.id}>\n**ID:** ${interaction.user?.id}\n**Highest Role:** ${(interaction.member as GuildMember).roles.highest}\n**Avatar:** [Link](${interaction.user?.displayAvatarURL({ size: 512 })})\n**Display Name:** ${nickname}` },
                     { name: "🗓️ Account Joined:", value: `<t:${Math.floor((interaction.member as GuildMember).joinedAt!.getTime() / 1000)}:D> (<t:${Math.floor((interaction.member as GuildMember).joinedAt!.getTime() / 1000)}:R>)`, inline: true },
                     { name: "🗓️ Account Created:", value: `<t:${Math.floor((interaction.user as User).createdAt.getTime() / 1000)}:D> (<t:${Math.floor((interaction.user as User).createdAt.getTime() / 1000)}:R>)`, inline: true },
                 )
@@ -39,7 +45,11 @@ module.exports = {
             let user2 = interaction.guild.members.cache.get(user.id)
             joinedAt = `<t:${Math.floor((user2 as GuildMember).joinedAt!.getTime() / 1000)}:D> (<t:${Math.floor((user2 as GuildMember).joinedAt!.getTime() / 1000)}:R>)`
             highestRole = (user2 as GuildMember).roles.highest
-            nickname = user2?.nickname
+            if(user2?.nickname) {
+                nickname = user2?.nickname
+            } else {
+                nickname = user2?.user.username
+            }
         } else {
             joinedAt = "Not Cached/Not In Server"
             highestRole = "Not Cached/Not In Server"
