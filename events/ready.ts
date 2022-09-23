@@ -14,7 +14,7 @@ module.exports = {
     async execute(client: Client) {
         console.log("Boolean is coding the future...")
         client.user?.setPresence({
-            activities: [{ name: `${statuses[randomIntFromInterval(0, statuses.length)]} | /`, type: ActivityType.Watching }],
+            activities: [{ name: `${statuses[randomIntFromInterval(0, statuses.length)]} | (/) commands`, type: ActivityType.Watching }],
             status: "dnd"
         })
         await mongoose.connect(`mongodb+srv://SmartSky:CheeseCake101@booleanstorage.3ud4r.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`, { keepAlive: true })
