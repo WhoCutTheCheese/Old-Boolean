@@ -32,7 +32,7 @@ module.exports = {
                     { name: "ID:", value: `${interaction.guild?.id}`, inline: true },
                     { name: "Owner:", value: `<@${interaction.guild?.ownerId}>`, inline: true },
                     { name: "Members:", value: `**${totalMembers.size.toLocaleString()}** total members,\n**${botCount}** total humans,\n**${botCount2}** total bots`, inline: false },
-                    { name: "Emojis:", value: `${interaction.guild?.emojis.cache.size.toLocaleString()}`, inline: true },
+                    { name: "Emojis:", value: `${interaction.guild?.emojis.cache.size}`, inline: true },
                     { name: "Roles:", value: `${interaction.guild?.roles.cache.size.toLocaleString()}`, inline: true },
                     { name: "Channels:", value: `${interaction.guild?.channels.cache.size.toLocaleString()}`, inline: true },
                     { name: "Verification Level:", value: `${verifLevel}`, inline: true },
