@@ -117,7 +117,7 @@ module.exports = {
                 })
                 for (const servers of enabledServer) {
                     let guild = client.guilds.cache.get(servers.guildID!)
-                    array.push(`> ${guild?.name}`)
+                    array.push(`\n> ${guild?.name}`)
                 }
                 if (array.length == 0) array.push("None")
 
@@ -132,8 +132,7 @@ module.exports = {
                     .setAuthor({ name: "Your Balance", iconURL: interaction.user.displayAvatarURL() || undefined })
                     .setColor(color)
                     .setDescription(`**Token Balance:** ${tokensNumber}
-                    **Enabled Servers:**
-                    ${array}
+                    **Enabled Servers:**${array}
                     
                     __**Premium Perks:**__
                     > <:trash:1020778790982533241> **Removal of all plugs/ads**
