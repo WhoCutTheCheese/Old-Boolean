@@ -87,6 +87,7 @@ module.exports = {
 
         if (user.id === interaction.guild.ownerId) return interaction.reply({ content: "You cannot ban this user!", ephemeral: true })
         const warns = await Cases.countDocuments({ userID: user.id, caseType: "Warn" })
+        if(interaction.guild.members.me.roles.highest.position < member?.roles.highest.position!) return interaction.reply({ content: "I am under this user! I cant ban them!", ephemeral: true })
 
         const caseNumberSet = guildProp?.totalCases! + 1;
 
