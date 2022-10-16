@@ -34,7 +34,7 @@ module.exports = {
                 muteRoleID: "None",
                 modLogChannel: "None",
                 joinRoleID: "None",
-                embedColor: "None",
+                embedColor: "5865F2",
                 dmOnPunish: false,
                 modRoleID: [],
                 adminRoleID: [],
