@@ -20,13 +20,15 @@ module.exports = {
                 if(maintenance?.maintenance == false) return message.channel.send({ content: "No maintenance enabled." })
                 if(!args[1]) return message.channel.send({ content: "No reason provided!" })
 
+                let thReason = args.splice(1).join(" ")
+
                 await Maintenance.findOneAndUpdate({
                     botID: client.user?.id,
                 }, {
-                    maintainDetails: args.splice(1).join(" ")
+                    maintainDetails: thReason
                 })
 
-                message.channel.send({ content: `Current maintenance reason set to: \`${args.splice(1).join(" ")}\`` })
+                message.channel.send({ content: `Current maintenance reason set to: \`${thReason}\`` })
 
                 break;
             case "enable":
