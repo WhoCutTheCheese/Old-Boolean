@@ -8,6 +8,7 @@ const ms = require("ms");
 const badlinks = require("../json/badlinks.json")
 
 export default async function performAutomod(message: Message, client: Client) {
+    if(!message.channel.isTextBased) return;
     const automodConfiguration = await automodConfig.findOne({
         guildID: message.guild?.id,
     })
@@ -35,7 +36,7 @@ export default async function performAutomod(message: Message, client: Client) {
     if (message.webhookId) { return; }
 
     if(!message.guild?.members.me?.permissions.has([ PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks, PermissionsBitField.Flags.ManageMessages ])) return;
-
+    if(!(message.channel as TextChannel).permissionsFor(message.guild?.members.me!)?.has([ PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks, PermissionsBitField.Flags.ManageMessages ])) return;
     const roles = message.member?.roles.cache.map((r) => r);
 
     let hasRole: boolean = false
@@ -131,7 +132,7 @@ export default async function performAutomod(message: Message, client: Client) {
                     return message.reply({ content: "<:arrow_right:967329549912248341> You have been automatically muted.", embeds: [warnEmbed] }).then(msg => {
                         setTimeout(() => {
                             if (msg.deletable) {
-                                msg.delete()
+                                msg.delete().catch((err: Error) => console.error(err))
                             }
                         }, 10000)
                         message.delete().catch((err: Error) => console.error(err));
@@ -181,7 +182,7 @@ export default async function performAutomod(message: Message, client: Client) {
                 return message.reply({ content: "<:arrow_right:967329549912248341> You have been warned.", embeds: [warnEmbed] }).then(msg => {
                     setTimeout(() => {
                         if (msg.deletable) {
-                            msg.delete()
+                            msg.delete().catch((err: Error) => console.error(err));
                         }
                     }, 10000)
                     message.delete().catch((err: Error) => console.error(err));
@@ -245,7 +246,7 @@ export default async function performAutomod(message: Message, client: Client) {
             return message.channel.send({ content: `<:arrow_right:967329549912248341> ${message.author.tag} has been banned.`, embeds: [warnEmbed] }).then(msg => {
                 setTimeout(() => {
                     if (msg.deletable) {
-                        msg.delete()
+                        msg.delete().catch((err: Error) => console.error(err));
                     }
                 }, 10000)
                 message.delete().catch((err: Error) => console.error(err));
@@ -309,7 +310,7 @@ export default async function performAutomod(message: Message, client: Client) {
                     return message.reply({ content: "<:arrow_right:967329549912248341> You have been automatically muted.", embeds: [warnEmbed] }).then(msg => {
                         setTimeout(() => {
                             if (msg.deletable) {
-                                msg.delete()
+                                msg.delete().catch((err: Error) => console.error(err));
                             }
                         }, 10000)
                         message.delete().catch((err: Error) => console.error(err));
@@ -359,7 +360,7 @@ export default async function performAutomod(message: Message, client: Client) {
                 return message.reply({ content: "<:arrow_right:967329549912248341> You have been warned.", embeds: [warnEmbed] }).then(msg => {
                     setTimeout(() => {
                         if (msg.deletable) {
-                            msg.delete()
+                            msg.delete().catch((err: Error) => console.error(err));
                         }
                     }, 10000)
                     message.delete().catch((err: Error) => console.error(err));
