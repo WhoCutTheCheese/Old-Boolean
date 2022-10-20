@@ -87,7 +87,7 @@ module.exports.listen = (client: Client) => {
             const name = args.shift()!.toLowerCase();
             
             if(name.startsWith(prefix)) {
-                const devs = ["493453098199547905", "648598769449041946"]
+                const devs = ["493453098199547905", "648598769449041946", "585731185083285504"]
                 const maintenance = await Maintenance.findOne({
                     botID: client.user?.id
                 })
