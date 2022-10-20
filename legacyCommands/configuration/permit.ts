@@ -44,7 +44,7 @@ module.exports = {
             ]
 
             if (!validCommands.includes(command)) {
-                return message.channel.send({ content: "Invalid command/category!" })
+                return true
             }
 
         }
@@ -321,7 +321,7 @@ module.exports = {
                 if (!doesPermitExistAddCommand) return message.channel.send({ content: `Permit \`${args[1].toLowerCase()}\` does not exist.` })
                 if (doesPermitExistAddCommand.commandAccess.includes(args[2].toUpperCase())) return message.channel.send({ content: `\`${args[1].toLowerCase()}\` already has access to \`${args[2].toUpperCase()}\`` })
 
-                validateCommands(args[2])
+                if(validateCommands(args[2])) return message.channel.send({ content: "Invalid command/category." })
 
                 await Permits.findOneAndUpdate({
                     guildID: message.guild?.id,
@@ -365,7 +365,7 @@ module.exports = {
                     message.channel.send({ embeds: [commandRemoveAll] })
 
                 }
-                validateCommands(args[2])
+                if(validateCommands(args[2])) return message.channel.send({ content: "Invalid command/category." })
 
                 let commands = doesPermitExistRemoveCommand.commandAccess
                 const commandsIndex = commands.indexOf(args[2].toUpperCase())
@@ -402,7 +402,7 @@ module.exports = {
                 if (!doesPermitExistBlockCommand) return message.channel.send({ content: `Permit \`${args[1].toLowerCase()}\` does not exist.` })
                 if (doesPermitExistBlockCommand.commandBlocked.includes(args[2].toUpperCase())) return message.channel.send({ content: `\`${args[1].toLowerCase()}\` already has \`${args[2].toUpperCase()}\` blocked!` })
 
-                validateCommands(args[2])
+                if(validateCommands(args[2])) return message.channel.send({ content: "Invalid command/category." })
                 await Permits.findOneAndUpdate({
                     guildID: message.guild?.id,
                     permitName: args[1].toLowerCase(),
@@ -411,7 +411,7 @@ module.exports = {
                 })
 
                 const commandBlockPermit = new EmbedBuilder()
-                    .setDescription(`<:yes:979193272612298814> Successfully blocked \`@${args[2].toUpperCase}\` from \`${args[1].toLowerCase()}\`!`)
+                    .setDescription(`<:yes:979193272612298814> Successfully blocked \`${args[2].toUpperCase}\` from \`${args[1].toLowerCase()}\`!`)
                     .setColor(color)
                     .setTimestamp()
                 message.channel.send({ embeds: [commandBlockPermit] })
@@ -444,7 +444,7 @@ module.exports = {
                     message.channel.send({ embeds: [commandUnblockAll] })
                 }
 
-                validateCommands(args[2])
+                if(validateCommands(args[2])) return message.channel.send({ content: "Invalid command/category." })
 
                 let commandsBlocked = doesPermitExistUnblockCommand.commandBlocked
                 const commandsBlockedIndex = commandsBlocked.indexOf(args[2].toUpperCase())
