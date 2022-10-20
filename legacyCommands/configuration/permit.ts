@@ -331,7 +331,7 @@ module.exports = {
                 })
 
                 const commandAddPermit = new EmbedBuilder()
-                    .setDescription(`<:yes:979193272612298814> Successfully added \`@${args[2].toUpperCase()}\` to \`${args[1].toLowerCase()}\`!`)
+                    .setDescription(`<:yes:979193272612298814> Successfully added \`${args[2].toUpperCase()}\` to \`${args[1].toLowerCase()}\`!`)
                     .setColor(color)
                     .setTimestamp()
                 message.channel.send({ embeds: [commandAddPermit] })
@@ -381,7 +381,7 @@ module.exports = {
                 })
 
                 const commandRemovePermit = new EmbedBuilder()
-                    .setDescription(`<:no:979193272784265217> Successfully removed \`@${args[2].toUpperCase}\` from \`${args[1].toLowerCase()}\`!`)
+                    .setDescription(`<:no:979193272784265217> Successfully removed \`${args[2].toUpperCase}\` from \`${args[1].toLowerCase()}\`!`)
                     .setColor(color)
                     .setTimestamp()
                 message.channel.send({ embeds: [commandRemovePermit] })
@@ -460,7 +460,7 @@ module.exports = {
                 })
 
                 const commandUnblockPermit = new EmbedBuilder()
-                    .setDescription(`<:no:979193272784265217> Successfully unblocked \`@${args[2].toUpperCase}\` from \`${args[1].toLowerCase()}\`!`)
+                    .setDescription(`<:no:979193272784265217> Successfully unblocked \`${args[2].toUpperCase}\` from \`${args[1].toLowerCase()}\`!`)
                     .setColor(color)
                     .setTimestamp()
                 message.channel.send({ embeds: [commandUnblockPermit] })
