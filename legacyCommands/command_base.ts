@@ -1,4 +1,4 @@
-import { Client, EmbedBuilder, Message, PermissionsBitField } from "discord.js"
+import { Client, EmbedBuilder, Message, PermissionsBitField, TextChannel } from "discord.js"
 import Configuration from "../models/config";
 let prefix : string | undefined
 import Permits from "../models/permits";
@@ -66,7 +66,8 @@ module.exports.listen = (client: Client) => {
         try {
             if(!message.inGuild) return;
             if(!message.guild?.members.me?.permissions.has([ PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks ])) return;
-            
+            if(!(message.channel as TextChannel).permissionsFor(message.guild.members.me).has([ PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks ])) return;
+
             const config = await Configuration.findOne({
                 guildID: message.guild.id
             })
