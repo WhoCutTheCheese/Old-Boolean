@@ -34,6 +34,8 @@ export default async function performAutomod(message: Message, client: Client) {
     })
     if (message.webhookId) { return; }
 
+    if(!message.guild?.members.me?.permissions.has([ PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks, PermissionsBitField.Flags.ManageMessages ])) return;
+
     const roles = message.member?.roles.cache.map((r) => r);
 
     let hasRole: boolean = false
