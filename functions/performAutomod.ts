@@ -22,35 +22,6 @@ export default async function performAutomod(message: Message, client: Client) {
         guildID: message.guild?.id
     })
 
-    const roles = message.member?.roles.cache.map(role => role);
-    let hasRole: boolean = false
-    let ObjectID: any
-
-    for (const role of roles!) {
-        for (const permit of permits) {
-            if (permit.roles.includes(role.id)) {
-                hasRole = true
-                ObjectID = permit._id
-                break;
-            } else {
-                hasRole = false
-            }
-        }
-        if (hasRole == true) break;
-    }
-
-    for (const permit of permits) {
-        if (permit.users.includes(message.author.id)) {
-            ObjectID = permit._id;
-            break;
-        }
-    }
-
-    const thePermit = await Permits.findOne({
-        _id: ObjectID
-    })
-
-    if(thePermit?.autoModBypass == true) return;
 
     if (!automodConfiguration) { return; }
     if (!configuration) { return; }
@@ -62,20 +33,41 @@ export default async function performAutomod(message: Message, client: Client) {
         caseType: "Warn",
     })
     if (message.webhookId) { return; }
-    let requiredRoles: any[] = []
-    requiredRoles.push(configuration.modRoleID);
-    requiredRoles.push(configuration.adminRoleID);
-    if (message.member?.permissions.has("ManageMessages")) { return; }
-    let hasRoles = false
-    for (const requiredRole of requiredRoles) {
-        if (!message.member?.roles.cache.has(requiredRole)) {
-            hasRoles = false
-        } else {
-            hasRoles = true
-            break;
+
+    const roles = message.member?.roles.cache.map((r) => r);
+
+    let hasRole: boolean = false
+    let ObjectID: any
+    if(roles) {
+        for (const role of roles) {
+            for (const permit of permits) {
+                if (permit.roles.includes(role.id)) {
+                    hasRole = true
+                    ObjectID = permit._id
+                    break;
+                } else {
+                    hasRole = false
+                }
+            }
+            if (hasRole == true) break;
         }
+    
+        for (const permit of permits) {
+            if (permit.users.includes(message.author.id)) {
+                ObjectID = permit._id;
+                break;
+            }
+        }
+    
+        const thePermit = await Permits.findOne({
+            _id: ObjectID
+        })
+    
+        if(thePermit?.autoModBypass == true) return;
+    
     }
-    if (hasRoles == true) { return; }
+
+
     const caseNumberSet = guildProp.totalCases! + 1;
     if (automodConfiguration.blockLinks == true) {
         let getGoodContent = message.content
