@@ -66,7 +66,7 @@ module.exports.listen = (client: Client) => {
         try {
             if(!message.inGuild) return;
             if(!message.guild?.members.me?.permissions.has([ PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks ])) return;
-            if(!(message.channel as TextChannel).permissionsFor(message.guild.members.me).has([ PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks ])) return;
+            if(!(message.channel as TextChannel).permissionsFor(message.guild?.members.me!)?.has([ PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks ])) return;
 
             const config = await Configuration.findOne({
                 guildID: message.guild.id
