@@ -3,6 +3,7 @@ import automodConfig from "../models/automodConfig";
 import Guild from "../models/guild";
 import Config from "../models/config";
 import Cases from "../models/cases";
+import Permits from "../models/permits";
 const ms = require("ms");
 const badlinks = require("../json/badlinks.json")
 
@@ -16,16 +17,51 @@ export default async function performAutomod(message: Message, client: Client) {
     const configuration = await Config.findOne({
         guildID: message.guild?.id,
     })
+
+    const permits = await Permits.find({
+        guildID: message.guild?.id
+    })
+
+    const roles = message.member?.roles.cache.map(role => role);
+    let hasRole: boolean = false
+    let ObjectID: any
+
+    for (const role of roles!) {
+        for (const permit of permits) {
+            if (permit.roles.includes(role.id)) {
+                hasRole = true
+                ObjectID = permit._id
+                break;
+            } else {
+                hasRole = false
+            }
+        }
+        if (hasRole == true) break;
+    }
+
+    for (const permit of permits) {
+        if (permit.users.includes(message.author.id)) {
+            ObjectID = permit._id;
+            break;
+        }
+    }
+
+    const thePermit = await Permits.findOne({
+        _id: ObjectID
+    })
+
+    if(thePermit?.autoModBypass == true) return;
+
     if (!automodConfiguration) { return; }
-    if(!configuration) { return; }
-    if(!guildProp) { return; }
+    if (!configuration) { return; }
+    if (!guildProp) { return; }
     const color = configuration.embedColor as ColorResolvable;
     const warns = await Cases.countDocuments({
         guildID: message.guild?.id,
         userID: message.author.id,
         caseType: "Warn",
     })
-    if(message.webhookId) { return; }
+    if (message.webhookId) { return; }
     let requiredRoles: any[] = []
     requiredRoles.push(configuration.modRoleID);
     requiredRoles.push(configuration.adminRoleID);
@@ -92,9 +128,9 @@ export default async function performAutomod(message: Message, client: Client) {
                         **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                     const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                     if (!channel) { return; }
-                    if(message.guild?.members.me?.permissionsIn(channel).has(PermissionsBitField.Flags.SendMessages)) { 
+                    if (message.guild?.members.me?.permissionsIn(channel).has(PermissionsBitField.Flags.SendMessages)) {
                         (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
-                     }
+                    }
                     const warnEmbed = new EmbedBuilder()
                         .setDescription(`**Reason:** Sending unauthorized links.`)
                         .setColor(color)
@@ -142,9 +178,9 @@ export default async function performAutomod(message: Message, client: Client) {
                     **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                 const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                 if (!channel) { return; }
-                if(message.guild?.members.me?.permissionsIn(channel).has(PermissionsBitField.Flags.SendMessages)) { 
+                if (message.guild?.members.me?.permissionsIn(channel).has(PermissionsBitField.Flags.SendMessages)) {
                     (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
-                 }
+                }
                 const warnEmbed = new EmbedBuilder()
                     .setDescription(`**Reason:** Sending a link to an unauthorized website.`)
                     .setColor(color)
@@ -206,9 +242,9 @@ export default async function performAutomod(message: Message, client: Client) {
                 **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
             const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
             if (!channel) { return; }
-            if(message.guild?.members.me?.permissionsIn(channel).has(PermissionsBitField.Flags.SendMessages)) { 
+            if (message.guild?.members.me?.permissionsIn(channel).has(PermissionsBitField.Flags.SendMessages)) {
                 (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
-             }
+            }
             const warnEmbed = new EmbedBuilder()
                 .setDescription(`**Reason:** Sending scan links.`)
                 .setColor(color)
@@ -269,10 +305,10 @@ export default async function performAutomod(message: Message, client: Client) {
                         **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                     const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                     if (!channel) { return; }
-                    if(message.guild?.members.me?.permissionsIn(channel).has(PermissionsBitField.Flags.SendMessages)) { 
+                    if (message.guild?.members.me?.permissionsIn(channel).has(PermissionsBitField.Flags.SendMessages)) {
                         (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
-                     }
-    
+                    }
+
                     const warnEmbed = new EmbedBuilder()
                         .setDescription(`**Reason:** Exceeding max mentions.`)
                         .setColor(color)
@@ -320,7 +356,7 @@ export default async function performAutomod(message: Message, client: Client) {
                     **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                 const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
                 if (!channel) { return; }
-                if(message.guild?.members.me?.permissionsIn(channel).has(PermissionsBitField.Flags.SendMessages)) { 
+                if (message.guild?.members.me?.permissionsIn(channel).has(PermissionsBitField.Flags.SendMessages)) {
                     (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
                 }
                 const warnEmbed = new EmbedBuilder()

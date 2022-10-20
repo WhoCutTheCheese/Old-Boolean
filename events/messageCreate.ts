@@ -2,7 +2,6 @@ import { Client, Message } from "discord.js";
 import GuildProperties from "../models/guild";
 import Configuration from "../models/config";
 import performAutomod from "../functions/performAutomod";
-import AConfig from "../models/automodConfig";
 
 module.exports = {
     name: "messageCreate",
@@ -25,12 +24,11 @@ module.exports = {
         const configuration = await Configuration.findOne({
             guildID: message.guild?.id,
         })
-        const automodConfig = await AConfig.findOne({
-            guildID: message.guild?.id
-        })
+
         if(!configuration) {
             const newConfiguration = new Configuration({
                 guildID: message.guild?.id,
+                prefix: "!!",
                 muteRoleID: "None",
                 modLogChannel: "None",
                 joinRoleID: "None",
@@ -39,20 +37,10 @@ module.exports = {
                 modRoleID: [],
                 adminRoleID: [],
                 warnsBeforeMute: 3,
+                deleteCommandUsage: false,
             })
             newConfiguration.save().catch((err: Error) => {console.log(err)})
         }
 
-        if(!automodConfig) {
-            const newAutomod = new AConfig({
-                guildID: message.guild?.id,
-                blockLinks: false,
-                blockScams: false,
-                massMentions: false,
-                maxMentions: 3,
-                websiteWhitelist: ["https://cdn.discordapp.com", "https://discord.com", "https://tenor.com", "https://media.discordapp.net"],
-            })
-            newAutomod.save()
-        }
     }
 }

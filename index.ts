@@ -59,8 +59,8 @@ for (const file of eventFiles) {
         client.on(event.name, (...args) => event.execute(...args));
     }
 }
-const commandPath = path.join(__dirname, "commands");
-const commandFolders = fs.readdirSync("./commands");
+const commandPath = path.join(__dirname, "slashCommands");
+const commandFolders = fs.readdirSync("./slashCommands");
 for (const folder of commandFolders) {
     const commandFiles = fs.readdirSync(`${commandPath}/${folder}`).filter(file => file.endsWith(".ts"));
 
@@ -108,10 +108,21 @@ const rest = new REST({ version: '10' }).setToken(`${token}`);
         console.error(error);
     }
 })();
-
+import Maintenance from "./models/maintenance";
+const devs = ["493453098199547905", "648598769449041946"]
 client.on("interactionCreate", async interaction => {
     if (!interaction.isChatInputCommand()) return;
-
+    const maintenance = await Maintenance.findOne({
+        botID: client.user?.id
+    })
+    if(maintenance) {
+        if(maintenance.maintenance == true) {
+            if(!devs.includes(interaction.user.id)) {
+                interaction.reply({ content: `**Uh Oh!** Boolean is currently under maintenance!\n**__Details:__** ${maintenance.maintainDetails}`, ephemeral: true })
+                return;
+            }
+        }
+    }
     const command = client.commands.get(interaction.commandName);
 
     if (!command) return;

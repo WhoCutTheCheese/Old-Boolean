@@ -3,6 +3,8 @@ import GuildProperties from "../models/guild";
 import UserTokens from "../models/tokens";
 import Configuration from "../models/config";
 import AConfig from "../models/automodConfig";
+import Cases from "../models/cases";
+import Permits from "../models/permits";
 module.exports = {
     name: "guildDelete",
     once: false,
@@ -52,6 +54,12 @@ module.exports = {
             }
         }
         await AConfig.findOneAndDelete({
+            guildID: guild.id
+        })
+        await Cases.deleteMany({
+            guildID: guild.id
+        })
+        await Permits.deleteMany({
             guildID: guild.id
         })
 

@@ -1,7 +1,7 @@
 import { Guild, WebhookClient } from "discord.js";
 import GuildProperties from "../models/guild";
 import Configuration from "../models/config";
-import AConfig from "../models/automodConfig";
+
 module.exports = {
     name: "guildCreate",
     once: false,
@@ -13,9 +13,7 @@ module.exports = {
         const guildProp = await GuildProperties.findOne({
             guildID: guild.id,
         })
-        const automodConfig = await AConfig.findOne({
-            guildID: guild.id
-        })
+
         if(!guildProp) {
             const newGuildProp = new GuildProperties({
                 guildID: guild.id,
@@ -32,6 +30,7 @@ module.exports = {
         if(!configuration) {
             const newConfiguration = new Configuration({
                 guildID: guild.id,
+                prefix: "!!",
                 muteRoleID: "None",
                 modLogChannel: "None",
                 joinRoleID: "None",
@@ -40,21 +39,11 @@ module.exports = {
                 modRoleID: [],
                 adminRoleID: [],
                 warnsBeforeMute: 3,
+                deleteCommandUsage: false,
             })
             newConfiguration.save().catch((err: Error) => {console.log(err)})
         }
 
-        if(!automodConfig) {
-            const newAutomod = new AConfig({
-                guildID: guild.id,
-                blockLinks: false,
-                blockScams: false,
-                massMentions: false,
-                maxMentions: 3,
-                websiteWhitelist: ["https://cdn.discordapp.com", "https://discord.com", "https://tenor.com", "https://media.discordapp.net"],
-            })
-            newAutomod.save()
-        }
-        
+
     }
 }

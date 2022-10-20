@@ -1,31 +1,45 @@
 import { ActivityType, Client } from "discord.js"
 import mongoose from "mongoose";
 import dotEnv from "dotenv"
+import fs from "fs"
+import path from "path"
 dotEnv.config()
 
-let statuses = ["C-can you hear that music?", "Stardust to stardust", "NO ONE ESCAPES GRAVITY!", "What was that equation?",
-"The Aether", "IT'S JUST SO SIMPLE", "Like Newton and apple", "An elementary application",
-"The universe has no obligation to make sense to you!", "Wholly predictable!", "The universe sings to me", "Het universum zingt voor mij",
-"Ooh this one has teeth.. Rawr :3", "Listen to your mommy", "And they say chivalry is dead", "Hot coco? Fineee",
-"Ah like a spherical cow!", "The universe flows through me!"]
+let statuses = ["nothing", "the Aether", "you", "the stars", "space", "your server"]
 module.exports = {
     name: "ready",
     once: false,
     async execute(client: Client) {
         console.log("Boolean is coding the future...")
         client.user?.setPresence({
-            activities: [{ name: `${statuses[randomIntFromInterval(0, statuses.length)]} | (/) commands`, type: ActivityType.Watching }],
+            activities: [{ name: `${statuses[Math.floor(Math.random() * 5)]} | !!help & (/) commands`, type: ActivityType.Watching }],
             status: "dnd"
         })
         await mongoose.connect(`mongodb+srv://SmartSky:CheeseCake101@booleanstorage.3ud4r.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`, { keepAlive: true })
 
         setInterval(global.check, 1000 * 30)
 
+        const baseFile = 'command_base.ts'
+        const commandBase = require(`../legacyCommands/command_base`);    
+        const readCommands = (dir: string) => {
+            const files = fs.readdirSync(path.join(__dirname, dir))
+            for (const file of files) {
+                const stat = fs.lstatSync(path.join(__dirname, dir, file))
+                if (stat.isDirectory()) {
+                    readCommands(path.join(dir, file))
+                } else if (file !== baseFile) {
+                    const option = require(path.join(__dirname, dir, file))
+                    commandBase(option)
+                }
+            }
+        }
+    
+            
+        readCommands('../legacyCommands')
+        commandBase.listen(client);
+        setInterval(global.check, 1000 * 30)
+
         console.log("Boolean has started.")
 
     }
-}
-
-function randomIntFromInterval(min: number, max: number) { // min and max included 
-    return Math.floor(Math.random() * (max - min + 1) + min)
 }
