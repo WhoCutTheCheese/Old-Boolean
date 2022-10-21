@@ -9,6 +9,7 @@ const badlinks = require("../json/badlinks.json")
 
 export default async function performAutomod(message: Message, client: Client) {
     if(!message.channel.isTextBased) return;
+    if(message.author.bot) return;
     const automodConfiguration = await automodConfig.findOne({
         guildID: message.guild?.id,
     })
