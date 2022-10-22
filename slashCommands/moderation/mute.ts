@@ -148,7 +148,7 @@ module.exports = {
                         type = "week(s)"
                     }
 
-                    if (ms(`${time1}${type1}`) >= 2332800) return interaction.reply({ content: "Length exceed maximum time.", ephemeral: true })
+                    if (ms(`${time1}${type1}`) >= 2419200000) return interaction.reply({ content: "Length exceed maximum time.", ephemeral: true })
 
                     const banned = new EmbedBuilder()
                         .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${interaction.user.tag} | **Reason:** ${reason} | **Length**: ${time1} ${type}`)

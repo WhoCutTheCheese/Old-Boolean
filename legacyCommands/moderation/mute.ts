@@ -104,7 +104,7 @@ module.exports = {
                         type = "week(s)"
                     }
 
-                    if (ms(`${time}${type1}`) >= 2332800) return message.channel.send({ content: "Length exceed maximum time." })
+                    if (ms(`${time}${type1}`) >= 2419200000) return message.channel.send({ content: "Length exceed maximum time." })
 
                     const userMutedWithTimeEmbed = new EmbedBuilder()
                         .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Reason:** ${reason} | **Length**: ${time} ${type}`)
