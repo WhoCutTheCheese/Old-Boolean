@@ -8,7 +8,7 @@ import Configuration from "./models/config"
 dotEnv.config()
 const token = process.env.token
 const client = new Client({
-    intents: [
+    intents: [ 
         GatewayIntentBits.GuildBans,
         GatewayIntentBits.GuildInvites,
         GatewayIntentBits.GuildIntegrations,

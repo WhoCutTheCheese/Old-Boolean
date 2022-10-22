@@ -7,7 +7,7 @@ module.exports = {
     commandCategory: "CONFIGURATION",
     minArgs: 2,
     maxArgs: 2,
-    expectedArgs: "[Set/Reset/View] [@Channel/Channel ID]",
+    expectedArgs: "[Set/Reset/View] [#Channel/Channel ID]",
     callback: async (client: Client, message: Message, args: string[]) => {
 
         const configuration = await Configuration.findOne({
@@ -20,7 +20,7 @@ module.exports = {
         switch (args[0].toLowerCase()) {
             case "set":
 
-                if (!role) return message.channel.send({ content: "Invalid channel! Ex. `!!modlogs set @Channel`" })
+                if (!role) return message.channel.send({ content: "Invalid channel! Ex. `!!modlogs set #Channel`" })
 
                 await Configuration.findOneAndUpdate({
                     guildID: message.guild?.id

@@ -5,7 +5,7 @@ import fs from "fs"
 import path from "path"
 dotEnv.config()
 
-let statuses = ["nothing", "the Aether", "you", "the stars", "space", "your server"]
+let statuses = ["nothing", "the Aether", "you", "the stars", "space", "your server", "mommy 😩"]
 module.exports = {
     name: "ready",
     once: false,
