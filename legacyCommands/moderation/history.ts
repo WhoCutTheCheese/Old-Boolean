@@ -1,6 +1,5 @@
 import { ActionRowBuilder, APIButtonComponent, ButtonBuilder, ButtonStyle, Client, ColorResolvable, EmbedBuilder, Message, User } from "discord.js";
-import Configuration from "../../models/config"
-import GuildProperties from "../../models/guild";
+import Settings from "../../models/settings";
 import Cases from "../../models/cases";
 const _ = require("lodash");
 
@@ -13,10 +12,13 @@ module.exports = {
     commandCategory: "MODERATION",
     callback: async (client: Client, message: Message, args: string[]) => {
 
-        const configuration = await Configuration.findOne({
-            guildID: message.guild?.id,
+        const settings = await Settings.findOne({
+            guildID: message.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable;
+        if (!settings) return message.channel.send({ content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         const user = message.mentions.members?.first() || message.guild?.members.cache.get(args[0]);
         if (!user) return message.channel.send({ content: "Invalid User!" });

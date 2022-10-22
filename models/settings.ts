@@ -2,23 +2,29 @@ import mongoose from 'mongoose'
 
 let Schema = new mongoose.Schema({
     guildID: String,
-
+    guildSettings: {
         prefix: String,
         premium: Boolean,
         premiumHolder: String,
         totalCases: Number,
-        joinRoleID: String,
+        joinRole: String,
         embedColor: String,       
-
-
-        muteRoleID: String,
+    },
+    modSettings: {
+        muteRole: String,
         modLogChannel: String,
         dmOnPunish: Boolean,
-        modRoleID: Array,
-        adminRoleID: Array,
         warnsBeforeMute: Number,
         deleteCommandUsage: Boolean,
-
+    },
+    autoModSettings: {
+        blockLinks: Boolean,
+        blockInvites: Boolean,
+        blockScams: Boolean,
+        massMentions: Boolean,
+        maxMentions: Number,
+        websiteWhitelist: Array,
+    }
 })
 
-export default mongoose.model('config', Schema);
+export default mongoose.model('settings', Schema);

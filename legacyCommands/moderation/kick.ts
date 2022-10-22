@@ -1,6 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, ColorResolvable, EmbedBuilder, Message, PermissionsBitField, TextChannel, User } from "discord.js";
-import Configuration from "../../models/config"
-import GuildProperties from "../../models/guild";
+import Settings from "../../models/settings";
 import Cases from "../../models/cases";
 import Permits from "../../models/permits";
 
@@ -14,14 +13,13 @@ module.exports = {
 
         if (!message.guild?.members.me?.permissions.has([PermissionsBitField.Flags.KickMembers])) return message.channel.send({ content: "I require the `Kick Members` to issue kicks!" });
 
-        const configuration = await Configuration.findOne({
-            guildID: message.guild?.id,
-        })
-        const color = configuration?.embedColor as ColorResolvable;
-
-        const guildProp = await GuildProperties.findOne({
+        const settings = await Settings.findOne({
             guildID: message.guild?.id
         })
+        if (!settings) return message.channel.send({ content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         const permits = await Permits.find({
             guildID: message.guild?.id
@@ -56,12 +54,18 @@ module.exports = {
 
         if (message.guild.members.me.roles.highest.position < user.roles.highest.position) return message.channel.send({ content: "This user is above me! I cannot mute them." })
 
-        const caseNumberSet = guildProp?.totalCases! + 1;
-
-        await GuildProperties.findOneAndUpdate({
-            guildID: message.guild?.id
+        let caseNumberSet: number = 10010100101
+        if (!settings.guildSettings?.totalCases) {
+            caseNumberSet = 1;
+        } else if (settings.guildSettings?.totalCases) {
+            caseNumberSet = settings.guildSettings?.totalCases + 1;
+        }
+        await Settings.findOneAndUpdate({
+            guildID: message.guild?.id,
         }, {
-            totalCases: caseNumberSet,
+            guildSettings: {
+                totalCases: caseNumberSet
+            }
         })
 
         const warns = await Cases.countDocuments({ userID: user.id, caseType: "Warn" })
@@ -79,49 +83,58 @@ module.exports = {
             .setAuthor({ name: `Member Kicked - ${user.user.tag}`, iconURL: user.displayAvatarURL() || undefined })
             .setThumbnail(user.displayAvatarURL() || null)
             .setDescription(`<:user:977391493218181120> **User:** ${user.user.tag}
-        > [${user.id}]
-        > [<@${user.id}>]
+            > [${user.id}]
+            > [<@${user.id}>]
 
-        <:folder:977391492790362173> **Mod:** ${message.author.tag}
-        > [${message.author.id}]
-        > [<@${message.author.id}>]
+            <:folder:977391492790362173> **Mod:** ${message.author.tag}
+            > [${message.author.id}]
+            > [<@${message.author.id}>]
 
-        <:pencil:977391492916207636> **Action:** Kick
-        > [**Case:** #${caseNumberSet}]
+            <:pencil:977391492916207636> **Action:** Kick
+            > [**Case:** #${caseNumberSet}]
 
-        **Reason:** ${reason}
-        **Channel:** <#${message.channel?.id}>
-        **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
+            **Reason:** ${reason}
+            **Channel:** <#${message.channel?.id}>
+            **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
             .setColor(color)
             .setTimestamp()
-        const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration?.modLogChannel!);
-        if (!channel) { return; }
-        if (message.guild.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-            (message.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
+        const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel!);
+        let exists = true
+        if (!channel) { exists = false; }
+        if (exists == true) {
+            if (message.guild.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                (message.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
+            }
         }
 
 
-        if (configuration?.dmOnPunish == true) {
+        if (settings.modSettings?.dmOnPunish == true) {
             const dm = new EmbedBuilder()
                 .setAuthor({ name: "You Were Kicked from " + message.guild.name + "!", iconURL: message.guild.iconURL() || undefined })
                 .setColor(color)
                 .setDescription(`<:blurple_bulletpoint:997346294253244529> **Reason:** ${reason}
             <:blurple_bulletpoint:997346294253244529> **Case:** #${caseNumberSet}`)
                 .setTimestamp()
-            if (guildProp?.premium == false) {
+            if (!settings.guildSettings?.prefix || settings.guildSettings?.premium == false) {
                 user.send({ embeds: [dm], components: [row] }).catch((err: Error) => {
-                    const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
-                    if (!channel) { return; }
-                    if (message.guild?.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                        (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                    const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
+                    let exists = true
+                    if (!channel) { exists = false; }
+                    if (exists == true) {
+                        if (message.guild?.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                            (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                        }
                     }
                 })
-            } else if (guildProp?.premium == true) {
+            } else if (settings.guildSettings?.premium == true) {
                 user.send({ embeds: [dm] }).catch((err: Error) => {
-                    const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
-                    if (!channel) { return; }
-                    if (message.guild?.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                        (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                    const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
+                    let exists = true
+                    if (!channel) { exists = false; }
+                    if (exists == true) {
+                        if (message.guild?.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                            (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                        }
                     }
                 })
             }

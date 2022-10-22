@@ -4,9 +4,9 @@ import path from "path";
 import fs from "fs";
 import Bans from "./models/bans";
 import { REST } from "@discordjs/rest"
-import Configuration from "./models/config"
+import Settings from "./models/settings"
 dotEnv.config()
-const token = process.env.token
+const token = process.env.beta_token
 const client = new Client({
     intents: [
         GatewayIntentBits.GuildBans,
@@ -75,14 +75,15 @@ for (const folder of commandFolders) {
 client.on("guildMemberAdd", async member => {
     const nonGuildMember = client.users.cache.get(member.id)
     if (nonGuildMember?.bot) { return; }
-    const configSettings = await Configuration.findOne({
+    const settings = await Settings.findOne({
         guildID: member.guild.id,
     })
-    if (configSettings?.joinRoleID === "None") { return; }
+    if(!settings) return;
+    if(!settings.guildSettings?.joinRole) return;
     if(!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageRoles)) { return; }
-    const role = member.guild.roles.cache.get(configSettings?.joinRoleID!)
+    const role = member.guild.roles.cache.get(settings.guildSettings.joinRole)
     if(role?.position! > member.guild.members.me.roles.highest.position) return
-    member.roles.add(configSettings?.joinRoleID!).catch((err: Error) => console.log(err))
+    member.roles.add(settings.guildSettings.joinRole).catch((err: Error) => console.log(err))
 })
 
 let clientId

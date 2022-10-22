@@ -1,19 +1,22 @@
 import { Client, ColorResolvable, EmbedBuilder, Message } from "discord.js";
-import Configuration from "../../models/config";
+import Settings from "../../models/settings";
 
 module.exports = {
     commands: ["muterole"],
     commandName: "MUTEROLE",
     commandCategory: "CONFIGURATION",
-    minArgs: 2,
+    minArgs: 1,
     maxArgs: 2,
     expectedArgs: "[Set/Reset/View] [@Role/Role ID]",
     callback: async (client: Client, message: Message, args: string[]) => {
 
-        const configuration = await Configuration.findOne({
+        const settings = await Settings.findOne({
             guildID: message.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable
+        if(!settings) return message.channel.send({  content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if(settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable; 
 
         const role = message.mentions.roles.first() || message.guild?.roles.cache.get(args[1])
 
@@ -22,10 +25,12 @@ module.exports = {
 
                 if (!role) return message.channel.send({ content: "Invalid role! Ex. `!!muterole set @Role`" })
 
-                await Configuration.findOneAndUpdate({
+                await Settings.findOneAndUpdate({
                     guildID: message.guild?.id
                 }, {
-                    muteRoleID: role.id
+                    modSettings: {
+                        muteRole: role.id
+                    }
                 })
 
                 const success = new EmbedBuilder()
@@ -36,21 +41,29 @@ module.exports = {
                 break;
             case "reset":
 
-                await Configuration.findOneAndUpdate({
+                await Settings.findOneAndUpdate({
                     guildID: message.guild?.id
                 }, {
-                    muteRoleID: "None"
+                    modSettings: {
+                        $unset: { muteRole: "" }
+                    }
                 })
+
+                
+                const reset = new EmbedBuilder()
+                    .setDescription("<:no:979193272784265217> You reset the mute role!")
+                    .setColor(color)
+                message.channel.send({ embeds: [reset] })
 
                 break;
             case "view":
 
 
                 let roleE
-                if(configuration?.muteRoleID == "None") {
+                if(!settings.modSettings?.muteRole) {
                     roleE = "None"
                 } else {
-                    roleE = `<@&${configuration?.muteRoleID}>`
+                    roleE = `<@&${settings.modSettings?.muteRole}>`
                 }
     
                 const view = new EmbedBuilder()

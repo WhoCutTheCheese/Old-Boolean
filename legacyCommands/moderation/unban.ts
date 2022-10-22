@@ -1,6 +1,5 @@
 import { Client, ColorResolvable, EmbedBuilder, Message, PermissionsBitField, TextChannel, User } from "discord.js";
-import Configuration from "../../models/config"
-import GuildProperties from "../../models/guild";
+import Settings from "../../models/settings";
 import Permits from "../../models/permits";
 
 module.exports = {
@@ -13,27 +12,22 @@ module.exports = {
 
         if (!message.guild?.members.me?.permissions.has([PermissionsBitField.Flags.BanMembers])) return message.channel.send({ content: "I require the `Ban Members` to remove bans!" });
 
-        const guildProp = await GuildProperties.findOne({
+        const settings = await Settings.findOne({
             guildID: message.guild?.id
         })
+        if (!settings) return message.channel.send({ content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
 
-        const configuration = await Configuration.findOne({
-            guildID: message.guild?.id
-        })
-        const color = configuration?.embedColor as ColorResolvable;
-
-        const permits = await Permits.find({
-            guildID: message.guild?.id
-        })
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         let awd
         const user = await client.users.fetch(args[0]).catch((err: Error) => {
             message.channel.send({ content: "Invalid User! Or this user is not banned!" })
             awd = true
         })
-        if(awd == true) return;
-        if(!user) return message.channel.send({ content: "Invalid User!" })
-        if(!message.guild.bans.cache.get(user.id)) return message.channel.send({ content: "User is not banned!" })
+        if (awd == true) return;
+        if (!user) return message.channel.send({ content: "Invalid User!" })
+        if (!message.guild.bans.cache.get(user.id)) return message.channel.send({ content: "User is not banned!" })
 
         const modLogs = new EmbedBuilder()
             .setAuthor({ name: `User Unbanned - ${user.tag}`, iconURL: user.displayAvatarURL() || undefined })
@@ -50,10 +44,13 @@ module.exports = {
             **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
             .setColor(color)
             .setTimestamp()
-        const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration?.modLogChannel!);
-        if (!channel) { return; }
-        if (message.guild.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-            (message.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
+        const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel!);
+        let exists = true
+        if (!channel) { exists = false; }
+        if (exists == true) {
+            if (message.guild.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                (message.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
+            }
         }
 
         message.guild.bans.remove(user.id)

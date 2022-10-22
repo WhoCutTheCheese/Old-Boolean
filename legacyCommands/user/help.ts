@@ -1,22 +1,20 @@
 import { Client, ColorResolvable, EmbedBuilder, Message } from "discord.js";
 import fs from "fs";
 import path from "path";
-import Configuration from "../../models/config"
-import GuildProperties from "../../models/guild";
+import Settings from "../../models/settings";
 const bot = require("../../package.json");
 
 module.exports = {
     commands: ['help', 'cmd', 'cmds', 'commands', 'omgpleasehelpmeimgoingtoexplode'],
     callback: async (client: Client, message: Message, args: string[]) => {
 
-        const configuration = await Configuration.findOne({
+        const settings = await Settings.findOne({
             guildID: message.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable;
+        if (!settings) return message.channel.send({ content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
 
-        const guildProp = await GuildProperties.findOne({
-            guildID: message.guild?.id
-        })
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         let user: string[] = []
         const userPath = path.join(__dirname, "..", "..", "legacyCommands", "user");
@@ -46,7 +44,7 @@ module.exports = {
             case "ban":
                 const ban = new EmbedBuilder()
                     .setTitle("Ban Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`ban\`, \`b\`, \`thanosnap\`, \`bean\`
                     **Usage:** \`!!ban [@User/User ID] (Length) (Reason)\`
                     **Examples:** 
@@ -59,7 +57,7 @@ module.exports = {
             case "case":
                 const caseEmbed = new EmbedBuilder()
                     .setTitle("Case Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`case\`, \`viewcase\`\
                     **Usage:** \`!!case [Case Number]\`
                     **Examples:** 
@@ -71,7 +69,7 @@ module.exports = {
             case "delcase":
                 const delCaseEmbed = new EmbedBuilder()
                     .setTitle("Delete Case Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`delcase\`, \`dc\`\
                     **Usage:** \`!!delcase [Case Number]\`
                     **Examples:** 
@@ -83,7 +81,7 @@ module.exports = {
             case "history":
                 const historyEmbed = new EmbedBuilder()
                     .setTitle("Punishment History Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`history\`, \`h\`, \`warns\`, \`infractions\`
                     **Usage:** \`!!history [@User/User ID]\`
                     **Examples:** 
@@ -95,7 +93,7 @@ module.exports = {
             case "kick":
                 const kickEmbed = new EmbedBuilder()
                     .setTitle("Kick Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`kick\`, \`k\`
                     **Usage:** \`!!kick [@User/User ID] (Reason)\`
                     **Examples:** 
@@ -108,7 +106,7 @@ module.exports = {
             case "lock":
                 const lockEmbed = new EmbedBuilder()
                     .setTitle("Channel Lock Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`lock\`, \`l\`
                     **Usage:** \`!!lock (#Channel/Channel ID)\`
                     **Examples:** 
@@ -122,7 +120,7 @@ module.exports = {
             case "mute":
                 const muteEmbed = new EmbedBuilder()
                     .setTitle("Mute Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`mute\`, \`m\`, \`silence\`
                     **Usage:** \`!!mute [@User/User ID] (Length) (Reason)\`
                     **Examples:** 
@@ -135,7 +133,7 @@ module.exports = {
             case "nickname":
                 const nicknameEmbed = new EmbedBuilder()
                     .setTitle("Nickname Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`nickname\`, \`nick\`
                     **Usage:** \`!!nick [@User/User ID] [New Nickname/reset]\`
                     **Examples:** 
@@ -148,7 +146,7 @@ module.exports = {
             case "purge":
                 const purgeEmbed = new EmbedBuilder()
                     .setTitle("Purge Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`purge\`, \`clear\`, \`p\`
                     **Usage:** \`!!purge [Limit]\` Max of 100
                     **Examples:** 
@@ -160,7 +158,7 @@ module.exports = {
             case "reason":
                 const reasonEmbed = new EmbedBuilder()
                     .setTitle("Case Reason Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`reason\`, \`r\`, \`casereason\`
                     **Usage:** \`!!reason [Case Number] [New Reason]\`
                     **Examples:** 
@@ -172,7 +170,7 @@ module.exports = {
             case "unban":
                 const unbanEmbed = new EmbedBuilder()
                     .setTitle("Unban Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`unban\`, \`ub\`
                     **Usage:** \`!!unban [User ID]\`
                     **Examples:** 
@@ -184,7 +182,7 @@ module.exports = {
             case "unlock":
                 const unlockembed = new EmbedBuilder()
                     .setTitle("Channel Unlock Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`unlock\`, \`ul\`
                     **Usage:** \`!!unlock [#Channel/Channel ID]\`
                     **Examples:** 
@@ -198,7 +196,7 @@ module.exports = {
             case "unmute":
                 const unmuteCommand = new EmbedBuilder()
                     .setTitle("Unmute Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`unmute\`, \`um\`
                     **Usage:** \`!!unmute [@User/User ID]\`
                     **Examples:** 
@@ -211,7 +209,7 @@ module.exports = {
             case "warn":
                 const warnEmbed = new EmbedBuilder()
                     .setTitle("Warn Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`warn\`, \`w\`
                     **Usage:** \`!!warn [@User/User ID] (Reason)\`
                     **Examples:** 
@@ -224,7 +222,7 @@ module.exports = {
             case "automod":
                 const automodembed = new EmbedBuilder()
                     .setTitle("AutoMod Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`automod\`, \`am\`
                     **Usage:** \`!!automod [blocklinks/blockscam/massmention/mentionscap/whitelist/help] [true/false || website || mention cap]\`
                     **Examples:** 
@@ -237,7 +235,7 @@ module.exports = {
             case "automute":
                 const automuteEmbed = new EmbedBuilder()
                     .setTitle("AutoMute Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`automod\`, \`am\`
                     **Usage:** \`!!automod [warnsmute] [Limit]\`
                     **Examples:** 
@@ -249,7 +247,7 @@ module.exports = {
             case "check":
                 const checkEmbed = new EmbedBuilder()
                     .setTitle("Check Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`check\`
                     **Usage:** \`!!check\`
                     **Examples:** 
@@ -261,7 +259,7 @@ module.exports = {
             case "color":
                 const colorEmbed = new EmbedBuilder()
                     .setTitle("Color Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`color\`, \`colour\`, \`c\`
                     **Usage:** \`!!color [Hex Code/reset]\`
                     **Examples:** 
@@ -274,7 +272,7 @@ module.exports = {
             case "config":
                 const configEmbed = new EmbedBuilder()
                     .setTitle("Config Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`config\`
                     **Usage:** \`!!config\`
                     **Examples:** 
@@ -286,7 +284,7 @@ module.exports = {
             case "deleteusage":
                 const deleteUsageEmbed = new EmbedBuilder()
                     .setTitle("Delete Command Usage Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`deleteusage\`, \`du\`
                     **Usage:** \`!!deleteusage [true/false/on/off]\`
                     **Examples:** 
@@ -299,7 +297,7 @@ module.exports = {
             case "dm":
                 const DM = new EmbedBuilder()
                     .setTitle("Punishment DM Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`dm\`
                     **Usage:** \`!!dm [true/false/on/off]\`
                     **Examples:** 
@@ -312,7 +310,7 @@ module.exports = {
             case "joinrole":
                 const joinRoleEmbed = new EmbedBuilder()
                     .setTitle("Join Role Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`joinrole\`
                     **Usage:** \`!!joinrole [set/view/reset] (@Role/Role ID)\`
                     **Examples:** 
@@ -325,7 +323,7 @@ module.exports = {
             case "modlogs":
                 const modlog = new EmbedBuilder()
                     .setTitle("Mod Logs Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`modlogs\`
                     **Usage:** \`!!modlogs [set/view/reset] (#Channel/Channel ID)\`
                     **Examples:** 
@@ -338,7 +336,7 @@ module.exports = {
             case "muterole":
                 const muteRoleEmbed = new EmbedBuilder()
                     .setTitle("Mute Role Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`muterole\`
                     **Usage:** \`!!muterole [set/view/reset] (@Role/Role ID)\`
                     **Examples:** 
@@ -351,7 +349,7 @@ module.exports = {
             case "permit":
                 const permitCommandEmbed = new EmbedBuilder()
                     .setTitle("Permit Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     The permit command gives users access to Boolean's commands via a permit system.
                     **Aliases:** \`permit\`, \`permits\`
                     **Usage:** \`!!permit [view || create/delete/adduser/removeuser/addrole/removerole/addcommand/removecommand/blockcommand/unblockcommand/automodbypass/rename] [(Permit Name)] [(Value)]\`
@@ -368,7 +366,7 @@ module.exports = {
             case "prefix":
                 const prefixCommand = new EmbedBuilder()
                     .setTitle("Prefix Command")
-                    .setDescription(`\`\`\`md\n[] = Required Argument () = Optional Argument\`\`\`
+                    .setDescription(`\`\`\`ml\n[] = Required Argument () = Optional Argument\`\`\`
                     **Aliases:** \`prefix\`
                     **Usage:** \`!!prefix [New Prefix/reset]\`
                     **Examples:** 
@@ -388,22 +386,28 @@ module.exports = {
                     allowedCommands2.splice(allowedCommandsIndex2, 1)
                 }
                 let prefix
-                if (configuration?.prefix) {
-                    prefix = configuration.prefix
+                if (settings.guildSettings?.prefix) {
+                    prefix = settings.guildSettings.prefix
                 } else {
                     prefix = "!!"
+                }
+                let premium 
+                if(!settings.guildSettings?.premium) {
+                    premium = "false"
+                } else if (settings.guildSettings?.premium == true) {
+                    premium = "true"
                 }
                 const helpEmbed = new EmbedBuilder()
                     .setTitle("<:tasklist:967443053063327774> Help\n")
                     .setThumbnail(message.guild?.iconURL() || null)
                     .setDescription("<a:coin:893603823459905536> **[Premium](https://google.com)** | :newspaper: **[Features](https://google.com/)** | <:bughuntergold:967441675507105842> **[Support Server](https://discord.gg/VD4sf98hKd)**")
                     .addFields(
-                        { name: "Current Guild Settings", value: `Prefix: \`${prefix}\`\nEmbed Color: \`#${configuration?.embedColor}\`\nPremium Status: \`${guildProp?.premium}\`` },
+                        { name: "Current Guild Settings", value: `Prefix: \`${prefix}\`\nEmbed Color: \`#${color}\`\nPremium Status: \`${premium}\`` },
                         { name: "User Commands", value: `${allowedCommands2}`, inline: false },
                         { name: "Moderation Commands", value: `${mod}`, inline: false },
                         { name: "Config Commands", value: `${conf}`, inline: false }
                     )
-                    .setColor(configuration?.embedColor as ColorResolvable)
+                    .setColor(color)
                     .setFooter({ text: `${message.guild?.name} - v${bot.version}`, iconURL: message.guild?.iconURL() || undefined })
                 message.channel.send({ embeds: [helpEmbed] })
 

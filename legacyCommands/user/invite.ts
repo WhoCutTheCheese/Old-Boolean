@@ -1,13 +1,17 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, ColorResolvable, EmbedBuilder, Message } from "discord.js";
-import Configuration from "../../models/config";
+import Settings from "../../models/settings";
 
 module.exports = {
     commands: ['invite', 'add'],
     callback: async (client: Client, message: Message, args: string[]) => {
 
-        const configuration = await Configuration.findOne({
+        const settings = await Settings.findOne({
             guildID: message.guild?.id
         })
+        if (!settings) return message.channel.send({ content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         const row = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
@@ -35,7 +39,7 @@ module.exports = {
 
         const invite = new EmbedBuilder()
             .setTitle("Invite Me!")
-            .setColor(configuration?.embedColor as ColorResolvable)
+            .setColor(color)
             .setDescription("Invite me to get an advanced moderation bot for all your server's needs! If you need help, visit our docs: [Coming Soon](https://google.com)")
         message.channel.send({ embeds: [invite], components: [row] })
 

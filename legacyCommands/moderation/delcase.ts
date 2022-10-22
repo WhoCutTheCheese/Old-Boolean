@@ -1,6 +1,5 @@
 import { Client, ColorResolvable, EmbedBuilder, Message, PermissionsBitField, TextChannel, User } from "discord.js";
-import Configuration from "../../models/config"
-import GuildProperties from "../../models/guild";
+import Settings from "../../models/settings";
 import Cases from "../../models/cases";
 
 module.exports = {
@@ -12,9 +11,13 @@ module.exports = {
     commandCategory: "MODERATION",
     callback: async (client: Client, message: Message, args: string[]) => {
 
-        const configuration = await Configuration.findOne({
-            guildID: message.guild?.id,
+        const settings = await Settings.findOne({
+            guildID: message.guild?.id
         })
+        if (!settings) return message.channel.send({ content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         if (isNaN(Number(args[0]))) return message.channel.send({ content: "Invalid case number!" });
 
@@ -32,7 +35,7 @@ module.exports = {
 
         const caseDeleted = new EmbedBuilder()
             .setDescription(`<:yes:979193272612298814> Deleted case \`#${args[0]}\``)
-            .setColor(configuration?.embedColor as ColorResolvable)
+            .setColor(color)
         message.channel.send({ embeds: [caseDeleted] })
 
         const modLogs = new EmbedBuilder()
@@ -46,12 +49,15 @@ module.exports = {
             > [**Case Number:** #${args[0]}]
 
             **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
-            .setColor(configuration?.embedColor as ColorResolvable)
+            .setColor(color)
             .setTimestamp()
-        const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration?.modLogChannel!);
-        if (!channel) { return; }
-        if (message.guild?.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-            (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
+        const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
+        let exists = true
+        if (!channel) { exists = false; }
+        if (exists == true) {
+            if (message.guild?.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
+            }
         }
 
     },

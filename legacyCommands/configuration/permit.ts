@@ -1,7 +1,7 @@
 import { Client, ColorResolvable, EmbedBuilder, Message } from "discord.js";
-import Configuration from "../../models/config";
 import Permits from "../../models/permits"
-import GuildProperties from "../../models/guild";
+import Settings from "../../models/settings";
+
 
 module.exports = {
     commands: ['permit', 'permits'],
@@ -49,18 +49,13 @@ module.exports = {
 
         }
 
-        const configuration = await Configuration.findOne({
-            guildID: message.guild?.id,
-        })
-        const color = configuration?.embedColor as ColorResolvable;
-
-        const guildProp = await GuildProperties.findOne({
+        const settings = await Settings.findOne({
             guildID: message.guild?.id
         })
+        if(!settings) return message.channel.send({  content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
 
-        const permits = await Permits.find({
-            guildID: message.guild?.id
-        })
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if(settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable; 
 
         if (args[1]) {
             if (/\s/.test(args[1])) return message.channel.send({ content: "You cannot have empty spaces in permit names! Ex. `HiImAPermit`" })
@@ -119,7 +114,7 @@ module.exports = {
                     guildID: message.guild?.id
                 })
                 let maxPermits: number
-                if (guildProp?.premium === false) {
+                if (settings.guildSettings?.premium === false) {
                     maxPermits = 5
                 } else {
                     maxPermits = 10
