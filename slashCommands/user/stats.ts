@@ -1,7 +1,5 @@
 import { SlashCommandBuilder, Client, PermissionsBitField, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, TextChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle, ActionRow, ActionRowComponent, Message, Interaction, ButtonInteraction, ButtonComponent, AnyComponentBuilder, APIButtonComponent, APIActionRowComponent, PermissionFlagsBits } from "discord.js";
 import Configuration from "../../models/config"
-import GuildProperties from "../../models/guild";
-import Cases from "../../models/cases";
 
 module.exports = {
     data: new SlashCommandBuilder()
