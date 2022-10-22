@@ -23,7 +23,7 @@ module.exports = {
                 { name: "Cached Users", value: `${client.users.cache.size.toLocaleString()}` },
                 { name: "Ram Usage", value: `\`${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} MB\` / \`512 MB\`` }
             )
-        ;(await reply).edit({ embeds: [embed], content: "" })
+        ;(await reply).edit({ embeds: [embed], content: "" }).catch((err: Error) => { console.error(err); })
 
     }
 }
