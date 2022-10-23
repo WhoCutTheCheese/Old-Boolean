@@ -9,6 +9,7 @@ module.exports = {
         .setDescription("View Boolean statistics."),
     async execute(interaction: ChatInputCommandInteraction, client: Client) {
         if (!interaction.inCachedGuild()) return interaction.reply({ content: "This command is only available in guilds!", ephemeral: true })
+        if(!interaction.channel?.permissionsFor(interaction.guild.members.me!)?.has([ PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ViewChannel ])) return;
         const configuration = await Configuration.findOne({
             guildID: interaction.guild?.id
         })
