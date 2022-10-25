@@ -30,6 +30,7 @@ module.exports = {
         if (!user) return message.channel.send({ content: "Invalid User!" })
 
         if (user.id === message.guild?.ownerId) return message.channel.send({ content: "You cannot change this user's nickname!" })
+        if (user.id === client.user?.id) return message.channel.send({ content: "You cannot change my nickname. My power levels are too high!" })
 
         let ObjectID: any
         for (const permit of permits) {

@@ -41,6 +41,7 @@ module.exports = {
 
         if (user.id === message.author.id) return message.channel.send({ content: "You cannot mute yourself!" })
         if (user.id === message.guild?.ownerId) return message.channel.send({ content: "You cannot mute this user!" })
+        if (user.id === client.user?.id) return message.channel.send({ content: "You cannot mute me. My power levels are too high!" })
 
         let ObjectID: any
         for (const permit of permits) {

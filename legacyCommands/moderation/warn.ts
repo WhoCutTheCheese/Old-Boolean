@@ -39,6 +39,7 @@ module.exports = {
 
         if (user.id === message.author.id) return message.channel.send({ content: "You cannot issue warnings to yourself!" })
         if (user.id === message.guild?.ownerId) return message.channel.send({ content: "You cannot issue warnings to this user!" })
+        if (user.id === client.user?.id) return message.channel.send({ content: "You cannot warn me. My power levels are too high!" })
 
         let ObjectID: any
         for (const permit of permits) {
@@ -51,7 +52,7 @@ module.exports = {
         const thePermit = await Permits.findOne({
             _id: ObjectID
         })
-        if (thePermit?.commandAccess.includes("WARN")) return message.channel.send({ content: "You cannot issue warnings to this user!" })
+        if (thePermit?.commandAccess.includes("WARN") || thePermit?.commandAccess.includes("MODERATION")) return message.channel.send({ content: "You cannot issue warnings to this user!" })
 
         const caseNumberSet = guildProp?.totalCases! + 1;
 
