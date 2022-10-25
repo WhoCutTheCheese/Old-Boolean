@@ -45,7 +45,7 @@ module.exports = {
 
         let ObjectID: any
         for (const permit of permits) {
-            if (permit.users.includes(message.author.id)) {
+            if (permit.users.includes(user.id)) {
                 ObjectID = permit._id;
                 break;
             }
