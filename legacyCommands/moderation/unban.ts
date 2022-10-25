@@ -33,7 +33,7 @@ module.exports = {
         })
         if(awd == true) return;
         if(!user) return message.channel.send({ content: "Invalid User!" })
-        if(!message.guild.bans.cache.get(user.id)) return message.channel.send({ content: "User is not banned!" })
+        if(!(await message.guild.bans.fetch()).get(user.id)) return message.channel.send({ content: "User is not banned!" })
 
         const modLogs = new EmbedBuilder()
             .setAuthor({ name: `User Unbanned - ${user.tag}`, iconURL: user.displayAvatarURL() || undefined })
