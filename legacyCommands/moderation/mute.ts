@@ -53,7 +53,7 @@ module.exports = {
         const thePermit = await Permits.findOne({
             _id: ObjectID
         })
-        if (thePermit?.commandAccess.includes("MUTE")) return message.channel.send({ content: "You cannot mute this user!" });
+        if (thePermit?.commandAccess.includes("MUTE") || thePermit?.commandAccess.includes("MODERATION")) return message.channel.send({ content: "You cannot mute this user!" });
 
         if(message.guild.members.me.roles.highest.position < user.roles.highest.position) return message.channel.send({ content: "This user is above me! I cannot mute them." })
 
