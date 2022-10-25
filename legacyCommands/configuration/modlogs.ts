@@ -1,4 +1,4 @@
-import { Client, ColorResolvable, EmbedBuilder, Message } from "discord.js";
+import { Client, ColorResolvable, EmbedBuilder, Message, TextChannel } from "discord.js";
 import Configuration from "../../models/config";
 
 module.exports = {
@@ -15,21 +15,21 @@ module.exports = {
         })
         const color = configuration?.embedColor as ColorResolvable
 
-        const role = message.mentions.roles.first() || message.guild?.roles.cache.get(args[1])
+        const channel = message.mentions.channels.first() || message.guild?.channels.cache.get(args[1])
 
         switch (args[0].toLowerCase()) {
             case "set":
 
-                if (!role) return message.channel.send({ content: "Invalid channel! Ex. `!!modlogs set #Channel`" })
+                if (!channel) return message.channel.send({ content: "Invalid channel! Ex. `!!modlogs set #Channel`" })
 
                 await Configuration.findOneAndUpdate({
                     guildID: message.guild?.id
                 }, {
-                    modLogChannel: role.id
+                    modLogChannel: channel.id
                 })
 
                 const success = new EmbedBuilder()
-                    .setDescription("<:yes:979193272612298814> You set the mod logging channel to `" + role.name + "`!")
+                    .setDescription("<:yes:979193272612298814> You set the mod logging channel to `" + (channel as TextChannel).name + "`!")
                     .setColor(color)
                 message.channel.send({ embeds: [success] })
 
