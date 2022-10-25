@@ -42,6 +42,7 @@ module.exports = {
 
         if (user.id === message.author.id) return message.channel.send({ content: "You cannot ban yourself!" })
         if (user.id === message.guild?.ownerId) return message.channel.send({ content: "You cannot ban this user!" })
+        if (user.id === client.user?.id) return message.channel.send({ content: "You cannot ban me. My power levels are too high!" })
 
         let ObjectID: any
         for (const permit of permits) {
