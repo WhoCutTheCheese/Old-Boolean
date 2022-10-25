@@ -5,7 +5,7 @@ module.exports = {
     commands: ["automute"],
     commandName: "AUTOMUTE",
     commandCategory: "CONFIGURATION",
-    minArgs: 2,
+    minArgs: 1,
     maxArgs: 2,
     expectedArgs: "[warnsmute] [number]",
     callback: async (client: Client, message: Message, args: string[]) => {

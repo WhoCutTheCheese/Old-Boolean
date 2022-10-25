@@ -5,7 +5,7 @@ module.exports = {
     commands: ["joinrole"],
     commandName: "JOINROLE",
     commandCategory: "CONFIGURATION",
-    minArgs: 2,
+    minArgs: 1,
     maxArgs: 2,
     expectedArgs: "[Set/Reset/View] [@Role/Role ID]",
     callback: async (client: Client, message: Message, args: string[]) => {

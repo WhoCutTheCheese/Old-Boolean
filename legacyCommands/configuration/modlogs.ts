@@ -5,7 +5,7 @@ module.exports = {
     commands: ["modlogs"],
     commandName: "MODLOGS",
     commandCategory: "CONFIGURATION",
-    minArgs: 2,
+    minArgs: 1,
     maxArgs: 2,
     expectedArgs: "[Set/Reset/View] [#Channel/Channel ID]",
     callback: async (client: Client, message: Message, args: string[]) => {
