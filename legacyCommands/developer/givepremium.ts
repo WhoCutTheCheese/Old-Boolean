@@ -5,6 +5,8 @@ module.exports = {
     commands: ['givepremium'],
     devOnly: true,
     callback: async (client: Client, message: Message, args: string[]) => {
+
+        if(message.author.id !== "493453098199547905") return;
     
         const tokens = await Tokens.findOne({
             userID: message.author.id
