@@ -1,6 +1,6 @@
 {
   "name": "boolean-ts",
-  "version": "2.1.10",
+  "version": "2.1.11",
   "description": "Boolean the moderation bot.",
   "main": "index.ts",
   "scripts": {

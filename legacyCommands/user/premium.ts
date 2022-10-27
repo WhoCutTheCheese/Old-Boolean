@@ -72,13 +72,7 @@ module.exports = {
             case "revoke":
 
                 if (guildProp?.premiumHolder !== message.author.id || guildProp.premium == false)  {
-                    message.channel.send({ content: "You cannot revoke premium!" }).then((result: Message) => {
-                        setTimeout(() => {
-                            if(result.deletable) {
-                                result.delete
-                            }
-                        }, 3000)
-                    })
+                    message.channel.send({ content: "You cannot revoke premium!" })
                     return;
                 }
 

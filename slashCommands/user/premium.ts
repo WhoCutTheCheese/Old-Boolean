@@ -42,6 +42,7 @@ module.exports = {
                 if (!tokens || tokens.tokens == 0) return interaction.reply({ content: "Your token balance is 0!", ephemeral: true })
 
                 if (guildProp?.premium == true) return interaction.reply({ content: "This guild already has premium enabled!", ephemeral: true })
+                if(!tokens) return interaction.reply({ content: "You cannot revoke premium!", ephemeral: true })
 
                 await GuildProperties.findOneAndUpdate({
                     guildID: interaction.guild.id
@@ -65,7 +66,8 @@ module.exports = {
                 break;
             case "revoke":
 
-                if (guildProp?.premiumHolder !== interaction.user.id || guildProp.premium == false) return interaction.reply({ content: "You cannot revoke premium!", ephemeral: true })
+                if (guildProp?.premiumHolder !== interaction.user.id || guildProp.premium == false) return interaction.reply({ content: "You cannot revoke premium! E", ephemeral: true })
+                if(!tokens) return interaction.reply({ content: "You cannot revoke premium! A", ephemeral: true })
 
                 await GuildProperties.findOneAndUpdate({
                     guildID: interaction.guild.id
@@ -77,7 +79,7 @@ module.exports = {
                 await Tokens.findOneAndUpdate({
                     userID: interaction.user.id
                 }, {
-                    tokens: tokens?.tokens! + 1
+                    tokens: tokens.tokens! + 1
                 })
 
                 await Configuration.findOneAndUpdate({
