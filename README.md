@@ -29,3 +29,5 @@ We are always looking for ways to make Boolean the best bot it can be, if that m
 ## **Terms of Use**
 Boolean's source code is open to all to tinker with and view. Boolean's source code is primarily abailable to those who would like to help me keep Boolean at it's best.
 **Under no circumstances can you take Boolean's source code and use it for your own gain.**
+
+If you would like to use some of Boolean's code or features in your own bot **please** credit me. Thank you :D
