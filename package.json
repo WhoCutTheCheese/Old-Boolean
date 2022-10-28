@@ -10,6 +10,13 @@
   "contributors": [
     "Espeon#2766"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WhoCutTheCheese/Boolean-TS.git"},
+  "homepage": "https://github.com/WhoCutTheCheese/Boolean-TS/blob/production/README.md",
+  "bugs": {
+    "url": "https://github.com/WhoCutTheCheese/Boolean-TS/issues/new"
+  },
   "license": "ISC",
   "dependencies": {
     "@discordjs/builders": "^1.2.0",
