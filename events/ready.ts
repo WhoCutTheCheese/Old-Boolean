@@ -15,7 +15,7 @@ module.exports = {
             activities: [{ name: `${statuses[Math.floor(Math.random() * 5)]} | !!help & (/) commands`, type: ActivityType.Watching }],
             status: "dnd"
         })
-        await mongoose.connect(`mongodb+srv://SmartSky:CheeseCake101@booleanstorage.3ud4r.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`, { keepAlive: true })
+        await mongoose.connect(`${process.env.mongo_url}`, { keepAlive: true })
 
         setInterval(global.check, 1000 * 30)
 
