@@ -25,3 +25,7 @@ Suggestions will likely be added to our project board and marked with a priority
 
 ## Optimization
 We are always looking for ways to make Boolean the best bot it can be, if that means some constructive critisism or suggestions for optimization changes, we are always open for feedback. Feel free to DM `TehCheese#1075` on Discord or any developer that is available.
+
+## **Terms of Use**
+Boolean's source code is open to all to tinker with and view. Boolean's source code is primarily abailable to those who would like to help me keep Boolean at it's best.
+**Under no circumstances can you take Boolean's source code and use it for your own gain.**
