@@ -7,7 +7,7 @@ Boolean only publically runs off the latest verion. Any other version is left to
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 2.2.12  | :white_check_mark: |
+| 2.2.13  | :white_check_mark: |
 | 2.x.x   | :x:                |
 | 1.x.x   | :x:                |
 
