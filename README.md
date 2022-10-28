@@ -1,10 +1,8 @@
-# 🔨 Keep Your Server Safe 🔨 (BETA)
+# 🔨 Keep Your Server Safe 🔨
 Boolean is a moderation bot for all your moderation needs. Boolean has a custom permit system made exactly for you and your moderations to have access to everything they need.
 Boolean's moderation is quite simple, it is standard to all other moderation bots, just for you. Boolean saves punishment data is the form of cases, every punishment has a case, you can edit the case reason or delete it. Furthermore boolean keeps extensive logs on all the actions of your moderators to make sure they aren't abusing their powers.
 
 *Note: Boolean's logging is for Boolean's command as of now, full audit logging is coming soon.*
-
-**Note 2 Electric Boogaloo: This is the development branch, all changes here are subject to change and may be remove alltogether.**
 
 ## About Boolean
 
