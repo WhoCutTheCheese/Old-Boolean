@@ -2,6 +2,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, ColorResolvable, 
 import Settings from "../../models/settings";
 import Cases from "../../models/cases";
 import Permits from "../../models/permits";
+import { Punishment } from "../../classes/punish";
 
 module.exports = {
     commands: ['kick', 'k'],
@@ -36,8 +37,8 @@ module.exports = {
         const user = message.mentions.members?.first() || message.guild?.members.cache.get(args[0]);
         if (!user) return message.channel.send({ content: "Invalid User!" })
 
-        if (user.id === message.author.id) return message.channel.send({ content: "You cannot mute yourself!" })
-        if (user.id === message.guild?.ownerId) return message.channel.send({ content: "You cannot mute this user!" })
+        if (user.id === message.author.id) return message.channel.send({ content: "You cannot kick yourself!" })
+        if (user.id === message.guild?.ownerId) return message.channel.send({ content: "You cannot kick this user!" })
         if (user.id === client.user?.id) return message.channel.send({ content: "You cannot kick me. My power levels are too high!" })
 
         let ObjectID: any
@@ -76,87 +77,7 @@ module.exports = {
         if (!reason) reason = "No reason provided."
         if (reason.length > 200) return message.channel.send({ content: "Reason exceeds maximum length. (250 Characters)" })
 
-        const userKickedEmbed = new EmbedBuilder()
-            .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Reason:** ${reason}`)
-            .setColor(color)
-        message.channel.send({ content: `<:arrow_right:967329549912248341> **${user.user.tag}** has been kicked! (Warns **${warns}**)`, embeds: [userKickedEmbed] })
-
-        const modLogs = new EmbedBuilder()
-            .setAuthor({ name: `Member Kicked - ${user.user.tag}`, iconURL: user.displayAvatarURL() || undefined })
-            .setThumbnail(user.displayAvatarURL() || null)
-            .setDescription(`<:user:977391493218181120> **User:** ${user.user.tag}
-            > [${user.id}]
-            > [<@${user.id}>]
-
-            <:folder:977391492790362173> **Mod:** ${message.author.tag}
-            > [${message.author.id}]
-            > [<@${message.author.id}>]
-
-            <:pencil:977391492916207636> **Action:** Kick
-            > [**Case:** #${caseNumberSet}]
-
-            **Reason:** ${reason}
-            **Channel:** <#${message.channel?.id}>
-            **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
-            .setColor(color)
-            .setTimestamp()
-        const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel!);
-        let exists = true
-        if (!channel) { exists = false; }
-        if (exists == true) {
-            if (message.guild.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                (message.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
-            }
-        }
-
-
-        if (settings.modSettings?.dmOnPunish == true) {
-            const dm = new EmbedBuilder()
-                .setAuthor({ name: "You Were Kicked from " + message.guild.name + "!", iconURL: message.guild.iconURL() || undefined })
-                .setColor(color)
-                .setDescription(`<:blurple_bulletpoint:997346294253244529> **Reason:** ${reason}
-            <:blurple_bulletpoint:997346294253244529> **Case:** #${caseNumberSet}`)
-                .setTimestamp()
-            if (!settings.guildSettings?.prefix || settings.guildSettings?.premium == false) {
-                user.send({ embeds: [dm], components: [row] }).catch((err: Error) => {
-                    const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
-                    let exists = true
-                    if (!channel) { exists = false; }
-                    if (exists == true) {
-                        if (message.guild?.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                            (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
-                        }
-                    }
-                })
-            } else if (settings.guildSettings?.premium == true) {
-                user.send({ embeds: [dm] }).catch((err: Error) => {
-                    const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
-                    let exists = true
-                    if (!channel) { exists = false; }
-                    if (exists == true) {
-                        if (message.guild?.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                            (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
-                        }
-                    }
-                })
-            }
-        }
-
-
-        const newCase = new Cases({
-            guildID: message.guild.id,
-            userID: user.id,
-            modID: message.author.id,
-            caseType: "Kick",
-            caseReason: reason,
-            caseNumber: caseNumberSet,
-            caseLength: "None",
-            caseDate: Date.now(),
-        })
-        newCase.save().catch((err: Error) => console.error(err));
-        user.kick(reason).catch((err: Error) => {
-            console.error(err)
-            message.channel.send({ content: "I could not kick this user!" })});
+        new Punishment({ type: "kick", user: user.user, member: user, message: message, channel: (message.channel as TextChannel), settings: settings, color: color, caseNumberSet: caseNumberSet, reason: reason, warns: warns })
 
 
     },
