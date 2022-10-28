@@ -1,4 +1,4 @@
-import { Client, Collection, GatewayIntentBits, Guild, InteractionCollector, PermissionsBitField, Routes, UserResolvable } from "discord.js";
+import { Client, Collection, GatewayIntentBits, PermissionsBitField, Routes, UserResolvable } from "discord.js";
 import dotEnv from "dotenv";
 import path from "path";
 import fs from "fs";
@@ -6,7 +6,7 @@ import Bans from "./models/bans";
 import { REST } from "@discordjs/rest"
 import Settings from "./models/settings"
 dotEnv.config()
-const token = process.env.token;
+const token = process.env.beta_token;
 const client = new Client({
     intents: [
         GatewayIntentBits.GuildBans,
