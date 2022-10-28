@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, CommandInteraction, Client, ColorResolvable, GuildVerificationLevel, EmbedBuilder, User, TextChannel, GuildMember, ChatInputCommandInteraction } from "discord.js";
-import Configuration from "../../models/config";
+import Settings from "../../models/settings";
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -7,10 +7,13 @@ module.exports = {
         .setDescription("Get information on the current guild."),
     async execute(interaction: ChatInputCommandInteraction, client: Client) {
         if(!interaction.inCachedGuild()) { return; }
-        const configuration = await Configuration.findOne({
+        const settings = await Settings.findOne({
             guildID: interaction.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable
+        if (!settings) return interaction.reply({ content: "Sorry, your settings file doesn't exist! If this error persists contact support", ephemeral: true })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
         interaction.guild?.members.fetch().then((fetchedMembers: any) => {
             const totalMembers = fetchedMembers
 

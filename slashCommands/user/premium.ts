@@ -1,6 +1,5 @@
 import { SlashCommandBuilder, Client, PermissionsBitField, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, TextChannel, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
-import Configuration from "../../models/config"
-import GuildProperties from "../../models/guild";
+import Settings from "../../models/settings";
 import Tokens from "../../models/tokens";
 
 module.exports = {
@@ -21,15 +20,14 @@ module.exports = {
     async execute(interaction: ChatInputCommandInteraction, client: Client) {
         if (!interaction.inCachedGuild()) return interaction.reply({ content: "You can only use this command in a guild!", ephemeral: true })
 
-        const configuration = await Configuration.findOne({
-            guildID: interaction.guild.id
+        const settings = await Settings.findOne({
+            guildID: interaction.guild?.id
         })
+        if (!settings) return interaction.reply({ content: "Sorry, your settings file doesn't exist! If this error persists contact support", ephemeral: true })
 
-        const color = configuration?.embedColor as ColorResolvable
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
-        const guildProp = await GuildProperties.findOne({
-            guildID: interaction.guild.id
-        })
         const tokens = await Tokens.findOne({
             userID: interaction.user.id
         })
@@ -41,14 +39,15 @@ module.exports = {
 
                 if (!tokens || tokens.tokens == 0) return interaction.reply({ content: "Your token balance is 0!", ephemeral: true })
 
-                if (guildProp?.premium == true) return interaction.reply({ content: "This guild already has premium enabled!", ephemeral: true })
-                if(!tokens) return interaction.reply({ content: "You cannot revoke premium!", ephemeral: true })
+                if (settings.guildSettings?.premium == true) return interaction.reply({ content: "This guild already has premium enabled!", ephemeral: true })
 
-                await GuildProperties.findOneAndUpdate({
+                await Settings.findOneAndUpdate({
                     guildID: interaction.guild.id
                 }, {
-                    premium: true,
-                    premiumHolder: interaction.user.id
+                    guildSettings: {
+                        premium: true,
+                        premiumHolder: interaction.user.id
+                    }
                 })
 
                 await Tokens.findOneAndUpdate({
@@ -66,26 +65,22 @@ module.exports = {
                 break;
             case "revoke":
 
-                if (guildProp?.premiumHolder !== interaction.user.id || guildProp.premium == false) return interaction.reply({ content: "You cannot revoke premium! E", ephemeral: true })
-                if(!tokens) return interaction.reply({ content: "You cannot revoke premium! A", ephemeral: true })
+                if (settings.guildSettings?.premiumHolder !== interaction.user.id || settings.guildSettings.premium == false) return interaction.reply({ content: "You cannot revoke premium!", ephemeral: true })
+                if (!tokens) return interaction.reply({ content: "You cannot revoke premium!", ephemeral: true })
 
-                await GuildProperties.findOneAndUpdate({
+                await Settings.findOneAndUpdate({
                     guildID: interaction.guild.id
                 }, {
-                    premium: false,
-                    premiumHolder: "None"
+                    guildSettings: {
+                        $unset: { premium: "", premiumHolder: "" },
+                        embedColor: "5865F2"
+                    }
                 })
 
                 await Tokens.findOneAndUpdate({
                     userID: interaction.user.id
                 }, {
                     tokens: tokens.tokens! + 1
-                })
-
-                await Configuration.findOneAndUpdate({
-                    guildID: interaction.guild.id
-                }, {
-                    embedColor: "5865F2"
                 })
 
                 const disable = new EmbedBuilder()
@@ -97,15 +92,17 @@ module.exports = {
             case "status":
 
                 let holder
-                if (guildProp?.premium == false) {
+                if (settings.guildSettings?.premium == false || !settings.guildSettings?.premium) {
                     holder = "None"
                 } else {
-                    holder = `<@${guildProp?.premiumHolder}>`
+                    holder = `<@${settings.guildSettings?.premiumHolder}>`
                 }
+                let premium = false
+                if (settings.guildSettings?.premium == true) premium = true
                 const status = new EmbedBuilder()
                     .setAuthor({ name: "Premium Status" })
                     .setColor(color)
-                    .setDescription(`**Premium:** ${guildProp?.premium}
+                    .setDescription(`**Premium:** ${premium}
                     **Premium Holder:** ${holder}`)
                     .setTimestamp()
                 interaction.reply({ embeds: [status] })
@@ -114,8 +111,10 @@ module.exports = {
             case "balance":
 
                 let array: string[] = []
-                const enabledServer = await GuildProperties.find({
-                    premiumHolder: interaction.user.id
+                const enabledServer = await Settings.find({
+                    guildSettings: {
+                        premiumHolder: interaction.user.id
+                    }
                 })
                 for (const servers of enabledServer) {
                     let guild = client.guilds.cache.get(servers.guildID!)

@@ -1,6 +1,5 @@
 import { Client, ColorResolvable, EmbedBuilder, Message, PermissionsBitField, TextChannel } from "discord.js";
-import Configuration from "../../models/config"
-import GuildProperties from "../../models/guild";
+import Settings from "../../models/settings";
 import Permits from "../../models/permits";
 
 module.exports = {
@@ -13,14 +12,13 @@ module.exports = {
 
         if (!message.guild?.members.me?.permissions.has([PermissionsBitField.Flags.ManageNicknames])) return message.channel.send({ content: "I require the `Manage Nicknames` permission to edit nicknames!" });
 
-        const guildProp = await GuildProperties.findOne({
+        const settings = await Settings.findOne({
             guildID: message.guild?.id
         })
+        if (!settings) return message.channel.send({ content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
 
-        const configuration = await Configuration.findOne({
-            guildID: message.guild?.id
-        })
-        const color = configuration?.embedColor as ColorResolvable;
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         const permits = await Permits.find({
             guildID: message.guild?.id
@@ -30,7 +28,6 @@ module.exports = {
         if (!user) return message.channel.send({ content: "Invalid User!" })
 
         if (user.id === message.guild?.ownerId) return message.channel.send({ content: "You cannot change this user's nickname!" })
-        if (user.id === client.user?.id) return message.channel.send({ content: "You cannot change my nickname. My power levels are too high!" })
 
         let ObjectID: any
         for (const permit of permits) {
@@ -67,13 +64,18 @@ module.exports = {
                 **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                 .setColor(color)
                 .setTimestamp()
-            const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration?.modLogChannel!);
-            if (!channel) { return; }
-            if (message.guild.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                (message.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
+            const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel!);
+            let exists = true
+            if (!channel) { exists = false; }
+            if (exists == true) {
+                if (message.guild.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                    (message.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
+                }
             }
 
-            user.setNickname(null)
+            user.setNickname(null).catch((err: Error) => {
+                console.error(err)
+                message.channel.send({ content: "I could not edit this user's nickname!" })});
 
             const nicknameResetEmbed = new EmbedBuilder()
                 .setColor(color)
@@ -83,7 +85,7 @@ module.exports = {
         }
 
         const nickname = args.splice(1).join(" ");
-        if(nickname.length > 32) return message.channel.send({ content: "Nickname length exceeds maximum length. (32 Characters)" })
+        if (nickname.length > 32) return message.channel.send({ content: "Nickname length exceeds maximum length. (32 Characters)" })
 
         const modLogs = new EmbedBuilder()
             .setAuthor({ name: `Nickname Updated - ${user.user.tag}`, iconURL: user.user.displayAvatarURL() || undefined })
@@ -103,13 +105,18 @@ module.exports = {
             **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
             .setColor(color)
             .setTimestamp()
-        const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration?.modLogChannel!);
-        if (!channel) { return; }
-        if (message.guild.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-            (message.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
+        const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel!);
+        let exists = true
+        if (!channel) { exists = false; }
+        if (exists == true) {
+            if (message.guild.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                (message.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
+            }
         }
 
-        user.setNickname(nickname)
+        user.setNickname(nickname).catch((err: Error) => {
+            console.error(err)
+            message.channel.send({ content: "I could not edit this user's nickname!" })});
 
         const nicknameSetEmbed = new EmbedBuilder()
             .setColor(color)

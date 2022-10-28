@@ -1,14 +1,18 @@
 import { Client, ColorResolvable, EmbedBuilder, GuildMember, GuildVerificationLevel, Message, TextChannel } from "discord.js";
-import Configuration from "../../models/config"
+import Settings from "../../models/settings";
 
 module.exports = {
     commands: ['serverinfo', 'si', 'server'],
     callback: async (client: Client, message: Message, args: string[]) => {
 
-        const configuration = await Configuration.findOne({
+        const settings = await Settings.findOne({
             guildID: message.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable
+        if (!settings) return message.channel.send({ content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
+        
         message.guild?.members.fetch().then((fetchedMembers: any) => {
             const totalMembers = fetchedMembers
 

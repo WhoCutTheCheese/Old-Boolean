@@ -1,5 +1,5 @@
 import { Client, ColorResolvable, EmbedBuilder, Message, PermissionsBitField, TextChannel } from "discord.js";
-import Configuration from "../../models/config";
+import Settings from "../../models/settings";
 
 module.exports = {
     commands: ['purge', 'p', 'clear'],
@@ -10,10 +10,13 @@ module.exports = {
     commandCategory: "MODERATION",
     callback: async (client: Client, message: Message, args: string[]) => {
 
-        const configuration = await Configuration.findOne({
+        const settings = await Settings.findOne({
             guildID: message.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable;
+        if (!settings) return message.channel.send({ content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         if (!message.guild?.members.me?.permissions.has([PermissionsBitField.Flags.ManageMessages])) return message.channel.send({ content: "I require `Manage Messages` to bulk delete!" })
 
@@ -30,13 +33,19 @@ module.exports = {
         let msg = await message.channel.send({ content: "Deleted **" + limit + "** messages" })
 
         setTimeout(() => {
-            msg?.delete();
+            if (msg.deletable) {
+                if (message.guild?.members.me?.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
+                    if ((message.channel as TextChannel).permissionsFor(message.guild?.members.me)?.has(PermissionsBitField.Flags.ManageMessages)) {
+                        msg.delete()
+                    }
+                }
+            }
         }, 3000)
 
         const modLogEmbed = new EmbedBuilder()
             .setAuthor({ name: `Messages Purged`, iconURL: message.author.displayAvatarURL() || undefined })
             .setThumbnail(message.author.displayAvatarURL() || null)
-            .setColor(configuration?.embedColor as ColorResolvable)
+            .setColor(color)
             .setTimestamp()
             .setDescription(`<:folder:977391492790362173> **Mod:** ${message.author.tag}
             > [${message.author.id}]
@@ -47,10 +56,12 @@ module.exports = {
 
             **Channel:** <#${message.channel?.id}>
             **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
-        const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration?.modLogChannel);
-        if (!channel) { return; }
-        (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
-
+        const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
+        let exists = true
+        if (!channel) { exists = false; }
+        if (exists == true) {
+            (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogEmbed] })
+        }
 
     },
 }

@@ -4,11 +4,11 @@ import path from "path";
 import fs from "fs";
 import Bans from "./models/bans";
 import { REST } from "@discordjs/rest"
-import Configuration from "./models/config"
+import Settings from "./models/settings"
 dotEnv.config()
 const token = process.env.token
 const client = new Client({
-    intents: [ 
+    intents: [
         GatewayIntentBits.GuildBans,
         GatewayIntentBits.GuildInvites,
         GatewayIntentBits.GuildIntegrations,
@@ -75,14 +75,15 @@ for (const folder of commandFolders) {
 client.on("guildMemberAdd", async member => {
     const nonGuildMember = client.users.cache.get(member.id)
     if (nonGuildMember?.bot) { return; }
-    const configSettings = await Configuration.findOne({
+    const settings = await Settings.findOne({
         guildID: member.guild.id,
     })
-    if (configSettings?.joinRoleID === "None") { return; }
+    if(!settings) return;
+    if(!settings.guildSettings?.joinRole) return;
     if(!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageRoles)) { return; }
-    const role = member.guild.roles.cache.get(configSettings?.joinRoleID!)
+    const role = member.guild.roles.cache.get(settings.guildSettings.joinRole)
     if(role?.position! > member.guild.members.me.roles.highest.position) return
-    member.roles.add(configSettings?.joinRoleID!).catch((err: Error) => console.log(err))
+    member.roles.add(settings.guildSettings.joinRole).catch((err: Error) => console.log(err))
 })
 
 let clientId
@@ -109,7 +110,7 @@ const rest = new REST({ version: '10' }).setToken(`${token}`);
     }
 })();
 import Maintenance from "./models/maintenance";
-const devs = ["493453098199547905", "648598769449041946"]
+const devs = ["493453098199547905", "648598769449041946", "585731185083285504"]
 client.on("interactionCreate", async interaction => {
     if (!interaction.isChatInputCommand()) return;
     const maintenance = await Maintenance.findOne({

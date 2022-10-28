@@ -1,7 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, Client, PermissionsBitField, ColorResolvable, EmbedBuilder, Embed, ActionRowBuilder, ButtonBuilder, ButtonStyle, APIButtonComponent, PermissionFlagsBits } from "discord.js";
-import Configuration from "../../models/config"
-import GuildProperties from "../../models/guild";
-import Permits from "../../models/permits"
+import Settings from "../../models/settings";
+import Permits from "../../models/permits";
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -17,14 +16,13 @@ module.exports = {
 
         if (!interaction.inCachedGuild()) return interaction.reply({ content: "This command is only available in guilds!", ephemeral: true })
 
-        const configuration = await Configuration.findOne({
-            guildID: interaction.guild.id
+        const settings = await Settings.findOne({
+            guildID: interaction.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable
-
-        const guildProp = await GuildProperties.findOne({
-            guildID: interaction.guild.id,
-        })
+        if(!settings) return interaction.reply({  content: "Sorry, your settings file doesn't exist! If this error persists contact support", ephemeral: true })
+        
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if(settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         const permits = await Permits.find({
             guildID: interaction.guild.id
@@ -67,15 +65,17 @@ module.exports = {
         const noPremium = new EmbedBuilder()
             .setDescription("Whoops! Looks like this server does not have premium enabled!")
             .setColor("Gold")
-        if (guildProp?.premium == false) return interaction.reply({ embeds: [noPremium], ephemeral: true })
+        if (settings.guildSettings?.premium == false || !settings.guildSettings?.premium) return interaction.reply({ embeds: [noPremium], ephemeral: true })
 
 
         let embedColor = interaction.options.getString("color")
         if (embedColor?.toLowerCase() == "reset") {
-            await Configuration.findOneAndUpdate({
+            await Settings.findOneAndUpdate({
                 guildID: interaction.guild.id
             }, {
-                embedColor: "5865F2"
+                guildSettings: {
+                    embedColor: "5865F2"
+                }
             })
 
             const reset = new EmbedBuilder()
@@ -90,10 +90,12 @@ module.exports = {
 
         if (!/[0-9A-Fa-f]{6}/g.test(embedColor)) return interaction.reply({ content: "Invalid hex code! EX. `#000000`", ephemeral: true })
 
-        await Configuration.findOneAndUpdate({
+        await Settings.findOneAndUpdate({
             guildID: interaction.guild.id
         }, {
-            embedColor: embedColor
+            guildSettings: {
+                embedColor: embedColor
+            }
         })
         const success = new EmbedBuilder()
             .setDescription(`<:yes:979193272612298814> You set the embed color to \`#${embedColor}\`!`)

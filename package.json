@@ -1,12 +1,15 @@
 {
   "name": "boolean-ts",
-  "version": "2.1.11",
+  "version": "2.2.11",
   "description": "Boolean the moderation bot.",
   "main": "index.ts",
   "scripts": {
     "start": "ts-node index.ts"
   },
-  "author": "WhoCutTheCheese",
+  "author": "TehCheese#1075",
+  "contributors": [
+    "Espeon#2766"
+  ],
   "license": "ISC",
   "dependencies": {
     "@discordjs/builders": "^1.2.0",

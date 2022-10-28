@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, Client, PermissionsBitField, ColorResolvable, EmbedBuilder, Embed, ActionRowBuilder, ButtonBuilder, ButtonStyle, APIButtonComponent, PermissionFlagsBits } from "discord.js";
-import Configuration from "../../models/config"
+import Settings from "../../models/settings"
 import Permits from "../../models/permits";
 
 module.exports = {
@@ -25,10 +25,14 @@ module.exports = {
     async execute(interaction: ChatInputCommandInteraction, client: Client) {
         if (!interaction.inCachedGuild()) return interaction.reply({ content: "This command is only available in guilds!", ephemeral: true })
 
-        const configuration = await Configuration.findOne({
-            guildID: interaction.guild.id
+        const settings = await Settings.findOne({
+            guildID: interaction.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable
+        if (!settings) return interaction.reply({ content: "Sorry, your settings file doesn't exist! If this error persists contact support", ephemeral: true })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
+
 
         const permits = await Permits.find({
             guildID: interaction.guild.id
@@ -41,7 +45,7 @@ module.exports = {
 
         for (const role of roles) {
             for (const permit of permits) {
-                if(permit.roles.includes(role.id)) {
+                if (permit.roles.includes(role.id)) {
                     hasRole = true
                     ObjectID = permit._id
                     break;
@@ -49,11 +53,11 @@ module.exports = {
                     hasRole = false
                 }
             }
-            if(hasRole == true) break;
+            if (hasRole == true) break;
         }
 
         for (const permit of permits) {
-            if(permit.users.includes(interaction.user.id)) {
+            if (permit.users.includes(interaction.user.id)) {
                 ObjectID = permit._id;
                 break;
             }
@@ -62,8 +66,8 @@ module.exports = {
         const thePermit = await Permits.findOne({
             _id: ObjectID
         })
-        if(thePermit?.commandAccess.includes("JOINROLE") || thePermit?.commandAccess.includes("CONFIGURATION")) hasPermit = true;
-        if(thePermit?.commandBlocked.includes("JOINROLE") || thePermit?.commandBlocked.includes("CONFIGURATION")) hasPermit = false;
+        if (thePermit?.commandAccess.includes("JOINROLE") || thePermit?.commandAccess.includes("CONFIGURATION")) hasPermit = true;
+        if (thePermit?.commandBlocked.includes("JOINROLE") || thePermit?.commandBlocked.includes("CONFIGURATION")) hasPermit = false;
 
         if (interaction.guild.ownerId === interaction.user.id) hasPermit = true
         if (hasPermit == false) return interaction.reply({ content: "<:no:979193272784265217> **ERROR** You are unable to use this command!", ephemeral: true })
@@ -71,54 +75,57 @@ module.exports = {
         const subcommand = interaction.options.getString("subcommand")
         const role = interaction.options.getRole("role")
 
-        switch(subcommand) {
+        switch (subcommand) {
             case "set":
-        
-            if(!role) return interaction.reply({ content: "Invalid role!", ephemeral: true })
-            
-            await Configuration.findOneAndUpdate({
-                guildID: interaction.guild.id
-            }, {
-                joinRoleID: role.id
-            })
 
-            const success = new EmbedBuilder()
-                .setDescription("<:yes:979193272612298814> You set the join role to `" + role.name + "`!")
-                .setColor(color)
-            interaction.reply({ embeds: [success] })
+                if (!role) return interaction.reply({ content: "Invalid role!", ephemeral: true })
 
-            break;
-        case "reset":
+                await Settings.findOneAndUpdate({
+                    guildID: interaction.guild.id
+                }, {
+                    guildSettings: {
+                        joinRole: role.id
+                    }
+                })
 
-            await Configuration.findOneAndUpdate({
-                guildID: interaction.guild.id
-            }, {
-                joinRoleID: "None"
-            })
+                const success = new EmbedBuilder()
+                    .setDescription("<:yes:979193272612298814> You set the join role to `" + role.name + "`!")
+                    .setColor(color)
+                interaction.reply({ embeds: [success] })
 
-            const reset = new EmbedBuilder()
-                .setDescription("<:no:979193272784265217> You have reset the join role!")
-                .setColor(color)
-            interaction.reply({ embeds: [reset] })
+                break;
+            case "reset":
+                await Settings.findOneAndUpdate({
+                    guildID: interaction.guild.id
+                }, {
+                    guildSettings: {
+                        $unset: { joinRole: "" }
+                    }
+                })
 
-            break;
-        case "view":
+                const reset = new EmbedBuilder()
+                    .setDescription("<:no:979193272784265217> You have reset the join role!")
+                    .setColor(color)
+                interaction.reply({ embeds: [reset] })
 
-            let roleE
-            if(configuration?.joinRoleID == "None") {
-                roleE = "None"
-            } else {
-                roleE = `<@&${configuration?.joinRoleID}>`
-            }
+                break;
+            case "view":
 
-            const view = new EmbedBuilder()
-                .setTitle("Join Role")
-                .setColor(color)
-                .setDescription(`**Current Role:** ${roleE}`)
-                .setFooter({ text: `Requested by ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() || undefined })
-            interaction.reply({ embeds: [view] })
+                let roleE
+                if (!settings.guildSettings?.joinRole) {
+                    roleE = "None"
+                } else {
+                    roleE = `<@&${settings.guildSettings?.joinRole}>`
+                }
 
-            break;
+                const view = new EmbedBuilder()
+                    .setTitle("Join Role")
+                    .setColor(color)
+                    .setDescription(`**Current Role:** ${roleE}`)
+                    .setFooter({ text: `Requested by ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() || undefined })
+                interaction.reply({ embeds: [view] })
+
+                break;
         }
 
     }

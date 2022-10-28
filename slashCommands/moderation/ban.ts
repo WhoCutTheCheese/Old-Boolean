@@ -1,6 +1,5 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, Client, PermissionsBitField, ColorResolvable, TextChannel, EmbedBuilder, UserResolvable, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
-import Configuration from "../../models/config"
-import GuildProperties from "../../models/guild";
+import Settings from "../../models/settings";
 import Bans from "../../models/bans";
 import Cases from "../../models/cases";
 import Permits from "../../models/permits";
@@ -24,13 +23,13 @@ module.exports = {
                 .setRequired(false)
                 .setDescription("Time for ban. Not required for Soft Bans")
         )
-        .addStringOption(modifier => 
+        .addStringOption(modifier =>
             modifier.setName("modifier")
                 .setDescription("Modify how Boolean will ban this user.")
                 .setRequired(false)
                 .addChoices(
                     { name: "Soft Ban", value: "-s" }
-                )    
+                )
         )
         .addNumberOption(uwu =>
             uwu.setName("delete_days")
@@ -41,10 +40,13 @@ module.exports = {
     async execute(interaction: ChatInputCommandInteraction, client: Client) {
         if (!interaction.inCachedGuild()) { return interaction.reply({ content: "You can only use this command in cached guilds!" }); }
 
-        const configuration = await Configuration.findOne({
-            guildID: interaction.guild.id
+        const settings = await Settings.findOne({
+            guildID: interaction.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable
+        if (!settings) return interaction.reply({ content: "Sorry, your settings file doesn't exist! If this error persists contact support", ephemeral: true })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         const permits = await Permits.find({
             guildID: interaction.guild.id
@@ -57,7 +59,7 @@ module.exports = {
 
         for (const role of roles) {
             for (const permit of permits) {
-                if(permit.roles.includes(role.id)) {
+                if (permit.roles.includes(role.id)) {
                     hasRole = true
                     ObjectID = permit._id
                     break;
@@ -65,11 +67,11 @@ module.exports = {
                     hasRole = false
                 }
             }
-            if(hasRole == true) break;
+            if (hasRole == true) break;
         }
 
         for (const permit of permits) {
-            if(permit.users.includes(interaction.user.id)) {
+            if (permit.users.includes(interaction.user.id)) {
                 ObjectID = permit._id;
                 break;
             }
@@ -78,15 +80,11 @@ module.exports = {
         const thePermit = await Permits.findOne({
             _id: ObjectID
         })
-        if(thePermit?.commandAccess.includes("BAN") || thePermit?.commandAccess.includes("MODERATION")) hasPermit = true;
-        if(thePermit?.commandBlocked.includes("BAN") || thePermit?.commandBlocked.includes("MODERATION")) hasPermit = false;
+        if (thePermit?.commandAccess.includes("BAN") || thePermit?.commandAccess.includes("MODERATION")) hasPermit = true;
+        if (thePermit?.commandBlocked.includes("BAN") || thePermit?.commandBlocked.includes("MODERATION")) hasPermit = false;
 
         if (interaction.guild.ownerId === interaction.user.id) hasPermit = true
         if (hasPermit == false) return interaction.reply({ content: "<:no:979193272784265217> **ERROR** You are unable to use this command!", ephemeral: true })
-
-        const guildProp = await GuildProperties.findOne({
-            guildID: interaction.guild.id,
-        })
 
         const row = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
@@ -109,9 +107,9 @@ module.exports = {
 
         let deleteDays = interaction.options.getNumber("delete_days") as number
 
-        if(deleteDays < 0 || deleteDays > 7) return interaction.reply({ content: "Delete days is invalid. Must be less than 7 days and greater than 0 days." })
+        if (deleteDays < 0 || deleteDays > 7) return interaction.reply({ content: "Delete days is invalid. Must be less than 7 days and greater than 0 days." })
 
-        if(!deleteDays) deleteDays = 0
+        if (!deleteDays) deleteDays = 0
 
         const modifier = interaction.options.getString("modifier")
 
@@ -127,12 +125,18 @@ module.exports = {
         if (user.id === interaction.guild.ownerId) return interaction.reply({ content: "You cannot ban this user!", ephemeral: true })
         const warns = await Cases.countDocuments({ userID: user.id, caseType: "Warn" })
 
-        const caseNumberSet = guildProp?.totalCases! + 1;
-
-        await GuildProperties.findOneAndUpdate({
-            guildID: interaction.guild.id
+        let caseNumberSet: number = 10010100101
+        if (!settings.guildSettings?.totalCases) {
+            caseNumberSet = 1;
+        } else if (settings.guildSettings?.totalCases) {
+            caseNumberSet = settings.guildSettings?.totalCases + 1;
+        }
+        await Settings.findOneAndUpdate({
+            guildID: interaction.guild?.id,
         }, {
-            totalCases: caseNumberSet,
+            guildSettings: {
+                totalCases: caseNumberSet
+            }
         })
         if (time) {
             if (/^\d/.test(time)) {
@@ -184,7 +188,7 @@ module.exports = {
                         .setColor(color)
                     interaction.reply({ content: `<:arrow_right:967329549912248341> **${user.username}** has been banned! (Warns **${warns}**)`, embeds: [banned] })
                     let theModifier = "None"
-                    if(modifier?.toLowerCase() == "-s") theModifier = "Soft Ban"
+                    if (modifier?.toLowerCase() == "-s") theModifier = "Soft Ban"
                     const modLogs = new EmbedBuilder()
                         .setAuthor({ name: `Member Banned - ${user.tag}`, iconURL: user.displayAvatarURL() || undefined })
                         .setThumbnail(user.displayAvatarURL() || null)
@@ -206,14 +210,17 @@ module.exports = {
                         **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                         .setColor(color)
                         .setTimestamp()
-                    const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration?.modLogChannel!);
-                    if (!channel) { return; }
-                    if (interaction.guild.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                        (interaction.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
+                    const channel = interaction.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel!);
+                    let exists = true
+                    if (!channel) { exists = false; }
+                    if (exists == true) {
+                        if (interaction.guild.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                            (interaction.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
+                        }
                     }
 
                     if (member) {
-                        if (configuration?.dmOnPunish == true) {
+                        if (settings.modSettings?.dmOnPunish == true) {
                             const dm = new EmbedBuilder()
                                 .setAuthor({ name: "You Were Banned from " + interaction.guild.name + "!", iconURL: interaction.guild.iconURL() || undefined })
                                 .setColor(color)
@@ -221,23 +228,29 @@ module.exports = {
                                 <:blurple_bulletpoint:997346294253244529> **Case:** #${caseNumberSet}
                                 <:blurple_bulletpoint:997346294253244529> **Length:** ${time1} ${type}`)
                                 .setTimestamp()
-                                if(guildProp?.premium == false) {
-                                    user.send({ embeds: [dm], components: [row] }).catch((err: Error) => {
-                                        const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
-                                        if (!channel) { return; }
-                                        if (interaction.guild?.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                            if (settings.guildSettings?.premium == false || !settings.guildSettings?.premium) {
+                                user.send({ embeds: [dm], components: [row] }).catch((err: Error) => {
+                                    const channel = interaction.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
+                                    let exists = true
+                                    if (!channel) { exists = false; }
+                                    if (exists == true) {
+                                        if (interaction.guild?.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
                                             (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
                                         }
-                                    })
-                                } else if (guildProp?.premium == true) {
-                                    user.send({ embeds: [dm] }).catch((err: Error) => {
-                                        const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
-                                        if (!channel) { return; }
-                                        if (interaction.guild?.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                                    }
+                                })
+                            } else if (settings.guildSettings?.premium == true) {
+                                user.send({ embeds: [dm] }).catch((err: Error) => {
+                                    const channel = interaction.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
+                                    let exists = true
+                                    if (!channel) { exists = false; }
+                                    if (exists == true) {
+                                        if (interaction.guild?.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
                                             (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
                                         }
-                                    })
-                                }
+                                    }
+                                })
+                            }
                         }
                     }
 
@@ -267,7 +280,7 @@ module.exports = {
                 .setColor(color)
             interaction.reply({ content: `<:arrow_right:967329549912248341> **${user.username}** has been banned! (Warns **${warns}**)`, embeds: [banned] })
             let theModifier = "None"
-            if(modifier?.toLowerCase() == "-s") theModifier = "Soft Ban"
+            if (modifier?.toLowerCase() == "-s") theModifier = "Soft Ban"
             const modLogs = new EmbedBuilder()
                 .setAuthor({ name: `Member Banned - ${user.tag}`, iconURL: user.displayAvatarURL() || undefined })
                 .setThumbnail(user.displayAvatarURL() || null)
@@ -289,14 +302,17 @@ module.exports = {
                 **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                 .setColor(color)
                 .setTimestamp()
-            const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration?.modLogChannel!);
-            if (!channel) { return; }
-            if (interaction.guild.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                (interaction.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
+            const channel = interaction.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel!);
+            let exists = true
+            if (!channel) { exists = false; }
+            if (exists == true) {
+                if (interaction.guild.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                    (interaction.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
+                }
             }
 
             if (member) {
-                if (configuration?.dmOnPunish == true) {
+                if (settings.modSettings?.dmOnPunish == true) {
                     const dm = new EmbedBuilder()
                         .setAuthor({ name: "You Were Banned from " + interaction.guild.name + "!", iconURL: interaction.guild.iconURL() || undefined })
                         .setColor(color)
@@ -304,20 +320,26 @@ module.exports = {
                         <:blurple_bulletpoint:997346294253244529> **Case:** #${caseNumberSet}
                         <:blurple_bulletpoint:997346294253244529> **Length:** Permanent`)
                         .setTimestamp()
-                    if(guildProp?.premium == false) {
+                    if (settings.guildSettings?.premium == false || !settings.guildSettings?.premium) {
                         user.send({ embeds: [dm], components: [row] }).catch((err: Error) => {
-                            const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
-                            if (!channel) { return; }
-                            if (interaction.guild?.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                                (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                            const channel = interaction.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
+                            let exists = true
+                            if (!channel) { exists = false; }
+                            if (exists == true) {
+                                if (interaction.guild?.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                                    (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                                }
                             }
                         })
-                    } else if (guildProp?.premium == true) {
+                    } else if (settings.guildSettings?.premium == true) {
                         user.send({ embeds: [dm] }).catch((err: Error) => {
-                            const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
-                            if (!channel) { return; }
-                            if (interaction.guild?.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                                (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                            const channel = interaction.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
+                            let exists = true
+                            if (!channel) { exists = false; }
+                            if (exists == true) {
+                                if (interaction.guild?.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                                    (interaction.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                                }
                             }
                         })
                     }
@@ -336,10 +358,10 @@ module.exports = {
             })
             newCase.save().catch((err: Error) => console.error(err));
         }
-        if(modifier?.toLocaleLowerCase() == "-s") deleteDays = 7
-        interaction.guild.members.ban(user.id, {reason: reason, deleteMessageDays: deleteDays})
+        if (modifier?.toLocaleLowerCase() == "-s") deleteDays = 7
+        interaction.guild.members.ban(user.id, { reason: reason, deleteMessageDays: deleteDays })
         //member?.ban({ reason: reason, deleteMessageDays: deleteDays })
-        if(modifier?.toLocaleLowerCase() == "-s") {
+        if (modifier?.toLocaleLowerCase() == "-s") {
             await interaction.guild.members.unban(user.id as UserResolvable).catch((err: Error) => console.error(err))
         }
     }

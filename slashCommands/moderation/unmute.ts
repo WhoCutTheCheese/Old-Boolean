@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, Client, PermissionsBitField, ColorResolvable, EmbedBuilder, UserResolvable, TextChannel, PermissionFlagsBits } from "discord.js";
-import Configuration from "../../models/config"
+import Settings from "../../models/settings";
 import Permits from "../../models/permits";
 
 module.exports = {
@@ -16,10 +16,13 @@ module.exports = {
 
         if (!interaction.inCachedGuild()) { return interaction.reply({ content: "You can only use this command in cached guilds!" }); }
 
-        const configuration = await Configuration.findOne({
-            guildID: interaction.guild.id
+        const settings = await Settings.findOne({
+            guildID: interaction.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable
+        if (!settings) return interaction.reply({ content: "Sorry, your settings file doesn't exist! If this error persists contact support", ephemeral: true })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         const permits = await Permits.find({
             guildID: interaction.guild.id
@@ -32,7 +35,7 @@ module.exports = {
 
         for (const role of roles) {
             for (const permit of permits) {
-                if(permit.roles.includes(role.id)) {
+                if (permit.roles.includes(role.id)) {
                     hasRole = true
                     ObjectID = permit._id
                     break;
@@ -40,11 +43,11 @@ module.exports = {
                     hasRole = false
                 }
             }
-            if(hasRole == true) break;
+            if (hasRole == true) break;
         }
 
         for (const permit of permits) {
-            if(permit.users.includes(interaction.user.id)) {
+            if (permit.users.includes(interaction.user.id)) {
                 ObjectID = permit._id;
                 break;
             }
@@ -53,8 +56,8 @@ module.exports = {
         const thePermit = await Permits.findOne({
             _id: ObjectID
         })
-        if(thePermit?.commandAccess.includes("UNMUTE") || thePermit?.commandAccess.includes("MODERATION")) hasPermit = true;
-        if(thePermit?.commandBlocked.includes("UNMUTE") || thePermit?.commandBlocked.includes("MODERATION")) hasPermit = false;
+        if (thePermit?.commandAccess.includes("UNMUTE") || thePermit?.commandAccess.includes("MODERATION")) hasPermit = true;
+        if (thePermit?.commandBlocked.includes("UNMUTE") || thePermit?.commandBlocked.includes("MODERATION")) hasPermit = false;
 
         if (interaction.guild.ownerId === interaction.user.id) hasPermit = true
         if (hasPermit == false) return interaction.reply({ content: "<:no:979193272784265217> **ERROR** You are unable to use this command!", ephemeral: true })
@@ -90,15 +93,18 @@ module.exports = {
                 **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                 .setColor(color)
                 .setTimestamp()
-            const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration?.modLogChannel!);
-            if (!channel) { return; }
-            if (interaction.guild.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                (interaction.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
+            const channel = interaction.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel!);
+            let exists = true
+            if (!channel) { exists = false; }
+            if (exists == true) {
+                if (interaction.guild.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                    (interaction.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
+                }
             }
             return;
         }
-        if (member.roles.cache.has(configuration?.muteRoleID!)) {
-            member.roles.remove(configuration?.muteRoleID!)
+        if (member.roles.cache.has(settings.modSettings?.muteRole!)) {
+            member.roles.remove(settings.modSettings?.muteRole!)
             const unmuted = new EmbedBuilder()
                 .setColor(color)
                 .setDescription(`**${user.tag}** has been unmuted!`)
@@ -121,11 +127,14 @@ module.exports = {
                 **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                 .setColor(color)
                 .setTimestamp()
-            const channel = interaction.guild?.channels.cache.find((c: any) => c.id === configuration?.modLogChannel!);
-            if (!channel) { return; }
-            if (interaction.guild.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+            const channel = interaction.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel!);
+            let exists = true
+            if (!channel) { exists = false; }
+            if (exists == true) {
+            if (interaction.guild.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
                 (interaction.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
             }
+        }
             return;
         }
 

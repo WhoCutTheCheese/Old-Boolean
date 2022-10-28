@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, CommandInteraction, Client, EmbedBuilder, ColorResolvable, GuildMember, User, Role, ChatInputCommandInteraction } from "discord.js";
-import Configuration from "../../models/config";
+import Settings from "../../models/settings";
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -12,10 +12,13 @@ module.exports = {
         ),
     async execute(interaction: ChatInputCommandInteraction, client: Client) {
         if(!interaction.inCachedGuild()) return interaction.reply({ content: "This must be done in a guild.", ephemeral: true })
-        const configuration = await Configuration.findOne({
+        const settings = await Settings.findOne({
             guildID: interaction.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable;
+        if (!settings) return interaction.reply({ content: "Sorry, your settings file doesn't exist! If this error persists contact support", ephemeral: true })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
         const user = interaction.options.getUser("user");
         if (!user) {
             let nickname

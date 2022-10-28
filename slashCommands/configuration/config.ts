@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, Client, PermissionsBitField, ColorResolvable, EmbedBuilder, Embed, ActionRowBuilder, ButtonBuilder, ButtonStyle, APIButtonComponent, PermissionFlagsBits } from "discord.js";
-import Configuration from "../../models/config"
+import Settings from "../../models/settings";
 import Permits from "../../models/permits";
 
 module.exports = {
@@ -10,10 +10,14 @@ module.exports = {
     async execute(interaction: ChatInputCommandInteraction, client: Client) {
 
         if (!interaction.inCachedGuild()) return interaction.reply({ content: "This command is only available in guilds!", ephemeral: true })
-
-        const configuration = await Configuration.findOne({
-            guildID: interaction.guild.id
+        const settings = await Settings.findOne({
+            guildID: interaction.guild?.id
         })
+        if(!settings) return interaction.reply({  content: "Sorry, your settings file doesn't exist! If this error persists contact support", ephemeral: true })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if(settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable; 
+
         const permits = await Permits.find({
             guildID: interaction.guild.id
         })
@@ -50,17 +54,24 @@ module.exports = {
         if(thePermit?.commandBlocked.includes("CONFIG") || thePermit?.commandBlocked.includes("CONFIGURATION")) hasPermit = false;
 
         if (interaction.guild.ownerId === interaction.user.id) hasPermit = true
-        if (hasPermit == false) return interaction.reply({ content: "<:no:979193272784265217> **ERROR** You are unable to use this command!", ephemeral: true })
+        if (hasPermit == false) return interaction.reply({ content: "<:no:979193272784265217> **ERROR** You are unable to use this command!", ephemeral: true });
 
         let modLogsChannel
-        if (configuration?.modLogChannel === "None") { modLogsChannel = "None" }
-        if (configuration?.modLogChannel !== "None") { modLogsChannel = `<#${configuration?.modLogChannel}>` }
+        if (!settings.modSettings?.modLogChannel) { modLogsChannel = "None" }
+        if (settings.modSettings?.modLogChannel) { modLogsChannel = `<#${settings.modSettings.modLogChannel}>` }
         let muteRole
-        if (configuration?.muteRoleID === "None") { muteRole = "None" }
-        if (configuration?.muteRoleID !== "None") { muteRole = `<@&${configuration?.muteRoleID}>` }
+        if (!settings.modSettings?.muteRole) { muteRole = "None" }
+        if (settings.modSettings?.muteRole) { muteRole = `<@&${settings.modSettings.muteRole}>` }
         let joinRole
-        if (configuration?.joinRoleID === "None") { joinRole = "None" }
-        if (configuration?.joinRoleID !== "None") { joinRole = `<@&${configuration?.joinRoleID}>` }
+        if (!settings.guildSettings?.joinRole) { joinRole = "None" }
+        if (settings.guildSettings?.joinRole) { joinRole = `<@&${settings.guildSettings.joinRole}>` }
+        let dmOnPunish
+        if(!settings.modSettings?.dmOnPunish) { dmOnPunish = "false" }
+        if(settings.modSettings?.dmOnPunish) { dmOnPunish = "true" }
+        let deleteCommandUsage
+        if(!settings.modSettings?.deleteCommandUsage) { deleteCommandUsage = "false" }
+        if(settings.modSettings?.deleteCommandUsage) { deleteCommandUsage = "true" }
+
         const configEmbed = new EmbedBuilder()
             .setAuthor({ name: `${interaction.guild?.name} Configuration Help`, iconURL: interaction.guild?.iconURL() || client.user?.displayAvatarURL() || undefined })
             .setDescription(`This embed displays all relevent configuration information for your guild.
@@ -73,11 +84,11 @@ module.exports = {
             > **Mod Log Channel:** [${modLogsChannel}]
             > **Mute Role:** [${muteRole}]
             > **Join Role:** [${joinRole}]
-            > **DM Users When Punished:** [${configuration?.dmOnPunish}]
-            > **Delete Command Usage** [${configuration?.deleteCommandUsage}]
-            *Note: Mod and Admin roles have been removed in favour of permits. Visit the docs [here](https://google.com)!*`)
+            > **DM Users When Punished:** [${dmOnPunish}]
+            > **Delete Command Usage** [${deleteCommandUsage}]
+            *Note: Mod and Admin roles have been removed in favour of permits. \`!!help permit\`*`)
             .setFooter({ text: `Requested by ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() || undefined })
-            .setColor(configuration?.embedColor as ColorResolvable)
+            .setColor(color)
         interaction.reply({ embeds: [configEmbed] })
 
     }

@@ -1,7 +1,8 @@
 import { Client, ColorResolvable, EmbedBuilder, Message, User } from "discord.js";
-import Configuration from "../../models/config"
-import GuildProperties from "../../models/guild";
+import Settings from "../../models/settings";
 import Cases from "../../models/cases";
+import events from "events";
+const eventEmitter = new events.EventEmitter();
 
 module.exports = {
     commands: ['case', 'viewcase'],
@@ -12,9 +13,13 @@ module.exports = {
     commandCategory: "MODERATION",
     callback: async (client: Client, message: Message, args: string[]) => {
         
-        const configuration = await Configuration.findOne({
-            guildID: message.guild?.id,
+        const settings = await Settings.findOne({
+            guildID: message.guild?.id
         })
+        if (!settings) return message.channel.send({ content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         if(isNaN(Number(args[0]))) return message.channel.send({ content: "Invalid case number!" });
 
@@ -33,7 +38,7 @@ module.exports = {
         const caseInfo = new EmbedBuilder()
             .setAuthor({ name: `Case #${foundCase.caseNumber}`, iconURL: userUwU?.displayAvatarURL() || undefined })
             .setThumbnail(userUwU?.displayAvatarURL() || null)
-            .setColor(configuration?.embedColor as ColorResolvable)
+            .setColor(color)
             .setDescription(`Case against <@${foundCase.userID}>
             
             **__Case Details:__**

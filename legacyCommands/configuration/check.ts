@@ -1,5 +1,5 @@
 import { Client, ColorResolvable, EmbedBuilder, Message, PermissionsBitField } from "discord.js";
-import Configuration from "../../models/config";
+import Settings from "../../models/settings";
 
 module.exports = {
     commands: ["check"],
@@ -7,9 +7,13 @@ module.exports = {
     commandCategory: "CONFIGURATION",
     callback: async (client: Client, message: Message, args: string[]) => {
 
-        const configuration = await Configuration.findOne({
+        const settings = await Settings.findOne({
             guildID: message.guild?.id
         })
+        if(!settings) return message.channel.send({  content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if(settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         let manageRoles
         let kickMembers
@@ -55,8 +59,6 @@ module.exports = {
         }
         let muteRoleSet
         let modLogChannelSet
-        let modRoleSet
-        let adminRoleSet
         let joinRoleSet
         let manageChannels
         if (!message.guild?.members.me?.permissions.has(PermissionsBitField.Flags.ManageChannels)) {
@@ -64,27 +66,17 @@ module.exports = {
         } else {
             manageChannels = "<:yes:979193272612298814>"
         }
-        if (configuration?.muteRoleID === "None") {
+        if (!settings.modSettings?.muteRole) {
             muteRoleSet = "<:no:979193272784265217>"
         } else {
             muteRoleSet = "<:yes:979193272612298814>"
         }
-        if (configuration?.modLogChannel === "None") {
+        if (!settings.modSettings?.modLogChannel) {
             modLogChannelSet = "<:recommended:979475658000437258>"
         } else {
             modLogChannelSet = "<:yes:979193272612298814>"
         }
-        if (configuration?.modRoleID.length === 0) {
-            modRoleSet = "<:recommended:979475658000437258>"
-        } else {
-            modRoleSet = "<:yes:979193272612298814>"
-        }
-        if (configuration?.adminRoleID.length === 0) {
-            adminRoleSet = "<:recommended:979475658000437258>"
-        } else {
-            adminRoleSet = "<:yes:979193272612298814>"
-        }
-        if (configuration?.joinRoleID === "None") {
+        if (!settings.guildSettings?.joinRole) {
             joinRoleSet = "<:recommended:979475658000437258>"
         } else {
             joinRoleSet = "<:yes:979193272612298814>"
@@ -92,9 +84,9 @@ module.exports = {
 
         const checkEmbed = new EmbedBuilder()
             .setAuthor({ name: "Setup Check", iconURL: message.author.displayAvatarURL() || undefined })
-            .setDescription(`This is a comprehensive list of everything Boolean needs to run smoothly.\n**No Action Needed:** <:yes:979193272612298814>\n**Action Needed:** <:no:979193272784265217>\n**Recommended Setting:** <:recommended:979475658000437258>\n\n**Bot Permissions:** Permissions Boolean needs to run\n> [Manage Roles: ${manageRoles}]\n> [Manage Nicknames: ${manageNicknames}]\n> [Manage Messages: ${manageMessages}]\n> [Manage Channels: ${manageChannels}]\n> [Timeout Users: ${moderateMembers}]\n> [Ban Members: ${banMembers}]\n> [Kick Members: ${kickMembers}]\n> [Administrator: ${admin}]\n\n**Configuration Settings:** Configuration settings\n> [Mute Role: ${muteRoleSet}]\n> [Mod Logs Channel: ${modLogChannelSet}]\n> [Mod Role: ${modRoleSet}]\n> [Admin Role: ${adminRoleSet}]\n> [Join Role: ${joinRoleSet}]`)
+            .setDescription(`This is a comprehensive list of everything Boolean needs to run smoothly.\n**No Action Needed:** <:yes:979193272612298814>\n**Action Needed:** <:no:979193272784265217>\n**Recommended Setting:** <:recommended:979475658000437258>\n\n**Bot Permissions:** Permissions Boolean needs to run\n> [Manage Roles: ${manageRoles}]\n> [Manage Nicknames: ${manageNicknames}]\n> [Manage Messages: ${manageMessages}]\n> [Manage Channels: ${manageChannels}]\n> [Timeout Users: ${moderateMembers}]\n> [Ban Members: ${banMembers}]\n> [Kick Members: ${kickMembers}]\n> [Administrator: ${admin}]\n\n**Configuration Settings:** Configuration settings\n> [Mute Role: ${muteRoleSet}]\n> [Mod Logs Channel: ${modLogChannelSet}]\n> [Join Role: ${joinRoleSet}]`)
             .setFooter({ text: `Requested by ${message.author.tag}`, iconURL: message.author.displayAvatarURL() || undefined })
-            .setColor(configuration?.embedColor as ColorResolvable)
+            .setColor(color)
         message.channel.send({ embeds: [checkEmbed] })
 
     }

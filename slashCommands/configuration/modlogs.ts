@@ -1,6 +1,5 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, Client, PermissionsBitField, ColorResolvable, EmbedBuilder, Embed, PermissionFlagsBits } from "discord.js";
-import Configuration from "../../models/config"
-import GuildProperties from "../../models/guild";
+import Settings from "../../models/settings";
 import Permits from "../../models/permits";
 
 module.exports = {
@@ -26,10 +25,13 @@ module.exports = {
     async execute(interaction: ChatInputCommandInteraction, client: Client) {
         if (!interaction.inCachedGuild()) return interaction.reply({ content: "This command is only available in guilds!", ephemeral: true })
 
-        const configuration = await Configuration.findOne({
-            guildID: interaction.guild.id
+        const settings = await Settings.findOne({
+            guildID: interaction.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable
+        if (!settings) return interaction.reply({ content: "Sorry, your settings file doesn't exist! If this error persists contact support", ephemeral: true })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         const permits = await Permits.find({
             guildID: interaction.guild.id
@@ -78,10 +80,12 @@ module.exports = {
 
                 if(!channel) return interaction.reply({ content: "You need to specify a valid channel!", ephemeral: true })
 
-                await Configuration.findOneAndUpdate({
-                    guildID: interaction.guild.id
+                await Settings.findOneAndUpdate({
+                    guildID: interaction.guild?.id
                 }, {
-                    modLogChannel: channel.id
+                    modSettings: {
+                        modLogChannel: channel.id
+                    }
                 })
 
                 const success = new EmbedBuilder()
@@ -92,10 +96,12 @@ module.exports = {
                 break;
             case "delete":
 
-                await Configuration.findOneAndUpdate({
+                await Settings.findOneAndUpdate({
                     guildID: interaction.guild.id
                 }, {
-                    modLogChannel: "None"
+                    modSettings: {
+                        $unset: { modLogChannel: "" }
+                    }
                 })
 
                 const deleted = new EmbedBuilder()
@@ -105,10 +111,11 @@ module.exports = {
 
                 break;
             case "view":
-
+                let mChannel = settings.modSettings?.modLogChannel
+                if(!mChannel) mChannel = "None"
                 const view = new EmbedBuilder()
                     .setTitle("Mod Logging")
-                    .setDescription(`**Log Channel:** **<#${configuration?.modLogChannel}>**`)
+                    .setDescription(`**Log Channel:** **<#${mChannel}>**`)
                     .setFooter({ text: `Requested by ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() || undefined })
                     .setColor(color)
                 interaction.reply({ embeds: [view] })

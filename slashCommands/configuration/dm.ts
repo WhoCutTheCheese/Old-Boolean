@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, Client, PermissionsBitField, ColorResolvable, EmbedBuilder, Embed, PermissionFlagsBits } from "discord.js";
-import Configuration from "../../models/config"
+import Settings from "../../models/settings"
 import Permits from "../../models/permits";
 
 module.exports = {
@@ -15,10 +15,13 @@ module.exports = {
     async execute(interaction: ChatInputCommandInteraction, client: Client) {
         if (!interaction.inCachedGuild()) return interaction.reply({ content: "This command is only available in guilds!", ephemeral: true })
 
-        const configuration = await Configuration.findOne({
-            guildID: interaction.guild.id
+        const settings = await Settings.findOne({
+            guildID: interaction.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable
+        if(!settings) return interaction.reply({  content: "Sorry, your settings file doesn't exist! If this error persists contact support", ephemeral: true })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if(settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable; 
 
         const permits = await Permits.find({
             guildID: interaction.guild.id
@@ -62,18 +65,26 @@ module.exports = {
 
         const boolean = interaction.options.getBoolean("boolean") as boolean;
 
-        await Configuration.findOneAndUpdate({
-            guildID: interaction.guild.id,
-        }, {
-            dmOnPunish: boolean
-        })
-
         if (boolean == true) {
+            await Settings.findOneAndUpdate({
+                guildID: interaction.guild.id,
+            }, {
+                modSettings: {
+                    dmOnPunish: true
+                }
+            })
             const yes = new EmbedBuilder()
                 .setColor(color)
                 .setDescription("<:yes:979193272612298814> Boolean will now DM users when issued a punishment.")
             interaction.reply({ embeds: [yes] })
         } else {
+            await Settings.findOneAndUpdate({
+                guildID: interaction.guild.id,
+            }, {
+                modSettings: {
+                    $unset: { dmOnPunish: "" }
+                }
+            })
             const yes = new EmbedBuilder()
                 .setColor(color)
                 .setDescription("<:no:979193272784265217> Boolean will no longer DM users when issued a punishment.")

@@ -1,7 +1,6 @@
 
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, ColorResolvable, EmbedBuilder, Message } from "discord.js";
-import Configuration from "../../models/config";
-import GuildProperties from "../../models/guild";
+import Settings from "../../models/settings";
 import Tokens from "../../models/tokens";
 
 module.exports = {
@@ -11,15 +10,14 @@ module.exports = {
     commands: ['premium'],
     callback: async (client: Client, message: Message, args: string[]) => {
 
-        const configuration = await Configuration.findOne({
+        const settings = await Settings.findOne({
             guildID: message.guild?.id
         })
+        if (!settings) return message.channel.send({ content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
 
-        const color = configuration?.embedColor as ColorResolvable
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
-        const guildProp = await GuildProperties.findOne({
-            guildID: message.guild?.id
-        })
         const tokens = await Tokens.findOne({
             userID: message.author.id
         })
@@ -28,32 +26,22 @@ module.exports = {
             case "redeem":
 
                 if (!tokens || tokens.tokens == 0) {
-                    message.channel.send({ content: "Your token balance is 0!" }).then((result: Message) => {
-                        setTimeout(() => {
-                            if(result.deletable) {
-                                result.delete
-                            }
-                        }, 3000)
-                    })
+                    message.channel.send({ content: "Your token balance is 0!" })
                     return;
                 }
 
-                if (guildProp?.premium == true)  {
-                    message.channel.send({ content: "This guild already has premium enabled!" }).then((result: Message) => {
-                        setTimeout(() => {
-                            if(result.deletable) {
-                                result.delete
-                            }
-                        }, 3000)
-                    })
+                if (settings.guildSettings?.premium == true)  {
+                    message.channel.send({ content: "This guild already has premium enabled!" })
                     return;
                 }
 
-                await GuildProperties.findOneAndUpdate({
+                await Settings.findOneAndUpdate({
                     guildID: message.guild?.id
                 }, {
-                    premium: true,
-                    premiumHolder: message.author.id
+                    guildSettings: {
+                        premium: true,
+                        premiumHolder: message.author.id,
+                    }
                 })
 
                 await Tokens.findOneAndUpdate({
@@ -71,28 +59,24 @@ module.exports = {
                 break;
             case "revoke":
 
-                if (guildProp?.premiumHolder !== message.author.id || guildProp.premium == false)  {
+                if (settings.guildSettings?.premiumHolder !== message.author.id || settings.guildSettings.premium == false)  {
                     message.channel.send({ content: "You cannot revoke premium!" })
                     return;
                 }
 
-                await GuildProperties.findOneAndUpdate({
+                await Settings.findOneAndUpdate({
                     guildID: message.guild?.id
                 }, {
-                    premium: false,
-                    premiumHolder: "None"
+                    guildSettings: {
+                        $unset: { premium: "", premiumHolder: "" },
+                        embedColor: "5865F2"
+                    }
                 })
 
                 await Tokens.findOneAndUpdate({
                     userID: message.author.id
                 }, {
                     tokens: tokens?.tokens! + 1
-                })
-
-                await Configuration.findOneAndUpdate({
-                    guildID: message.guild?.id
-                }, {
-                    embedColor: "5865F2"
                 })
 
                 const disable = new EmbedBuilder()
@@ -104,15 +88,17 @@ module.exports = {
             case "status":
 
                 let holder
-                if (guildProp?.premium == false) {
+                if (settings.guildSettings?.premium == false || !settings.guildSettings?.premium) {
                     holder = "None"
                 } else {
-                    holder = `<@${guildProp?.premiumHolder}>`
-                }
+                    holder = `<@${settings.guildSettings?.premiumHolder}>`
+                }  
+                let premium = false
+                if(settings.guildSettings?.premium == true) premium = true
                 const status = new EmbedBuilder()
                     .setAuthor({ name: "Premium Status" })
                     .setColor(color)
-                    .setDescription(`**Premium:** ${guildProp?.premium}
+                    .setDescription(`**Premium:** ${premium}
                     **Premium Holder:** ${holder}`)
                     .setTimestamp()
                 message.channel.send({ embeds: [status] })
@@ -121,8 +107,10 @@ module.exports = {
             case "balance":
 
                 let array: string[] = []
-                const enabledServer = await GuildProperties.find({
-                    premiumHolder: message.author.id
+                const enabledServer = await Settings.find({
+                    guildSettings: {
+                        premiumHolder: message.author.id
+                    }
                 })
                 for (const servers of enabledServer) {
                     let guild = client.guilds.cache.get(servers.guildID!)
@@ -157,7 +145,7 @@ module.exports = {
 
                 break;
             case "help":
-                let prefix = configuration?.prefix
+                let prefix = settings.guildSettings?.prefix
                 if(!prefix) prefix = "!!"
                 const premiumHelpEmbed = new EmbedBuilder()
                     .setTitle("Premium Command")

@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, Client, PermissionsBitField, ColorResolvable, EmbedBuilder, Embed, ActionRowBuilder, ButtonBuilder, ButtonStyle, APIButtonComponent, PermissionFlagsBits } from "discord.js";
-import Configuration from "../../models/config"
+import Settings from "../../models/settings";
 import Permits from "../../models/permits";
 
 module.exports = {
@@ -25,10 +25,13 @@ module.exports = {
     async execute(interaction: ChatInputCommandInteraction, client: Client) {
         if (!interaction.inCachedGuild()) return interaction.reply({ content: "This command is only available in guilds!", ephemeral: true })
 
-        const configuration = await Configuration.findOne({
-            guildID: interaction.guild.id
+        const settings = await Settings.findOne({
+            guildID: interaction.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable
+        if (!settings) return interaction.reply({ content: "Sorry, your settings file doesn't exist! If this error persists contact support", ephemeral: true })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         const permits = await Permits.find({
             guildID: interaction.guild.id
@@ -76,10 +79,12 @@ module.exports = {
         
             if(!role) return interaction.reply({ content: "Invalid role!", ephemeral: true })
             
-            await Configuration.findOneAndUpdate({
+            await Settings.findOneAndUpdate({
                 guildID: interaction.guild.id
             }, {
-                muteRoleID: role.id
+                modSettings: {
+                    muteRole: role.id
+                }
             })
 
             const success = new EmbedBuilder()
@@ -90,10 +95,12 @@ module.exports = {
             break;
         case "reset":
 
-            await Configuration.findOneAndUpdate({
+            await Settings.findOneAndUpdate({
                 guildID: interaction.guild.id
             }, {
-                muteRoleID: "None"
+                modSettings: {
+                    $unset: { muteRole: "" }
+                }
             })
 
             const reset = new EmbedBuilder()
@@ -105,10 +112,10 @@ module.exports = {
         case "view":
 
             let roleE
-            if(configuration?.muteRoleID == "None") {
+            if(settings.modSettings?.muteRole) {
                 roleE = "None"
             } else {
-                roleE = `<@&${configuration?.muteRoleID}>`
+                roleE = `<@&${settings.modSettings?.muteRole}>`
             }
 
             const view = new EmbedBuilder()

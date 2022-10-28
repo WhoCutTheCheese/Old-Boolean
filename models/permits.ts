@@ -9,6 +9,10 @@ let Schema = new mongoose.Schema({
     commandBlocked: Array,
     commandBypass: Array,
     autoModBypass: Boolean,
+    bypassBan: Boolean,
+    bypassKick: Boolean,
+    bypassMute: Boolean,
+    bypassWarn: Boolean,
 })
 
 export default mongoose.model('permits', Schema);

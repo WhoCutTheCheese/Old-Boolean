@@ -1,5 +1,5 @@
 import { Client, ColorResolvable, EmbedBuilder, GuildChannel, GuildChannelResolvable, Message, PermissionsBitField, TextChannel, User } from "discord.js";
-import Configuration from "../../models/config"
+import Settings from "../../models/settings";
 
 module.exports = {
     commands: ['unlock', 'ul'],
@@ -10,10 +10,13 @@ module.exports = {
     commandCategory: "MODERATION",
     callback: async (client: Client, message: Message, args: string[]) => {
 
-        const configuration = await Configuration.findOne({
-            guildID: message.guild?.id,
+        const settings = await Settings.findOne({
+            guildID: message.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable;
+        if (!settings) return message.channel.send({ content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         const channel = message.mentions.channels.first() || message.guild?.channels.cache.get(args[0]);
 
@@ -40,14 +43,19 @@ module.exports = {
                 **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                 .setColor(color)
                 .setTimestamp()
-            const channel1 = message.guild?.channels.cache.find((c: any) => c.id === configuration?.modLogChannel!);
-            if (!channel1) { return; }
-            if (message.guild?.members.me?.permissionsIn((channel as TextChannel)).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                (message.guild?.channels.cache.find((c: any) => c.id === channel1?.id) as TextChannel).send({ embeds: [modLogs] })
+            const channel1 = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel!);
+            let exists = true
+            if (!channel1) { exists = false; }
+            if (exists == true) {
+                if (message.guild?.members.me?.permissionsIn((channel! as TextChannel)).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                    (message.guild?.channels.cache.find((c: any) => c.id === channel1?.id) as TextChannel).send({ embeds: [modLogs] })
+                }
             }
             ((channel as TextChannel).permissionOverwrites).edit((channel as TextChannel).guild.id, {
                 SendMessages: null
-            }).catch((err: Error) => console.error(err))
+            }).catch((err: Error) => {
+                console.error(err)
+                message.channel.send({ content: "I could not unlock this channel!" })});
             return;
 
         }
@@ -70,14 +78,19 @@ module.exports = {
             **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
             .setColor(color)
             .setTimestamp()
-        const modLogChannel = message.guild?.channels.cache.find((c: any) => c.id === configuration?.modLogChannel!);
-        if (!modLogChannel) { return; }
-        if (message.guild?.members.me?.permissionsIn(modLogChannel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-            (message.guild?.channels.cache.find((c: any) => c.id === modLogChannel?.id) as TextChannel).send({ embeds: [modLogs] })
+        const modLogChannel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel!);
+        let exists = true
+        if (!modLogChannel) { exists = false; }
+        if (exists == true) {
+            if (message.guild?.members.me?.permissionsIn(modLogChannel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                (message.guild?.channels.cache.find((c: any) => c.id === modLogChannel?.id) as TextChannel).send({ embeds: [modLogs] })
+            }
         }
         ((message.channel as TextChannel).permissionOverwrites).edit((message.channel as TextChannel).guild.id, {
             SendMessages: null
-        }).catch((err: Error) => console.error(err))
+        }).catch((err: Error) => {
+            console.error(err)
+            message.channel.send({ content: "I could not unlock this channel!" })});
 
 
     },

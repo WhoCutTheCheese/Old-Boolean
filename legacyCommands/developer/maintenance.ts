@@ -8,6 +8,8 @@ module.exports = {
     devOnly: true,
     callback: async (client: Client, message: Message, args: string[]) => {
 
+        if(message.author.id !== "493453098199547905") return;
+
         const maintenance = await Maintenance.findOne({
             botID: client.user?.id
         })

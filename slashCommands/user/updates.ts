@@ -1,5 +1,4 @@
-import { SlashCommandBuilder, CommandInteraction, Client, EmbedBuilder, ColorResolvable, ChatInputCommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle, APIButtonComponent } from "discord.js";
-import Configuration from "../../models/config";
+import { SlashCommandBuilder, Client, EmbedBuilder, ChatInputCommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle, APIButtonComponent } from "discord.js";
 const bot = require("../../package.json");
 const _ = require("lodash");
 let Updates = require("../../json/updates.json");

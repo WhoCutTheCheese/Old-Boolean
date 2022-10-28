@@ -1,7 +1,7 @@
 import { Client, ColorResolvable, EmbedBuilder, Message } from "discord.js";
-import Configuration from "../../models/config";
 import Permits from "../../models/permits"
-import GuildProperties from "../../models/guild";
+import Settings from "../../models/settings";
+
 
 module.exports = {
     commands: ['permit', 'permits'],
@@ -49,18 +49,13 @@ module.exports = {
 
         }
 
-        const configuration = await Configuration.findOne({
-            guildID: message.guild?.id,
-        })
-        const color = configuration?.embedColor as ColorResolvable;
-
-        const guildProp = await GuildProperties.findOne({
+        const settings = await Settings.findOne({
             guildID: message.guild?.id
         })
+        if(!settings) return message.channel.send({  content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
 
-        const permits = await Permits.find({
-            guildID: message.guild?.id
-        })
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if(settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable; 
 
         if (args[1]) {
             if (/\s/.test(args[1])) return message.channel.send({ content: "You cannot have empty spaces in permit names! Ex. `HiImAPermit`" })
@@ -119,7 +114,7 @@ module.exports = {
                     guildID: message.guild?.id
                 })
                 let maxPermits: number
-                if (guildProp?.premium === false) {
+                if (settings.guildSettings?.premium === false) {
                     maxPermits = 5
                 } else {
                     maxPermits = 10
@@ -506,6 +501,190 @@ module.exports = {
                 }
 
                 break;
+
+                case "bypassban":
+
+                    if (!args[1]) return message.channel.send({ content: "You are missing a permit name! `!!permit bypassban PermitName`" })
+                    if (!args[2]) return message.channel.send({ content: "You must provide a boolean! Ex. `!!permit automodbypass PermitName true/false`" })
+
+                    const doesPermitExistBanBypass = await Permits.findOne({
+                        guildID: message.guild?.id,
+                        permitName: args[1].toLowerCase(),
+                    })
+                    if (!doesPermitExistBanBypass) return message.channel.send({ content: `Permit \`${args[1].toLowerCase()}\` does not exist.` })
+    
+
+                    if(args[2].toLowerCase() === "true" || args[2].toLowerCase() === "on") {
+                    
+                        await Permits.findOneAndUpdate({
+                            guildID: message.guild?.id,
+                            permitName: args[1].toLowerCase(),
+                        }, {
+                            bypassBan: true
+                        })
+
+                        const banBypassEmbed = new EmbedBuilder()
+                            .setDescription(`<:yes:979193272612298814> \`${args[1].toLowerCase()}\` will now bypass bans!`)
+                            .setColor(color)
+                            .setTimestamp()
+                        message.channel.send({ embeds: [banBypassEmbed] })
+                    
+                    } else if (args[2].toLowerCase() === "false" || args[2].toLowerCase() === "off") {
+
+                        await Permits.findOneAndUpdate({
+                            guildID: message.guild?.id,
+                            permitName: args[1].toLowerCase(),
+                        }, {
+                            bypassBan: true
+                        })
+
+                        const banBypassEmbed = new EmbedBuilder()
+                            .setDescription(`<:no:979193272784265217> \`${args[1].toLowerCase()}\` will no longer bypass bans!`)
+                            .setColor(color)
+                            .setTimestamp()
+                        message.channel.send({ embeds: [banBypassEmbed] })
+                    
+                    } else return message.channel.send({ content: "You must provide a boolean! Ex. `!!permit bypassban PermitName true/false`" })
+
+                    break;
+
+                case "bypassmute":
+
+                    if (!args[1]) return message.channel.send({ content: "You are missing a permit name! `!!permit bypassban PermitName`" })
+                    if (!args[2]) return message.channel.send({ content: "You must provide a boolean! Ex. `!!permit automodbypass PermitName true/false`" })
+
+                    const doesPermitExistMuteBypass = await Permits.findOne({
+                        guildID: message.guild?.id,
+                        permitName: args[1].toLowerCase(),
+                    })
+                    if (!doesPermitExistMuteBypass) return message.channel.send({ content: `Permit \`${args[1].toLowerCase()}\` does not exist.` })
+    
+
+                    if(args[2].toLowerCase() === "true" || args[2].toLowerCase() === "on") {
+                    
+                        await Permits.findOneAndUpdate({
+                            guildID: message.guild?.id,
+                            permitName: args[1].toLowerCase(),
+                        }, {
+                            bypassMute: true
+                        })
+
+                        const banBypassEmbed = new EmbedBuilder()
+                            .setDescription(`<:yes:979193272612298814> \`${args[1].toLowerCase()}\` will now bypass mutes!`)
+                            .setColor(color)
+                            .setTimestamp()
+                        message.channel.send({ embeds: [banBypassEmbed] })
+                    
+                    } else if (args[2].toLowerCase() === "false" || args[2].toLowerCase() === "off") {
+
+                        await Permits.findOneAndUpdate({
+                            guildID: message.guild?.id,
+                            permitName: args[1].toLowerCase(),
+                        }, {
+                            bypassMute: true
+                        })
+
+                        const banBypassEmbed = new EmbedBuilder()
+                            .setDescription(`<:no:979193272784265217> \`${args[1].toLowerCase()}\` will no longer bypass mutes!`)
+                            .setColor(color)
+                            .setTimestamp()
+                        message.channel.send({ embeds: [banBypassEmbed] })
+                    
+                    } else return message.channel.send({ content: "You must provide a boolean! Ex. `!!permit bypassmute PermitName true/false`" })
+
+                    break;
+
+                    case "bypasswarn":
+
+                        if (!args[1]) return message.channel.send({ content: "You are missing a permit name! `!!permit bypassban PermitName`" })
+                        if (!args[2]) return message.channel.send({ content: "You must provide a boolean! Ex. `!!permit automodbypass PermitName true/false`" })
+    
+                        const doesPermitExistWarnBypass = await Permits.findOne({
+                            guildID: message.guild?.id,
+                            permitName: args[1].toLowerCase(),
+                        })
+                        if (!doesPermitExistWarnBypass) return message.channel.send({ content: `Permit \`${args[1].toLowerCase()}\` does not exist.` })
+        
+    
+                        if(args[2].toLowerCase() === "true" || args[2].toLowerCase() === "on") {
+                        
+                            await Permits.findOneAndUpdate({
+                                guildID: message.guild?.id,
+                                permitName: args[1].toLowerCase(),
+                            }, {
+                                bypassWarn: true
+                            })
+    
+                            const banBypassEmbed = new EmbedBuilder()
+                                .setDescription(`<:yes:979193272612298814> \`${args[1].toLowerCase()}\` will now bypass warns!`)
+                                .setColor(color)
+                                .setTimestamp()
+                            message.channel.send({ embeds: [banBypassEmbed] })
+                        
+                        } else if (args[2].toLowerCase() === "false" || args[2].toLowerCase() === "off") {
+    
+                            await Permits.findOneAndUpdate({
+                                guildID: message.guild?.id,
+                                permitName: args[1].toLowerCase(),
+                            }, {
+                                bypassWarn: true
+                            })
+    
+                            const banBypassEmbed = new EmbedBuilder()
+                                .setDescription(`<:no:979193272784265217> \`${args[1].toLowerCase()}\` will no longer bypass warns!`)
+                                .setColor(color)
+                                .setTimestamp()
+                            message.channel.send({ embeds: [banBypassEmbed] })
+                        
+                        } else return message.channel.send({ content: "You must provide a boolean! Ex. `!!permit bypassmute PermitName true/false`" })
+    
+                        break;
+                    case "bypasskick":
+
+                        if (!args[1]) return message.channel.send({ content: "You are missing a permit name! `!!permit bypassban PermitName`" })
+                        if (!args[2]) return message.channel.send({ content: "You must provide a boolean! Ex. `!!permit automodbypass PermitName true/false`" })
+    
+                        const doesPermitExistBanBypass2 = await Permits.findOne({
+                            guildID: message.guild?.id,
+                            permitName: args[1].toLowerCase(),
+                        })
+                        if (!doesPermitExistBanBypass2) return message.channel.send({ content: `Permit \`${args[1].toLowerCase()}\` does not exist.` })
+        
+    
+                        if(args[2].toLowerCase() === "true" || args[2].toLowerCase() === "on") {
+                        
+                            await Permits.findOneAndUpdate({
+                                guildID: message.guild?.id,
+                                permitName: args[1].toLowerCase(),
+                            }, {
+                                bypassKick: true
+                            })
+    
+                            const banBypassEmbed = new EmbedBuilder()
+                                .setDescription(`<:yes:979193272612298814> \`${args[1].toLowerCase()}\` will now bypass kicks!`)
+                                .setColor(color)
+                                .setTimestamp()
+                            message.channel.send({ embeds: [banBypassEmbed] })
+                        
+                        } else if (args[2].toLowerCase() === "false" || args[2].toLowerCase() === "off") {
+    
+                            await Permits.findOneAndUpdate({
+                                guildID: message.guild?.id,
+                                permitName: args[1].toLowerCase(),
+                            }, {
+                                bypassKick: true
+                            })
+    
+                            const banBypassEmbed = new EmbedBuilder()
+                                .setDescription(`<:no:979193272784265217> \`${args[1].toLowerCase()}\` will no longer bypass kicks!`)
+                                .setColor(color)
+                                .setTimestamp()
+                            message.channel.send({ embeds: [banBypassEmbed] })
+                        
+                        } else return message.channel.send({ content: "You must provide a boolean! Ex. `!!permit bypasskick PermitName true/false`" })
+    
+                        break;
+
             case "rename":
 
                 if (!args[1]) return message.channel.send({ content: "You are missing a permit name! `!!permit rename PermitName`" })

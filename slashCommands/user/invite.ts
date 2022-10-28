@@ -1,14 +1,21 @@
 import { ActionRowBuilder, ActionRowComponent, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Client, ColorResolvable, CommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import Configuration from "../../models/config"
+import Settings from "../../models/settings";
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("invite")
         .setDescription("Invite Boolean to your server!"),
     async execute(interaction: ChatInputCommandInteraction, client: Client) {
-        const configuration = await Configuration.findOne({
+        if(!interaction.inCachedGuild()) { return interaction.reply({ content: "You can only use this command in cached guilds!" }); }
+
+        const settings = await Settings.findOne({
             guildID: interaction.guild?.id
         })
+        if (!settings) return interaction.reply({ content: "Sorry, your settings file doesn't exist! If this error persists contact support", ephemeral: true })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
+
         const row = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
                 new ButtonBuilder()
@@ -36,7 +43,7 @@ module.exports = {
 
         const invite = new EmbedBuilder()
             .setTitle("Invite Me!")
-            .setColor(configuration?.embedColor as ColorResolvable)
+            .setColor(color)
             .setDescription("Invite me to get an advanced moderation bot for all your server's needs! If you need help, visit our docs: [Coming Soon](https://google.com)")
         interaction.reply({ embeds: [invite], components: [row] })
     }

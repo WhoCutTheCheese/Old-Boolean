@@ -1,5 +1,5 @@
 import { Client, ColorResolvable, EmbedBuilder, Message } from "discord.js";
-import Configuration from "../../models/config";
+import Settings from "../../models/settings";
 
 module.exports = {
     commands: ["prefix"],
@@ -10,17 +10,22 @@ module.exports = {
     expectedArgs: "[New Prefix/reset]",
     callback: async (client: Client, message: Message, args: string[]) => {
 
-        const configuration = await Configuration.findOne({
+        const settings = await Settings.findOne({
             guildID: message.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable;
+        if(!settings) return message.channel.send({  content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if(settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable; 
 
         if (args[0].toLowerCase() == "reset") {
 
-            await Configuration.findOneAndUpdate({
+            await Settings.findOneAndUpdate({
                 guildID: message.guild?.id
             }, {
-                prefix: "!!"
+                guildSettings: {
+                    prefix: "!!"
+                }
             })
 
             const reset = new EmbedBuilder()
@@ -32,10 +37,12 @@ module.exports = {
 
         if (args[0].length > 5) return message.channel.send({ content: "Prefixes can only be 5 characters long!" })
 
-        await Configuration.findOneAndUpdate({
+        await Settings.findOneAndUpdate({
             guildID: message.guild?.id
         }, {
-            prefix: args[0]
+            guildSettings: {
+                prefix: args[0]
+            }
         })
 
         const success = new EmbedBuilder()

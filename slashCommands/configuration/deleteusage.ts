@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, Client, ColorResolvable, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js"
-import Configuration from "../../models/config";
+import Settings from "../../models/settings";
 import Permits from "../../models/permits";
 
 module.exports = {
@@ -12,10 +12,13 @@ module.exports = {
 
         if (!interaction.inCachedGuild()) return interaction.reply({ content: "This command is only available in guilds!", ephemeral: true })
 
-        const configuration = await Configuration.findOne({
-            guildID: interaction.guild.id
+        const settings = await Settings.findOne({
+            guildID: interaction.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable;
+        if(!settings) return interaction.reply({  content: "Sorry, your settings file doesn't exist! If this error persists contact support", ephemeral: true })
+
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if(settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable; 
 
         const permits = await Permits.find({
             guildID: interaction.guild.id
@@ -59,10 +62,12 @@ module.exports = {
 
         if(boolean == true) {
 
-            await Configuration.findOneAndUpdate({
+            await Settings.findOneAndUpdate({
                 guildID: interaction.guild.id
             }, {
-                deleteCommandUsage: true
+                modSettings: {
+                    deleteCommandUsage: true
+                }
             })
 
             const embed = new EmbedBuilder()
@@ -72,10 +77,12 @@ module.exports = {
 
         } else if(boolean == false) {
                 
-                await Configuration.findOneAndUpdate({
+                await Settings.findOneAndUpdate({
                     guildID: interaction.guild.id
                 }, {
-                    deleteCommandUsage: false
+                    modSettings: {
+                        $unset: { deleteCommandUsage: "" }
+                    }
                 })
     
                 const embed = new EmbedBuilder()

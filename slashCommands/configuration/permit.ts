@@ -1,6 +1,5 @@
 import Permits from "../../models/permits";
-import Configuration from "../../models/config";
-import GuildProperties from "../../models/guild";
+import Settings from "../../models/settings";
 import { ChatInputCommandInteraction, Client, ColorResolvable, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 
 const validCommands = [
@@ -53,6 +52,11 @@ module.exports = {
                     { name: "Remove Allowed Command", value: "removeAllowCommand" },
                     { name: "Block Command", value: "blockCommand" },
                     { name: "Remove Blocked Command", value: "removeBlockCommand" },
+                    { name: "Bypass Bans", value: "bypassban" },
+                    { name: "Bypass Kicks", value: "bypasskick" },
+                    { name: "Bypass Mutes", value: "bypassmute" },
+                    { name: "Bypass Warns", value: "bypasswarn" },
+                    { name: "Bypass Auto Moderation", value: "automodbypass" },
                     { name: "Edit Name", value: "editName" }
                 )
         )
@@ -85,19 +89,25 @@ module.exports = {
                 .setMaxLength(32)
                 .setMinLength(3)
         )
+        .addBooleanOption(boolean =>
+            boolean.setName("boolean")
+                .setRequired(false)
+                .setDescription("True or False. For bypasses.")
+
+
+        )
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction: ChatInputCommandInteraction, client: Client) {
 
         if (!interaction.inCachedGuild()) return interaction.reply({ content: "This command is only available in guilds!", ephemeral: true })
 
-        const configuration = await Configuration.findOne({
-            guildID: interaction.guild.id
+        const settings = await Settings.findOne({
+            guildID: interaction.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable
+        if (!settings) return interaction.reply({ content: "Sorry, your settings file doesn't exist! If this error persists contact support", ephemeral: true })
 
-        const guildProp = await GuildProperties.findOne({
-            guildID: interaction.guild.id
-        })
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         const permits = await Permits.find({
             guildID: interaction.guild.id
@@ -149,7 +159,9 @@ module.exports = {
 
         const newName = interaction.options.getString("edited_name")
 
-        if(permitName){
+        const boolean = interaction.options.getBoolean("boolean")
+
+        if (permitName) {
             if (/\s/.test(permitName!)) return interaction.reply({ content: "You cannot have empty spaces in permit names! Ex. `HiImAPermit`", ephemeral: true })
             if (!/^[a-z0-9]+$/i.test(permitName!)) return interaction.reply({ content: "Permit name cannot have non-alphanumeric character!", ephemeral: true })
         }
@@ -163,7 +175,7 @@ module.exports = {
                     guildID: interaction.guild.id
                 })
                 let maxPermits: number
-                if (guildProp?.premium === false) {
+                if (settings.guildSettings?.premium == false || !settings.guildSettings?.premium) {
                     maxPermits = 5
                 } else {
                     maxPermits = 10
@@ -185,6 +197,10 @@ module.exports = {
                     users: [],
                     commandAccess: [],
                     commandBlocked: [],
+                    bypassBan: false,
+                    bypassKick: false,
+                    bypassWarn: false,
+                    bypassMute: false,
                 })
                 newPermit.save()
                 let description = `<:yes:979193272612298814> Successfully created permit named \`${permitName}\`! Run </permits Allow Command:${interaction.commandId}> to add an allowed commmand to your permit!`
@@ -229,6 +245,226 @@ module.exports = {
                 interaction.reply({ embeds: [deletedPermitEmbed] })
 
                 break;
+            case "bypassban":
+
+                if (!permitName) return interaction.reply({ content: "You must enter a string in the `permit_name` option.", ephemeral: true })
+
+                if (!boolean) return interaction.reply({ content: "You must enter a boolean option!", ephemeral: true })
+
+                const foundPermit = await Permits.findOne({
+                    permitName: permitName,
+                    guildID: interaction.guild.id
+                })
+                if (!foundPermit) return interaction.reply({ content: `A permit under the name \`${permitName}\` does not exist! Run </permit View Permits:${interaction.commandId}> to view a list of permits.`, ephemeral: true })
+
+                if (boolean == true) {
+
+                    await Permits.findOneAndUpdate({
+                        guildID: interaction.guild.id,
+                        permitName: permitName
+                    }, {
+                        bypassBan: true
+                    })
+
+                    const bypassBanEmbed = new EmbedBuilder()
+                        .setDescription(`<:yes:979193272612298814> Permit \`${permitName}\` now bypasses the ban command!`)
+                        .setColor(color)
+                        .setTimestamp()
+                    interaction.reply({ embeds: [bypassBanEmbed] })
+
+                } else {
+                    await Permits.findOneAndUpdate({
+                        guildID: interaction.guild.id,
+                        permitName: permitName
+                    }, {
+                        bypassBan: false
+                    })
+
+                    const bypassBanEmbed = new EmbedBuilder()
+                        .setDescription(`<:no:979193272784265217> Permit \`${permitName}\` no longer bypasses the ban command!`)
+                        .setColor(color)
+                        .setTimestamp()
+                    interaction.reply({ embeds: [bypassBanEmbed] })
+                }
+
+                break;
+
+            case "bypasskick":
+
+                if (!permitName) return interaction.reply({ content: "You must enter a string in the `permit_name` option.", ephemeral: true })
+
+                if (!boolean) return interaction.reply({ content: "You must enter a boolean option!", ephemeral: true })
+
+                const foundPermit2 = await Permits.findOne({
+                    permitName: permitName,
+                    guildID: interaction.guild.id
+                })
+                if (!foundPermit2) return interaction.reply({ content: `A permit under the name \`${permitName}\` does not exist! Run </permit View Permits:${interaction.commandId}> to view a list of permits.`, ephemeral: true })
+
+                if (boolean == true) {
+
+                    await Permits.findOneAndUpdate({
+                        guildID: interaction.guild.id,
+                        permitName: permitName
+                    }, {
+                        bypassKick: true
+                    })
+
+                    const bypassBanEmbed = new EmbedBuilder()
+                        .setDescription(`<:yes:979193272612298814> Permit \`${permitName}\` now bypasses the kick command!`)
+                        .setColor(color)
+                        .setTimestamp()
+                    interaction.reply({ embeds: [bypassBanEmbed] })
+
+                } else {
+                    await Permits.findOneAndUpdate({
+                        guildID: interaction.guild.id,
+                        permitName: permitName
+                    }, {
+                        bypassKick: false
+                    })
+
+                    const bypassBanEmbed = new EmbedBuilder()
+                        .setDescription(`<:no:979193272784265217> Permit \`${permitName}\` no longer bypasses the kick command!`)
+                        .setColor(color)
+                        .setTimestamp()
+                    interaction.reply({ embeds: [bypassBanEmbed] })
+                }
+
+                break;
+
+            case "bypassmute":
+
+                if (!permitName) return interaction.reply({ content: "You must enter a string in the `permit_name` option.", ephemeral: true })
+
+                if (!boolean) return interaction.reply({ content: "You must enter a boolean option!", ephemeral: true })
+
+                const foundPermit3 = await Permits.findOne({
+                    permitName: permitName,
+                    guildID: interaction.guild.id
+                })
+                if (!foundPermit3) return interaction.reply({ content: `A permit under the name \`${permitName}\` does not exist! Run </permit View Permits:${interaction.commandId}> to view a list of permits.`, ephemeral: true })
+
+                if (boolean == true) {
+
+                    await Permits.findOneAndUpdate({
+                        guildID: interaction.guild.id,
+                        permitName: permitName
+                    }, {
+                        bypassWarn: true
+                    })
+
+                    const bypassBanEmbed = new EmbedBuilder()
+                        .setDescription(`<:yes:979193272612298814> Permit \`${permitName}\` now bypasses the warn command!`)
+                        .setColor(color)
+                        .setTimestamp()
+                    interaction.reply({ embeds: [bypassBanEmbed] })
+
+                } else {
+                    await Permits.findOneAndUpdate({
+                        guildID: interaction.guild.id,
+                        permitName: permitName
+                    }, {
+                        bypassWarn: false
+                    })
+
+                    const bypassBanEmbed = new EmbedBuilder()
+                        .setDescription(`<:no:979193272784265217> Permit \`${permitName}\` no longer bypasses the warn command!`)
+                        .setColor(color)
+                        .setTimestamp()
+                    interaction.reply({ embeds: [bypassBanEmbed] })
+                }
+
+                break;
+
+            case "bypassmute":
+
+                if (!permitName) return interaction.reply({ content: "You must enter a string in the `permit_name` option.", ephemeral: true })
+
+                if (!boolean) return interaction.reply({ content: "You must enter a boolean option!", ephemeral: true })
+
+                const foundPermit4 = await Permits.findOne({
+                    permitName: permitName,
+                    guildID: interaction.guild.id
+                })
+                if (!foundPermit4) return interaction.reply({ content: `A permit under the name \`${permitName}\` does not exist! Run </permit View Permits:${interaction.commandId}> to view a list of permits.`, ephemeral: true })
+
+                if (boolean == true) {
+
+                    await Permits.findOneAndUpdate({
+                        guildID: interaction.guild.id,
+                        permitName: permitName
+                    }, {
+                        bypassMute: true
+                    })
+
+                    const bypassBanEmbed = new EmbedBuilder()
+                        .setDescription(`<:yes:979193272612298814> Permit \`${permitName}\` now bypasses the mute command!`)
+                        .setColor(color)
+                        .setTimestamp()
+                    interaction.reply({ embeds: [bypassBanEmbed] })
+
+                } else {
+                    await Permits.findOneAndUpdate({
+                        guildID: interaction.guild.id,
+                        permitName: permitName
+                    }, {
+                        bypassMute: false
+                    })
+
+                    const bypassBanEmbed = new EmbedBuilder()
+                        .setDescription(`<:no:979193272784265217> Permit \`${permitName}\` no longer bypasses the mute command!`)
+                        .setColor(color)
+                        .setTimestamp()
+                    interaction.reply({ embeds: [bypassBanEmbed] })
+                }
+
+                break;
+
+                case "automodbypass":
+
+                    if (!permitName) return interaction.reply({ content: "You must enter a string in the `permit_name` option.", ephemeral: true })
+
+                    if (!boolean) return interaction.reply({ content: "You must enter a boolean option!", ephemeral: true })
+    
+                    const foundPermit5 = await Permits.findOne({
+                        permitName: permitName,
+                        guildID: interaction.guild.id
+                    })
+                    if (!foundPermit5) return interaction.reply({ content: `A permit under the name \`${permitName}\` does not exist! Run </permit View Permits:${interaction.commandId}> to view a list of permits.`, ephemeral: true })
+    
+                    if (boolean == true) {
+    
+                        await Permits.findOneAndUpdate({
+                            guildID: interaction.guild.id,
+                            permitName: permitName
+                        }, {
+                            autoModBypass: true
+                        })
+    
+                        const bypassBanEmbed = new EmbedBuilder()
+                            .setDescription(`<:yes:979193272612298814> Permit \`${permitName}\` now bypasses Auto Moderation!`)
+                            .setColor(color)
+                            .setTimestamp()
+                        interaction.reply({ embeds: [bypassBanEmbed] })
+    
+                    } else {
+                        await Permits.findOneAndUpdate({
+                            guildID: interaction.guild.id,
+                            permitName: permitName
+                        }, {
+                            autoModBypass: false
+                        })
+    
+                        const bypassBanEmbed = new EmbedBuilder()
+                            .setDescription(`<:no:979193272784265217> Permit \`${permitName}\` no longer bypasses Auto Moderation!`)
+                            .setColor(color)
+                            .setTimestamp()
+                        interaction.reply({ embeds: [bypassBanEmbed] })
+                    }
+
+                    break;
+
             case "view":
 
                 let permitsArray: String[] = []

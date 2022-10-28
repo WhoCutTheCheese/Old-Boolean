@@ -1,6 +1,5 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, Client, PermissionsBitField, ColorResolvable, EmbedBuilder, Embed, ActionRowBuilder, ButtonBuilder, ButtonStyle, APIButtonComponent, PermissionFlagsBits } from "discord.js";
-import Configuration from "../../models/config"
-import GuildProperties from "../../models/guild";
+import { SlashCommandBuilder, ChatInputCommandInteraction, Client, PermissionsBitField, ColorResolvable, EmbedBuilder, Embed, ActionRowBuilder, ButtonBuilder, ButtonStyle, APIButtonComponent, PermissionFlagsBits, messageLink } from "discord.js";
+import Settings from "../../models/settings";
 import Permits from "../../models/permits"
 
 module.exports = {
@@ -25,14 +24,13 @@ module.exports = {
 
         if (!interaction.inCachedGuild()) return interaction.reply({ content: "This command is only available in guilds!", ephemeral: true })
 
-        const configuration = await Configuration.findOne({
-            guildID: interaction.guild.id
+        const settings = await Settings.findOne({
+            guildID: interaction.guild?.id
         })
-        const color = configuration?.embedColor as ColorResolvable
+        if (!settings) return interaction.reply({ content: "Sorry, your settings file doesn't exist! If this error persists contact support", ephemeral: true })
 
-        const guildProp = await GuildProperties.findOne({
-            guildID: interaction.guild.id,
-        })
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         const permits = await Permits.find({
             guildID: interaction.guild.id
@@ -75,28 +73,26 @@ module.exports = {
         const subCommand = interaction.options.getString("sub_command")
 
         const warns = interaction.options.getNumber("warns")
-
         switch (subCommand) {
             case "warnsmute":
 
-                if(isNaN(Number(warns))) return interaction.reply({ content: "Invalid warn amount!", ephemeral: true })
-                if(warns! < 0) return interaction.reply({ content: "Invalid warn amount", ephemeral: true })
+                if(!warns) return interaction.reply({ content: "Please provide a valud number! Ex. `/automute Warns Before Mute 3`" })
+                if(isNaN(Number(warns))) return interaction.reply({ content: "Please provide a valid number! Ex. \`/automute Warns Before Mute 3\`", ephemeral: true })
 
-                await Configuration.findOneAndUpdate({
-                    guildID: interaction.guild.id
+                await Settings.findOneAndUpdate({
+                    guildID: interaction.guild?.id
                 }, {
-                    warnsBeforeMute: warns
+                    modSettings: {
+                        warnsBeforeMute: warns
+                    }
                 })
 
                 const embed = new EmbedBuilder()
-                .setColor(color)
-                
-                if(warns == 0) {
-                    embed.setDescription("<:no:979193272784265217> You have disabled automatic muting.")
-                } else {
-                    embed.setDescription(`<:yes:979193272612298814> You have set the threshhold to \`${warns}\``)
-                }
+                    .setDescription(`<:yes:979193272612298814> Warns before mute is now set to \`${warns}\`!`)
+                    .setColor(color)
+                    .setTimestamp()
                 interaction.reply({ embeds: [embed] })
+
                 break;
         }
 

@@ -1,6 +1,6 @@
-import { Client, EmbedBuilder, Message, PermissionsBitField, TextChannel } from "discord.js"
-import Configuration from "../models/config";
-let prefix : string | undefined
+import { Client, ColorResolvable, EmbedBuilder, Message, PermissionsBitField, TextChannel } from "discord.js"
+import Settings from "../models/settings";
+let prefix: string | undefined
 import Permits from "../models/permits";
 import Maintenance from "../models/maintenance";
 
@@ -40,7 +40,7 @@ const validateCommands = (command: string) => {
         "MODERATION",
     ]
 
-    if(!validCommands.includes(command)) {
+    if (!validCommands.includes(command)) {
         throw new Error("Unknown command/category!")
     }
 
@@ -64,36 +64,37 @@ let set = new Set()
 module.exports.listen = (client: Client) => {
     client.on("messageCreate", async (message: Message) => {
         try {
-            if(!message.inGuild) return;
-            if(!message.guild?.members.me?.permissions.has([ PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks ])) return;
-            if(!(message.channel as TextChannel).permissionsFor(message.guild?.members.me!)?.has([ PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks ])) return;
+            if (!message.inGuild) return;
+            if (!message.guild?.members.me?.permissions.has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) return;
+            if (!(message.channel as TextChannel).permissionsFor(message.guild?.members.me!)?.has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) return;
 
-            const config = await Configuration.findOne({
-                guildID: message.guild.id
+            const settings = await Settings.findOne({
+                guildID: message.guild?.id
             })
-            if(!config) {
-                message.channel.send({ content: "Uh Oh! Seems like your configuration file doesn't exist! If this error persists please contact support" })
-                return;
-            }
+            if (!settings) return;
+            
+            let color: ColorResolvable = "5865F2" as ColorResolvable;
+            if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
+
 
             const permits = await Permits.find({
                 guildID: message.guild.id
             })
 
-            prefix = config.prefix;
-            if(!prefix) prefix = "!!";
+            prefix = settings.guildSettings?.prefix;
+            if (!prefix) prefix = "!!";
 
             const args = message.content.split(/[ ]+/)
             const name = args.shift()!.toLowerCase();
-            
-            if(name.startsWith(prefix)) {
+
+            if (name.startsWith(prefix)) {
                 const devs = ["493453098199547905", "648598769449041946", "585731185083285504"]
                 const maintenance = await Maintenance.findOne({
                     botID: client.user?.id
                 })
-                if(maintenance) {
-                    if(maintenance.maintenance == true) {
-                        if(!devs.includes(message.author.id)) {
+                if (maintenance) {
+                    if (maintenance.maintenance == true) {
+                        if (!devs.includes(message.author.id)) {
                             message.channel.send({ content: `**Uh Oh!** Boolean is currently under maintenance!\n**__Details:__** ${maintenance.maintainDetails}` })
                             return;
                         }
@@ -114,14 +115,14 @@ module.exports.listen = (client: Client) => {
                     callback,
                 } = command
 
-                if(devOnly == true) {
-                    if(!devs.includes(message.author.id)) {
+                if (devOnly == true) {
+                    if (!devs.includes(message.author.id)) {
                         message.channel.send({ content: "This command is for developers only." })
                         return
                     }
                 }
 
-                if(commandName && commandCategory) {
+                if (commandName && commandCategory) {
 
 
                     let hasPermit: boolean = false
@@ -132,7 +133,7 @@ module.exports.listen = (client: Client) => {
                     validateCommands(commandCategory)
                     for (const role of roles!) {
                         for (const permit of permits) {
-                            if(permit.roles.includes(role.id)) {
+                            if (permit.roles.includes(role.id)) {
                                 hasRole = true
                                 ObjectID = permit._id
                                 break;
@@ -140,11 +141,11 @@ module.exports.listen = (client: Client) => {
                                 hasRole = false
                             }
                         }
-                        if(hasRole == true) break;
+                        if (hasRole == true) break;
                     }
 
                     for (const permit of permits) {
-                        if(permit.users.includes(message.author.id)) {
+                        if (permit.users.includes(message.author.id)) {
                             ObjectID = permit._id;
                             break;
                         }
@@ -153,11 +154,11 @@ module.exports.listen = (client: Client) => {
                     const thePermit = await Permits.findOne({
                         _id: ObjectID
                     })
-                    if(thePermit?.commandAccess.includes(commandName) || thePermit?.commandAccess.includes(commandCategory)) hasPermit = true;
-                    if(thePermit?.commandBlocked.includes(commandName) || thePermit?.commandBlocked.includes(commandCategory)) hasPermit = false;
+                    if (thePermit?.commandAccess.includes(commandName) || thePermit?.commandAccess.includes(commandCategory)) hasPermit = true;
+                    if (thePermit?.commandBlocked.includes(commandName) || thePermit?.commandBlocked.includes(commandCategory)) hasPermit = false;
 
                     if (message.guild.ownerId === message.author.id) hasPermit = true
-                    if(hasPermit == false) {
+                    if (hasPermit == false) {
                         message.channel.send({ content: "<:no:979193272784265217> **ERROR** You are unable to use this command!" })
                         return;
                     }
@@ -167,9 +168,9 @@ module.exports.listen = (client: Client) => {
                     message.reply({ content: `Incorrect syntax! Use \`${name} ${expectedArgs}\`` })
                     return;
                 }
-                
-                if(cooldown > 0) {
-                    if(set.has(message.author.id)) {
+
+                if (cooldown > 0) {
+                    if (set.has(message.author.id)) {
                         message.channel.send({ content: `You must wait \`${cooldown} second(s)\` before using this command again!` })
                         return;
                     } else {
@@ -180,11 +181,15 @@ module.exports.listen = (client: Client) => {
                     }
                 }
 
-                if(config.deleteCommandUsage == true) {
-                    if(message.deletable) {
-                        setTimeout(() => {
-                            message.delete
-                        }, 3000)
+                if (message.guild.members.me.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
+                    if ((message.channel as TextChannel).permissionsFor(message.guild.members.me!)?.has(PermissionsBitField.Flags.ManageMessages)) {
+                        if (settings.modSettings?.deleteCommandUsage == true) {
+                            if (message.deletable) {
+                                setTimeout(() => {
+                                    message.delete
+                                }, 3000)
+                            }
+                        }
                     }
                 }
 
@@ -193,7 +198,7 @@ module.exports.listen = (client: Client) => {
             }
 
         } catch (err) {
-            if(message.guild?.members.me?.permissions.has(PermissionsBitField.Flags.SendMessages)) {
+            if (message.guild?.members.me?.permissions.has(PermissionsBitField.Flags.SendMessages)) {
                 message.channel.send({ content: "I encountered an error! Please try again. If this persists, join our support server!" })
                 console.log(err)
                 return;

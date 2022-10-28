@@ -1,6 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, ColorResolvable, EmbedBuilder, InteractionCollector, Message, PermissionsBitField, TextChannel } from "discord.js";
-import Configuration from "../../models/config"
-import GuildProperties from "../../models/guild";
+import Settings from "../../models/settings";
 import Cases from "../../models/cases";
 import Permits from "../../models/permits";
 const ms = require("ms");
@@ -15,14 +14,13 @@ module.exports = {
 
         if (!message.guild?.members.me?.permissions.has([PermissionsBitField.Flags.ModerateMembers, PermissionsBitField.Flags.ManageRoles])) return message.channel.send({ content: "I require the `Timeout Members` and `Manage Roles` to issue mutes!" });
 
-        const guildProp = await GuildProperties.findOne({
+        const settings = await Settings.findOne({
             guildID: message.guild?.id
         })
+        if (!settings) return message.channel.send({ content: "Sorry, your settings file doesn't exist! If this error persists contact support" })
 
-        const configuration = await Configuration.findOne({
-            guildID: message.guild?.id
-        })
-        const color = configuration?.embedColor as ColorResolvable;
+        let color: ColorResolvable = "5865F2" as ColorResolvable;
+        if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
 
         const permits = await Permits.find({
             guildID: message.guild?.id
@@ -41,7 +39,7 @@ module.exports = {
 
         if (user.id === message.author.id) return message.channel.send({ content: "You cannot mute yourself!" })
         if (user.id === message.guild?.ownerId) return message.channel.send({ content: "You cannot mute this user!" })
-        if (user.id === client.user?.id) return message.channel.send({ content: "You cannot mute me. My power levels are too high!" })
+        if (user.id === client.user?.id) return message.channel.send({ content: "You cannot ban me. My power levels are too high!" })
 
         let ObjectID: any
         for (const permit of permits) {
@@ -54,16 +52,23 @@ module.exports = {
         const thePermit = await Permits.findOne({
             _id: ObjectID
         })
-        if (thePermit?.commandAccess.includes("MUTE") || thePermit?.commandAccess.includes("MODERATION")) return message.channel.send({ content: "You cannot mute this user!" });
+        if(message.author.id !== message.guild?.ownerId) {
+            if (thePermit?.bypassMute == true) return message.channel.send({ content: "You cannot mute this user!" });
+        }
+        if (message.guild.members.me.roles.highest.position < user.roles.highest.position) return message.channel.send({ content: "This user is above me! I cannot mute them." })
 
-        if(message.guild.members.me.roles.highest.position < user.roles.highest.position) return message.channel.send({ content: "This user is above me! I cannot mute them." })
-
-        const caseNumberSet = guildProp?.totalCases! + 1;
-
-        await GuildProperties.findOneAndUpdate({
-            guildID: message.guild?.id
+        let caseNumberSet: number = 10010100101
+        if (!settings.guildSettings?.totalCases) {
+            caseNumberSet = 1;
+        } else if (settings.guildSettings?.totalCases) {
+            caseNumberSet = settings.guildSettings?.totalCases + 1;
+        }
+        await Settings.findOneAndUpdate({
+            guildID: message.guild?.id,
         }, {
-            totalCases: caseNumberSet,
+            guildSettings: {
+                totalCases: caseNumberSet
+            }
         })
 
         const warns = await Cases.countDocuments({ userID: user.id, caseType: "Warn" })
@@ -105,7 +110,7 @@ module.exports = {
                         type = "week(s)"
                     }
 
-                    if (ms(`${time}${type1}`) >= 2419200000) return message.channel.send({ content: "Length exceed maximum time." })
+                    if (ms(`${time}${type1}`) >= 2332800) return message.channel.send({ content: "Length exceed maximum time." })
 
                     const userMutedWithTimeEmbed = new EmbedBuilder()
                         .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Reason:** ${reason} | **Length**: ${time} ${type}`)
@@ -132,13 +137,13 @@ module.exports = {
                         **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
                         .setColor(color)
                         .setTimestamp()
-                    const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration?.modLogChannel!);
+                    const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel!);
                     if (!channel) { return; }
                     if (message.guild.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
                         (message.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
                     }
 
-                    if (configuration?.dmOnPunish == true) {
+                    if (settings.modSettings?.dmOnPunish == true) {
                         const dm = new EmbedBuilder()
                             .setAuthor({ name: "You Were Muted in " + message.guild.name + "!", iconURL: message.guild.iconURL() || undefined })
                             .setColor(color)
@@ -146,20 +151,26 @@ module.exports = {
                             <:blurple_bulletpoint:997346294253244529> **Case:** #${caseNumberSet}
                             <:blurple_bulletpoint:997346294253244529> **Length:** ${time} ${type}`)
                             .setTimestamp()
-                        if (guildProp?.premium == false) {
+                        if (settings.guildSettings?.premium == false || !!settings.guildSettings?.premium) {
                             user.send({ embeds: [dm], components: [row] }).catch((err: Error) => {
-                                const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
-                                if (!channel) { return; }
-                                if (message.guild?.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                                    (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                                const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
+                                let exists = true
+                                if (!channel) { exists = false; }
+                                if (exists == true) {
+                                    if (message.guild?.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                                        (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                                    }
                                 }
                             })
-                        } else if (guildProp?.premium == true) {
+                        } else if (settings.guildSettings?.premium == true) {
                             user.send({ embeds: [dm] }).catch((err: Error) => {
-                                const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
-                                if (!channel) { return; }
-                                if (message.guild?.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                                    (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                                const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
+                                let exists = true
+                                if (!channel) { exists = false; }
+                                if (exists == true) {
+                                    if (message.guild?.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                                        (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                                    }
                                 }
                             })
                         }
@@ -175,19 +186,21 @@ module.exports = {
                         caseDate: Date.now(),
                     })
                     newCase.save().catch((err: Error) => console.error(err));
-                    user.timeout(ms(`${time}${type1}`, reason)).catch((err: Error) => console.log(err))
+                    user.timeout(ms(`${time}${type1}`, reason)).catch((err: Error) => {
+                        console.error(err)
+                        message.channel.send({ content: "I could not mute this user!" })});
                     return;
                 }
             }
         }
 
         //perma mute
-        if(configuration?.muteRoleID == "None") return message.channel.send({ content: "There is no mute role!" })
+        if (!settings.modSettings?.muteRole) return message.channel.send({ content: "There is no mute role!" })
         let reason = args.splice(1).join(" ")
         if (!reason) reason = "No reason provided."
         if (reason.length > 250) return message.channel.send({ content: "Reason exceeds maximum lenth. (250 Characters)" })
 
-        user?.roles.add(configuration?.muteRoleID!).catch((err: Error) => {
+        user?.roles.add(settings.modSettings?.muteRole).catch((err: Error) => {
             message.channel.send({ content: "I was unable to assign a role to this user!" })
             console.error(err)
             return;
@@ -230,13 +243,13 @@ module.exports = {
             **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
             .setColor(color)
             .setTimestamp()
-        const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration?.modLogChannel!);
+        const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel!);
         if (!channel) { return; }
         if (message.guild.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
             (message.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
         }
 
-        if (configuration?.dmOnPunish == true) {
+        if (settings.modSettings?.dmOnPunish == true) {
             const dm = new EmbedBuilder()
                 .setAuthor({ name: "You Were Muted in " + message.guild.name + "!", iconURL: message.guild.iconURL() || undefined })
                 .setColor(color)
@@ -244,20 +257,26 @@ module.exports = {
                 <:blurple_bulletpoint:997346294253244529> **Case:** #${caseNumberSet}
                 <:blurple_bulletpoint:997346294253244529> **Length:** Permanent`)
                 .setTimestamp()
-            if (guildProp?.premium == false) {
+            if (settings.guildSettings?.premium == false || settings.guildSettings?.premium) {
                 user.send({ embeds: [dm], components: [row] }).catch((err: Error) => {
-                    const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
-                    if (!channel) { return; }
-                    if (message.guild?.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                        (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                    const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
+                    let exists = true
+                    if (!channel) { exists = false; }
+                    if (exists == true) {
+                        if (message.guild?.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                            (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                        }
                     }
                 })
-            } else if (guildProp?.premium == true) {
+            } else if (settings.guildSettings?.premium == true) {
                 user.send({ embeds: [dm] }).catch((err: Error) => {
-                    const channel = message.guild?.channels.cache.find((c: any) => c.id === configuration.modLogChannel);
-                    if (!channel) { return; }
-                    if (message.guild?.members.me?.permissionsIn(channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                        (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                    const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
+                    let exists = true
+                    if (!channel) { exists = false; }
+                    if (exists == true) {
+                        if (message.guild?.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                            (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
+                        }
                     }
                 })
             }
