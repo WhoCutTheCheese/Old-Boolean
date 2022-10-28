@@ -6,7 +6,7 @@ import Cases from "../../models/cases";
 module.exports = {
     commands: ['softban', 'sb'],
     minArgs: 1,
-    expectedArgs: "[@User/User ID] (Delete Dats) (Reason)",
+    expectedArgs: "[@User/User ID] (Delete Days) (Reason)",
     commandName: "BAN",
     commandCategory: "MODERATION",
     cooldown: 2,
