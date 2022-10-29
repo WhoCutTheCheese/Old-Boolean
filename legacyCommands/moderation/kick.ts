@@ -77,7 +77,7 @@ module.exports = {
         if (!reason) reason = "No reason provided."
         if (reason.length > 200) return message.channel.send({ content: "Reason exceeds maximum length. (250 Characters)" })
 
-        new Punishment({ type: "kick", user: user.user, member: user, message: message, channel: (message.channel as TextChannel), settings: settings, color: color, caseNumberSet: caseNumberSet, reason: reason, warns: warns })
+        new Punishment({ type: "kick", user: user.user, member: user, message: message, settings: settings, color: color, caseNumberSet: caseNumberSet, reason: reason, warns: warns })
 
 
     },

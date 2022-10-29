@@ -117,9 +117,9 @@ module.exports = {
 
         let member = interaction.guild.members.cache.get(user.id)
         if (member) {
-            if (interaction.user.id !== interaction.guild.ownerId) {
-                if (member.roles.highest >= interaction.guild.roles.highest) return interaction.reply({ content: "You cannot ban users above you!", ephemeral: true })
-            }
+
+            if (member.roles.highest >= interaction.guild.roles.highest) return interaction.reply({ content: "You cannot ban users above you!", ephemeral: true })
+
         }
 
         if (user.id === interaction.guild.ownerId) return interaction.reply({ content: "You cannot ban this user!", ephemeral: true })
@@ -360,7 +360,7 @@ module.exports = {
         }
         if (modifier?.toLocaleLowerCase() == "-s") deleteDays = 7
         interaction.guild.members.ban(user.id, { reason: reason, deleteMessageDays: deleteDays })
-        //member?.ban({ reason: reason, deleteMessageDays: deleteDays })
+        member?.ban({ reason: reason, deleteMessageDays: deleteDays })
         if (modifier?.toLocaleLowerCase() == "-s") {
             await interaction.guild.members.unban(user.id as UserResolvable).catch((err: Error) => console.error(err))
         }
