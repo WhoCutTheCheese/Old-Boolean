@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ColorResolvable, EmbedBuilder, GuildMember, Message, PermissionsBitField, TextChannel, User } from "discord.js";
 import Cases from "../models/cases";
 import Bans from "../models/bans";
+const ms = require("ms");
 
 export class Punishment {
 
@@ -32,23 +33,25 @@ export class Punishment {
         if (!warns) throw new Error("Class Punishment: Invalid Warns Number")
 
         let caseTime: string | undefined = "None"
-        if(time != "none") caseTime = timeFormatted;
+        if (time != "none" || time) caseTime = timeFormatted;
+        if (!timeFormatted) timeFormatted = "Permanent"
         let timeArg = ""
         let dmTimeArg = ""
         let timeResponseArg = ""
-        if (time) {
+        if (time || time != "none") {
             timeArg = `> [**Length:** ${timeFormatted}]\n`
             dmTimeArg = `\n<:blurple_bulletpoint:997346294253244529> **Length:** ${timeFormatted}`
             timeResponseArg = " | **Length:** " + timeFormatted
-        } else {
-            if(type == "ban" || type == "mute") {
-                timeFormatted = "Permanent"                
+        } else if (!time || time == "none") {
+            if (type == "ban" || type == "mute") {
+                timeFormatted = "Permanent"
                 timeArg = `> [**Length:** ${timeFormatted}]\n`
                 dmTimeArg = `\n<:blurple_bulletpoint:997346294253244529> **Length:** ${timeFormatted}`
                 timeResponseArg = " | **Length:** " + timeFormatted
             }
 
         }
+        if (!caseTime) caseTime = "Permanent"
         let plurals: string = "Error"
         if (type.toLowerCase() == "warn") plurals = "warned"
         if (type.toLowerCase() == "kick") plurals = "kicked"
@@ -130,8 +133,8 @@ export class Punishment {
 
                 break;
             case "ban":
-                if(time || time != "none") {
-                    
+                if (time || time != "none") {
+
                     const banExpire = new Bans({
                         guildID: message.guild?.id,
                         userID: user.id,
@@ -144,11 +147,38 @@ export class Punishment {
                         console.error(err)
                         message.channel.send({ content: "I could not ban this user!" })
                     });
-
+                    return;
                 }
+
+                message.guild?.members.ban(user.id).catch((err: Error) => {
+                    console.error(err)
+                    message.channel.send({ content: "I could not ban this user!" })
+                });
+
+                break;
+            case "mute":
+                if (time) {
+
+                    member?.timeout(ms(`${time}`, reason)).catch((err: Error) => {
+                        console.error(err)
+                        message.channel.send({ content: "I could not mute this user!" })
+                    });
+                    return;
+                } else if (!time) {
+                    console.log("F")
+                    member?.roles.add(settings.modSettings?.muteRole).catch((err: Error) => {
+                        message.channel.send({ content: "An error occurred, if this persists please report it!" })
+                        console.error(err)
+                    });
+                }
+
+
+                break;
 
         }
 
     }
 }
+
+
 
