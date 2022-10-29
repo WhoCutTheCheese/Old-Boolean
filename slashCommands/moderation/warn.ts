@@ -122,6 +122,10 @@ module.exports = {
             remainder = 1
             return interaction.reply({ content: "I don't have permission to automatically mute this user!", ephemeral: true })
         }
+        if (interaction.guild.members.me.roles.highest.position <= member.roles.highest.position) {
+            remainder = 1
+            return interaction.reply({ content: "I cannot mute users above me!", ephemeral: true })
+        }
 
         if (remainder == 0) {
             const newCase = new Cases({

@@ -98,9 +98,9 @@ module.exports = {
         let member = interaction.guild.members.cache.get(user.id)
         if (!member) return interaction.reply({ content: "User not in the guild!", ephemeral: true })
         if (member) {
-            if (interaction.user.id !== interaction.guild.ownerId) {
-                if (member.roles.highest >= interaction.guild.roles.highest) return interaction.reply({ content: "You cannot mute users above you!", ephemeral: true })
-            }
+
+                if (member.roles.highest.position >= interaction.guild.members.me.roles.highest.position) return interaction.reply({ content: "You cannot mute users above you!", ephemeral: true })
+
         }
 
         if (user.id === interaction.guild.ownerId) return interaction.reply({ content: "You cannot mute this user!", ephemeral: true })

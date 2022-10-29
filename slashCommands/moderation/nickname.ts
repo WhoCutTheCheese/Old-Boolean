@@ -76,7 +76,7 @@ module.exports = {
         let member = interaction.guild.members.cache.get(interaction.options.getUser("user")?.id!)
         if (!member) return interaction.reply({ content: "This user is not in the guild.", ephemeral: true })
 
-        if (interaction.guild.members.me.roles.highest.position < member.roles.highest.position) return interaction.reply({ content: "I cannot change this user's nickname", ephemeral: true })
+        if (interaction.guild.members.me.roles.highest.position <= member.roles.highest.position) return interaction.reply({ content: "I cannot change this user's nickname", ephemeral: true })
 
         if (interaction.member.roles.highest.position < member.roles.highest.position) return interaction.reply({ content: "You cannot change this user's nickname", ephemeral: true })
 
