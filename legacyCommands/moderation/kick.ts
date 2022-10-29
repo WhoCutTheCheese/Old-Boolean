@@ -1,8 +1,8 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, ColorResolvable, EmbedBuilder, Message, PermissionsBitField, TextChannel, User } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, ColorResolvable, Message, PermissionsBitField } from "discord.js";
+import { Punishment, PunishTypes } from "../../classes/punish";
 import Settings from "../../models/settings";
 import Cases from "../../models/cases";
 import Permits from "../../models/permits";
-import { Punishment } from "../../classes/punish";
 
 module.exports = {
     commands: ['kick', 'k'],
@@ -77,7 +77,7 @@ module.exports = {
         if (!reason) reason = "No reason provided."
         if (reason.length > 200) return message.channel.send({ content: "Reason exceeds maximum length. (250 Characters)" })
 
-        new Punishment({ type: "kick", user: user.user, member: user, message: message, channel: (message.channel as TextChannel), settings: settings, color: color, caseNumberSet: caseNumberSet, reason: reason, warns: warns })
+        new Punishment({ type: PunishTypes.Kick, user: user.user, member: user, message: message, settings: settings, color: color, caseNumberSet: caseNumberSet, reason: reason, warns: warns })
 
 
     },

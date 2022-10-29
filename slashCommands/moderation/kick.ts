@@ -85,6 +85,8 @@ module.exports = {
         if (reason.length > 200) return interaction.reply({ content: "Reason exceeds maximum length. (250 Characters)", ephemeral: true })
 
         if (user.id === interaction.user.id) return interaction.reply({ content: "you cannot kick yourself.", ephemeral: true })
+        if(user?.id === client.user?.id) return interaction.reply({ content: "I cannot kick myself.", ephemeral: true })
+
 
         let member = interaction.guild.members.cache.get(user.id)
         if (!member) return interaction.reply({ content: "You cannot kick a user not in the guild.", ephemeral: true })

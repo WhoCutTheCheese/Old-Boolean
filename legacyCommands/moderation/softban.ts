@@ -2,6 +2,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, ColorResolvable, 
 import Settings from "../../models/settings";
 import Permits from "../../models/permits";
 import Cases from "../../models/cases";
+import { Punishment, PunishTypes } from "../../classes/punish";
 
 module.exports = {
     commands: ['softban', 'sb'],
@@ -43,6 +44,9 @@ module.exports = {
         if (message.author.id !== message.guild?.ownerId) {
             if (thePermit?.bypassBan == true) return message.channel.send({ content: "You cannot ban this member!" });
         }
+        if (member.id === message.author.id) return message.channel.send({ content: "You cannot ban yourself!" })
+        if (member.id === message.guild?.ownerId) return message.channel.send({ content: "You cannot ban this user!" })
+        if (member.id === client.user?.id) return message.channel.send({ content: "You cannot ban me. My power levels are too high!" })
         if (member) {
             if (message.guild.members.me.roles.highest.position < member.roles.highest.position) return message.channel.send({ content: "This member is above me! I cannot ban them." })
         }
@@ -77,86 +81,11 @@ module.exports = {
             if(reason.length > 250) return message.channel.send({ content: "Reason exceeds maximum length! (250 Characters)" })
 
             if (Number(args[1]) > 7) return message.channel.send({ content: "You cannot delete messages past 7 days." })
+            if (Number(args[1]) <= 0) return message.channel.send({ content: "You cannot delete messages less than 1 day." })
 
-            const newCase = new Cases({
-                guildID: message.guild.id,
-                userID: member.id,
-                modID: message.author.id,
-                caseType: "Soft-Ban",
-                caseReason: reason,
-                caseNumber: caseNumberSet,
-                caseLength: "None",
-                caseDate: Date.now(),
-            })
-            newCase.save().catch((err: Error) => console.error(err));
+            new Punishment({ type: PunishTypes.SoftBan, user: member.user, member: member, message: message, settings: settings, color: color, caseNumberSet: caseNumberSet, reason: reason, warns: warns, deleteDays: Number(args[1]) })
 
-            const userBannedWithTime = new EmbedBuilder()
-                .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Reason:** ${reason}`)
-                .setColor(color)
-            message.channel.send({ content: `<:arrow_right:967329549912248341> **${member.user.tag}** has been soft-banned! (Warns **${warns}**)`, embeds: [userBannedWithTime] })
 
-            const modLogs = new EmbedBuilder()
-                .setAuthor({ name: `Member Banned - ${member.user.tag}`, iconURL: member.displayAvatarURL() || undefined })
-                .setThumbnail(member.displayAvatarURL() || null)
-                .setDescription(`<:member:977391493218181120> **User:** ${member.user.tag}
-                > [${member.id}]
-                > [<@${member.id}>]
-
-                <:folder:977391492790362173> **Mod:** ${message.author.tag}
-                > [${message.author.id}]
-                > [<@${message.author.id}>]
-
-                <:pencil:977391492916207636> **Action:** Soft-Ban
-                > [**Case:** #${caseNumberSet}]
-
-                **Reason:** ${reason}
-                **Channel:** <#${message.channel?.id}>
-                **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
-                .setColor(color)
-                .setTimestamp()
-            const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
-            let exists = true
-            if (!channel) { exists = false; }
-            if (exists == true) {
-                if (message.guild.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                    (message.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
-                }
-            }
-
-            if (settings.modSettings?.dmOnPunish == true) {
-                const dm = new EmbedBuilder()
-                    .setAuthor({ name: "You Were Banned From " + message.guild.name + "!", iconURL: message.guild.iconURL() || undefined })
-                    .setColor(color)
-                    .setDescription(`<:blurple_bulletpoint:997346294253244529> **Reason:** ${reason}
-                    <:blurple_bulletpoint:997346294253244529> **Case:** #${caseNumberSet}`)
-                    .setTimestamp()
-                if (settings.guildSettings?.premium == false || !settings.guildSettings?.premium) {
-                    member.send({ embeds: [dm], components: [row] }).catch((err: Error) => {
-                        const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
-                        let exists = true
-                        if (!channel) { exists = false; }
-                        if (exists == true) {
-                            if (message.guild?.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                                (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
-                            }
-                        }
-                    })
-                } else if (settings.guildSettings?.premium == true) {
-                    member.send({ embeds: [dm] }).catch((err: Error) => {
-                        const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
-                        let exists = true
-                        if (!channel) { exists = false; }
-                        if (exists == true) {
-                            if (message.guild?.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                                (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
-                            }
-                        }
-                    })
-                }
-            }
-            member.ban({ reason: reason, deleteMessageDays: Number(args[1]) }).catch((err: Error) => console.error(err)).then(() => {
-                message.guild?.members.unban(member.id, "Soft-Ban").catch((err: Error) => console.error(err))
-            })
             return;
 
         }
@@ -165,86 +94,7 @@ module.exports = {
         if (args[1]) reason = args.slice(1).join(" ");
         if(reason.length > 250) return message.channel.send({ content: "Reason exceeds maximum length! (250 Characters)" })
 
-        const newCase = new Cases({
-            guildID: message.guild.id,
-            userID: member.id,
-            modID: message.author.id,
-            caseType: "Soft-Ban",
-            caseReason: reason,
-            caseNumber: caseNumberSet,
-            caseLength: "None",
-            caseDate: Date.now(),
-        })
-        newCase.save().catch((err: Error) => console.error(err));
-
-        const userBannedWithTime = new EmbedBuilder()
-            .setDescription(`**Case:** #${caseNumberSet} | **Mod:** ${message.author.tag} | **Reason:** ${reason}`)
-            .setColor(color)
-        message.channel.send({ content: `<:arrow_right:967329549912248341> **${member.user.tag}** has been soft-banned! (Warns **${warns}**)`, embeds: [userBannedWithTime] })
-
-        const modLogs = new EmbedBuilder()
-            .setAuthor({ name: `Member Banned - ${member.user.tag}`, iconURL: member.displayAvatarURL() || undefined })
-            .setThumbnail(member.displayAvatarURL() || null)
-            .setDescription(`<:member:977391493218181120> **User:** ${member.user.tag}
-        > [${member.id}]
-        > [<@${member.id}>]
-
-        <:folder:977391492790362173> **Mod:** ${message.author.tag}
-        > [${message.author.id}]
-        > [<@${message.author.id}>]
-
-        <:pencil:977391492916207636> **Action:** Soft-Ban
-        > [**Case:** #${caseNumberSet}]
-
-        **Reason:** ${reason}
-        **Channel:** <#${message.channel?.id}>
-        **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
-            .setColor(color)
-            .setTimestamp()
-        const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
-        let exists = true
-        if (!channel) { exists = false; }
-        if (exists == true) {
-            if (message.guild.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                (message.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
-            }
-        }
-
-        if (settings.modSettings?.dmOnPunish == true) {
-            const dm = new EmbedBuilder()
-                .setAuthor({ name: "You Were Banned From " + message.guild.name + "!", iconURL: message.guild.iconURL() || undefined })
-                .setColor(color)
-                .setDescription(`<:blurple_bulletpoint:997346294253244529> **Reason:** ${reason}
-            <:blurple_bulletpoint:997346294253244529> **Case:** #${caseNumberSet}`)
-                .setTimestamp()
-            if (settings.guildSettings?.premium == false || !settings.guildSettings?.premium) {
-                member.send({ embeds: [dm], components: [row] }).catch((err: Error) => {
-                    const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
-                    let exists = true
-                    if (!channel) { exists = false; }
-                    if (exists == true) {
-                        if (message.guild?.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                            (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
-                        }
-                    }
-                })
-            } else if (settings.guildSettings?.premium == true) {
-                member.send({ embeds: [dm] }).catch((err: Error) => {
-                    const channel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel);
-                    let exists = true
-                    if (!channel) { exists = false; }
-                    if (exists == true) {
-                        if (message.guild?.members.me?.permissionsIn(channel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                            (message.guild?.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ content: "Unable to DM User." })
-                        }
-                    }
-                })
-            }
-        }
-        member.ban({ reason: reason, deleteMessageDays: 7 }).catch((err: Error) => console.error(err)).then(() => {
-            message.guild?.members.unban(member.id, "Soft-Ban").catch((err: Error) => console.error(err))
-        })
-
+        new Punishment({ type: PunishTypes.SoftBan, user: member.user, member: member, message: message, settings: settings, color: color, caseNumberSet: caseNumberSet, reason: reason, warns: warns, deleteDays: 7 })
 
     }
 }
