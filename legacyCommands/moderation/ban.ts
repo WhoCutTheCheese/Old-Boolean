@@ -1,9 +1,8 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, ColorResolvable, EmbedBuilder, InteractionCollector, Message, PermissionsBitField, TextChannel } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, ColorResolvable, Message, PermissionsBitField } from "discord.js";
+import { Punishment, PunishTypes } from "../../classes/punish";
 import Settings from "../../models/settings";
 import Cases from "../../models/cases";
 import Permits from "../../models/permits";
-import Bans from "../../models/bans";
-import { Punishment, PunishTypes } from "../../classes/punish";
 const ms = require("ms");
 
 module.exports = {
@@ -40,7 +39,7 @@ module.exports = {
         let meow
         let user = await client.users.fetch(args[0]).catch((err: Error) => {     
             meow = false
-        })
+        }) || message.mentions.users.first();
         if (meow == false) {
             if(!member) {
                 return message.channel.send({ content: "Invalid user!" })
