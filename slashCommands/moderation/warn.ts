@@ -90,6 +90,8 @@ module.exports = {
         if (user.id === interaction.user.id) { return interaction.reply({ content: "You cannot issue punishments to yourself!", ephemeral: true }) }
 
         if (user.bot) { return interaction.reply({ content: "You cannot issue warnings to a bot.", ephemeral: true }) }
+        if(user?.id === client.user?.id) return interaction.reply({ content: "I cannot mute myself.", ephemeral: true })
+
         let member = interaction.guild.members.cache.get(user.id)
         if (member) {
             if (interaction.user.id !== interaction.guild.ownerId) {

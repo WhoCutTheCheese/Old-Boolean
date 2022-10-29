@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, Client, PermissionsBitField, ColorResolvable, TextChannel, EmbedBuilder, UserResolvable, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, Client, PermissionsBitField, ColorResolvable, TextChannel, EmbedBuilder, UserResolvable, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, messageLink } from "discord.js";
 import Settings from "../../models/settings";
 import Bans from "../../models/bans";
 import Cases from "../../models/cases";
@@ -116,6 +116,8 @@ module.exports = {
         if (user.id === interaction.user.id) return interaction.reply({ content: "You cannot ban yourself.", ephemeral: true })
 
         let member = interaction.guild.members.cache.get(user.id)
+        if(user?.id === client.user?.id) return interaction.reply({ content: "I cannot ban myself.", ephemeral: true })
+        if(member?.id === client.user?.id) return interaction.reply({ content: "I cannot ban myself.", ephemeral: true })
         if (member) {
 
             if (member.roles.highest.position >= interaction.guild.members.me.roles.highest.position) return interaction.reply({ content: "You cannot ban users above you!", ephemeral: true })
