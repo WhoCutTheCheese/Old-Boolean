@@ -118,7 +118,7 @@ module.exports = {
         let member = interaction.guild.members.cache.get(user.id)
         if (member) {
 
-            if (member.roles.highest >= interaction.guild.roles.highest) return interaction.reply({ content: "You cannot ban users above you!", ephemeral: true })
+            if (member.roles.highest.position >= interaction.guild.members.me.roles.highest.position) return interaction.reply({ content: "You cannot ban users above you!", ephemeral: true })
 
         }
 
