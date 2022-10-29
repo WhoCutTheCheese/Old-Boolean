@@ -3,7 +3,7 @@ import Settings from "../../models/settings";
 import Cases from "../../models/cases";
 import Permits from "../../models/permits";
 import Bans from "../../models/bans";
-import { Punishment } from "../../classes/punish";
+import { Punishment, PunishTypes } from "../../classes/punish";
 const ms = require("ms");
 
 module.exports = {
@@ -142,8 +142,8 @@ module.exports = {
 
                     expires.setSeconds(expires.getSeconds() + length!)
 
-                    new Punishment({ type: "ban", time: expires, timeFormatted: time + " " + type, user: user, member: member!, message: message, settings: settings, color: color, caseNumberSet: caseNumberSet, reason: reason, warns: warns })
-
+                    new Punishment({ type: PunishTypes.Ban, time: expires, timeFormatted: time + " " + type, user: user, member: member!, message: message, settings: settings, color: color, caseNumberSet: caseNumberSet, reason: reason, warns: warns })
+                    
                     return;
                 }
             }
@@ -154,7 +154,7 @@ module.exports = {
         if (!reason) reason = "No reason provided."
         if (reason.length > 250) return message.channel.send({ content: "Reason exceeds maximum lenth. (250 Characters)" })
 
-        new Punishment({ type: "ban", user: user, member: member!, message: message, settings: settings, color: color, caseNumberSet: caseNumberSet, reason: reason, warns: warns })
+        new Punishment({ type: PunishTypes.Ban, user: user, member: member!, message: message, settings: settings, color: color, caseNumberSet: caseNumberSet, reason: reason, warns: warns })
 
     }
 }

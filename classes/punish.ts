@@ -3,11 +3,19 @@ import Cases from "../models/cases";
 import Bans from "../models/bans";
 const ms = require("ms");
 
+export enum PunishTypes {
+    Ban = 1,
+    Kick = 2,
+    Mute = 3,
+    Warn = 4,
+    SoftBan = 5,
+}
+
 export class Punishment {
 
 
     constructor(someArg: {
-        type: string,
+        type: PunishTypes,
         time?: string | Date,
         timeFormatted?: string,
         user: User,
@@ -43,7 +51,7 @@ export class Punishment {
             dmTimeArg = `\n<:blurple_bulletpoint:997346294253244529> **Length:** ${timeFormatted}`
             timeResponseArg = " | **Length:** " + timeFormatted
         } else if (!time || time == "none") {
-            if (type == "ban" || type == "mute") {
+            if (type == 1 || type == 3) {
                 timeFormatted = "Permanent"
                 timeArg = `> [**Length:** ${timeFormatted}]\n`
                 dmTimeArg = `\n<:blurple_bulletpoint:997346294253244529> **Length:** ${timeFormatted}`
@@ -53,10 +61,12 @@ export class Punishment {
         }
         if (!caseTime) caseTime = "Permanent"
         let plurals: string = "Error"
-        if (type.toLowerCase() == "warn") plurals = "warned"
-        if (type.toLowerCase() == "kick") plurals = "kicked"
-        if (type.toLowerCase() == "mute") plurals = "muted"
-        if (type.toLowerCase() == "ban") plurals = "banned"
+        let punishment : string = "Error"
+        if (type == PunishTypes.Ban) plurals = "banned"; punishment = "BAN"
+        if (type == 2) plurals = "kicked"; punishment = "KICK"
+        if (type == 3) plurals = "muted";; punishment = "MUTE"
+        if (type == 4) plurals = "warned"; punishment = "WARN"
+        if(type == 5) plurals = "soft banned"; punishment = "SOFT BAN"
 
         const row = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
@@ -94,7 +104,7 @@ export class Punishment {
             > [${message.author.id}]
             > [<@${message.author.id}>]
 
-            <:pencil:977391492916207636> **Action:** ${type.toUpperCase()}
+            <:pencil:977391492916207636> **Action:** ${punishment}
             > [**Case:** #${caseNumberSet}]
             ${timeArg}
             **Reason:** ${reason}
@@ -125,14 +135,14 @@ export class Punishment {
             }
         }
 
-        switch (type.toLowerCase()) {
+        switch (type) {
 
-            case "kick":
+            case 2:
 
                 member?.kick(reason).catch((err: Error) => console.error(err));
 
                 break;
-            case "ban":
+            case 1:
                 if (time || time != "none") {
 
                     const banExpire = new Bans({
@@ -156,7 +166,7 @@ export class Punishment {
                 });
 
                 break;
-            case "mute":
+            case 3:
                 if (time) {
 
                     member?.timeout(ms(`${time}`, reason)).catch((err: Error) => {

@@ -2,7 +2,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, ColorResolvable, 
 import Settings from "../../models/settings";
 import Cases from "../../models/cases";
 import Permits from "../../models/permits";
-import { Punishment } from "../../classes/punish";
+import { Punishment, PunishTypes } from "../../classes/punish";
 const ms = require("ms");
 
 module.exports = {
@@ -113,7 +113,7 @@ module.exports = {
 
                     if (ms(`${time}${type1}`) >= 2332800) return message.channel.send({ content: "Length exceed maximum time." })
 
-                    new Punishment({ type: "mute", time: time + type1, timeFormatted: time + " " + type, user: user.user, member: user, message: message, settings: settings, color: color, caseNumberSet: caseNumberSet, reason: reason, warns: warns })
+                    new Punishment({ type: PunishTypes.Mute, time: time + type1, timeFormatted: time + " " + type, user: user.user, member: user, message: message, settings: settings, color: color, caseNumberSet: caseNumberSet, reason: reason, warns: warns })
                     return;
                 }
             }
@@ -127,7 +127,7 @@ module.exports = {
         if(!message.guild.members.me.permissions.has(PermissionsBitField.Flags.ManageRoles)) return message.channel.send({ content: "I cannot assign roles!" })
         if(message.guild.roles.cache.get(settings.modSettings.muteRole)?.position! > message.guild.members.me.roles.highest.position) return message.channel.send({ content: "I cannot assign the mute role, it is above me!" })
         console.log("awd")
-        new Punishment({ type: "mute", user: user.user, member: user, message: message, settings: settings, color: color, caseNumberSet: caseNumberSet, reason: reason, warns: warns })
+        new Punishment({ type: PunishTypes.Mute, user: user.user, member: user, message: message, settings: settings, color: color, caseNumberSet: caseNumberSet, reason: reason, warns: warns })
         console.log("awd2")
     }
 }
