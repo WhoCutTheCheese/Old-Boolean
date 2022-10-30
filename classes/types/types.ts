@@ -1,0 +1,45 @@
+export enum PunishTypes {
+    Ban = 1,
+    Kick = 2,
+    Mute = 3,
+    Warn = 4,
+    SoftBan = 5,
+}
+
+export enum ModLogTypes {
+    Ban = 1,
+    Kick = 2,
+    Mute = 3,
+    Warn = 4,
+    Unmute = 5,
+    Unban = 6,
+    SoftBan = 7,
+    DeleteCase = 8,
+    ChannelLock = 9,
+    ChannelUnlock = 10,
+    MessagePurge = 11,
+    ReasonChange = 12,
+}
+
+export enum AuditLogTypes {
+    MessageDelete = 1,
+    MessageUpdate = 2,
+    ChannelCreate = 3,
+    ChannelUpdate = 4,
+    ChannelDelete = 6,
+    RoleCreate = 7,
+    RoleUpdate = 8,
+    RoleDelete = 9,
+    EmojiCreate = 10,
+    EmojiUpdate = 11,
+    EmojiDelete = 12,
+    GuildBanAdd = 11,
+    GuildBanRemove = 13,
+    GuildMemberRemove = 14,
+    MemberAddRole = 15,
+    MemberRemoveRole = 16,
+    GuildIconChange = 17,
+    GuildNameChange = 18,
+    GuildSecurityUpdate = 19,
+    MemberTimeout = 20,
+}

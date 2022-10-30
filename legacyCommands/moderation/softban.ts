@@ -2,7 +2,8 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, ColorResolvable, 
 import Settings from "../../models/settings";
 import Permits from "../../models/permits";
 import Cases from "../../models/cases";
-import { Punishment, PunishTypes } from "../../classes/punish";
+import { PunishTypes } from "../../classes/types/types";
+import { Punishment } from "../../classes/punish";
 
 module.exports = {
     commands: ['softban', 'sb'],
@@ -63,14 +64,6 @@ module.exports = {
                 totalCases: caseNumberSet
             }
         })
-
-        const row = new ActionRowBuilder<ButtonBuilder>()
-            .addComponents(
-                new ButtonBuilder()
-                    .setLabel("Invite Me!")
-                    .setStyle(ButtonStyle.Link)
-                    .setURL("https://discord.com/oauth2/authorize?client_id=966634522106036265&permissions=1377007168710&scope=bot%20applications.commands")
-            )
 
         const warns = await Cases.countDocuments({ userID: member.id, caseType: "Warn" })
 
