@@ -1,8 +1,9 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, ColorResolvable, EmbedBuilder, InteractionCollector, Message, PermissionsBitField, TextChannel } from "discord.js";
+import { PunishTypes } from "../../classes/types/types";
+import { Punishment } from "../../classes/punish";
 import Settings from "../../models/settings";
 import Cases from "../../models/cases";
 import Permits from "../../models/permits";
-import { Punishment, PunishTypes } from "../../classes/punish";
 const ms = require("ms");
 
 module.exports = {

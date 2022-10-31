@@ -1,15 +1,9 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ColorResolvable, EmbedBuilder, GuildMember, Message, PermissionsBitField, TextChannel, User } from "discord.js";
+import { PunishTypes } from "./types/types";
 import Cases from "../models/cases";
 import Bans from "../models/bans";
+import { ModLogs } from "./log";
 const ms = require("ms");
-
-export enum PunishTypes {
-    Ban = 1,
-    Kick = 2,
-    Mute = 3,
-    Warn = 4,
-    SoftBan = 5,
-}
 
 export class Punishment {
 
@@ -53,15 +47,20 @@ export class Punishment {
 
         }
         if (!caseTime) caseTime = "Permanent"
-        let plurals: string = "Error"
-        let punishment: string = "Error"
-        let deleteDaysArg: string = ""
-        let deleteDaysModLogArg: string = ""
-        if (type == PunishTypes.Ban) plurals = "banned"; punishment = "BAN"
+        let plurals = "Error"
+        let punishment = "Error"
+        let deleteDaysArg = ""
+        let deleteDaysModLogArg = ""
+        if (type == 1) plurals = "banned"; punishment = "BAN"
         if (type == 2) plurals = "kicked"; punishment = "KICK"
         if (type == 3) plurals = "muted";; punishment = "MUTE"
         if (type == 4) plurals = "warned"; punishment = "WARN"
-        if (type == 5) plurals = "soft banned"; punishment = "SOFT BAN"; deleteDaysArg = ` | **Delete Days:** ${deleteDays} day(s)`; deleteDaysModLogArg = `> [**Delete Days:** ${deleteDays} day(s)]\n`
+        if (type == 5) {
+            plurals = "soft banned";
+            punishment = "SOFT BAN";
+            deleteDaysArg = ` | **Delete Days:** ${deleteDays} day(s)`;
+            deleteDaysModLogArg = `> [**Delete Days:** ${deleteDays} day(s)]\n`
+        }
 
         const row = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
@@ -88,41 +87,12 @@ export class Punishment {
                 .setColor(color)
             message.channel.send({ content: `<:arrow_right:967329549912248341> **${user.tag}** has been ${plurals}! (Warns **${warns}**)`, embeds: [userKickedEmbed] })
 
-            const modLogs = new EmbedBuilder()
-                .setAuthor({ name: `Member ${plurals} - ${user.tag}`, iconURL: user.displayAvatarURL() || undefined })
-                .setThumbnail(user.displayAvatarURL() || null)
-                .setDescription(`<:user:977391493218181120> **User:** ${user.tag}
-            > [${user.id}]
-            > [<@${user.id}>]
-
-            <:folder:977391492790362173> **Mod:** ${message.author.tag}
-            > [${message.author.id}]
-            > [<@${message.author.id}>]
-
-            <:pencil:977391492916207636> **Action:** ${punishment}
-            > [**Case:** #${caseNumberSet}]
-            ${timeArg}
-            ${deleteDaysModLogArg}
-            **Reason:** ${reason}
-            **Channel:** <#${message.channel?.id}>
-            **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
-                .setColor(color)
-                .setTimestamp()
-            const modLogChannel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel!);
-            let exists = true
-            if (!modLogChannel) { exists = false; }
-            if (exists == true) {
-                if (message.guild?.members.me?.permissionsIn(modLogChannel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                    (message.guild?.channels.cache.find((c: any) => c.id === modLogChannel?.id) as TextChannel).send({ embeds: [modLogs] })
-                }
-            }
-
             if (settings.modSettings?.dmOnPunish == true) {
                 const dm = new EmbedBuilder()
                     .setAuthor({ name: `You have been ${plurals} from ` + message.guild?.name + "!", iconURL: message.guild?.iconURL() || undefined })
                     .setColor(color)
                     .setDescription(`<:blurple_bulletpoint:997346294253244529> **Reason:** ${reason}
-                <:blurple_bulletpoint:997346294253244529> **Case:** #${caseNumberSet}${dmTimeArg}`)
+                    <:blurple_bulletpoint:997346294253244529> **Case:** #${caseNumberSet}${dmTimeArg}`)
                     .setTimestamp()
                 if (!settings.guildSettings?.prefix || settings.guildSettings?.premium == false) {
                     user.send({ embeds: [dm], components: [row] }).catch((err: Error) => console.error(err))
@@ -130,6 +100,37 @@ export class Punishment {
                     user.send({ embeds: [dm] }).catch((err: Error) => console.error(err))
                 }
             }
+
+            const modLogs = new EmbedBuilder()
+                .setAuthor({ name: `Member ${plurals} - ${user.tag}`, iconURL: user.displayAvatarURL() || undefined })
+                .setThumbnail(user.displayAvatarURL() || null)
+                .setDescription(`<:user:977391493218181120> **User:** ${user.tag}
+                > [${user.id}]
+                > [<@${user.id}>]
+
+                <:folder:977391492790362173> **Mod:** ${message.author.tag}
+                > [${message.author.id}]
+                > [<@${message.author.id}>]
+
+                <:pencil:977391492916207636> **Action:** ${punishment}
+                > [**Case:** #${caseNumberSet}]
+                ${timeArg}
+                ${deleteDaysModLogArg}
+                **Reason:** ${reason}
+                **Channel:** <#${message.channel?.id}>
+                **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
+                .setColor(color)
+                .setTimestamp()
+            const modLogChannel = message.guild?.channels.cache.find((c: any) => c.id === settings.modSettings?.modLogChannel!);
+            let exists = true
+            if (!modLogChannel) { exists = false; }
+            if (exists == true) {
+                if (message.guild?.members.me?.permissionsIn(modLogChannel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                    (message.guild?.channels.cache.find((c: any) => c.id === modLogChannel?.id) as TextChannel).send({ embeds: [modLogs] }).catch((err: Error) => console.error(err))
+                }
+            }
+
+
         }
 
         switch (type) {

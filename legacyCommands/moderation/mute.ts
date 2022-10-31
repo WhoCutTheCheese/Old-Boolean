@@ -1,5 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, ColorResolvable, Message, PermissionsBitField } from "discord.js";
-import { Punishment, PunishTypes } from "../../classes/punish";
+import { Punishment } from "../../classes/punish";
+import { PunishTypes } from "../../classes/types/types";
 import Settings from "../../models/settings";
 import Cases from "../../models/cases";
 import Permits from "../../models/permits";
@@ -126,9 +127,9 @@ module.exports = {
         if (reason.length > 250) return message.channel.send({ content: "Reason exceeds maximum lenth. (250 Characters)" })
         if(!message.guild.members.me.permissions.has(PermissionsBitField.Flags.ManageRoles)) return message.channel.send({ content: "I cannot assign roles!" })
         if(message.guild.roles.cache.get(settings.modSettings.muteRole)?.position! > message.guild.members.me.roles.highest.position) return message.channel.send({ content: "I cannot assign the mute role, it is above me!" })
-        console.log("awd")
+
         new Punishment({ type: PunishTypes.Mute, user: user.user, member: user, message: message, settings: settings, color: color, caseNumberSet: caseNumberSet, reason: reason, warns: warns })
-        console.log("awd2")
+
     }
 }
 function endsWithAny(suffixes: any, string: string) {

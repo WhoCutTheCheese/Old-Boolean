@@ -1,5 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, ColorResolvable, Message, PermissionsBitField } from "discord.js";
-import { Punishment, PunishTypes } from "../../classes/punish";
+import { PunishTypes } from "../../classes/types/types";
+import { Punishment } from "../../classes/punish";
 import Settings from "../../models/settings";
 import Cases from "../../models/cases";
 import Permits from "../../models/permits";
@@ -12,7 +13,7 @@ module.exports = {
     commandName: "BAN",
     commandCategory: "MODERATION",
     callback: async (client: Client, message: Message, args: string[]) => {
-
+        
         if (!message.guild?.members.me?.permissions.has([PermissionsBitField.Flags.BanMembers])) return message.channel.send({ content: "I require the `Ban Members` to ban users!" });
 
         const settings = await Settings.findOne({
