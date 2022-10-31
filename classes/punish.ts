@@ -126,7 +126,7 @@ export class Punishment {
             if (!modLogChannel) { exists = false; }
             if (exists == true) {
                 if (message.guild?.members.me?.permissionsIn(modLogChannel!).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
-                    (message.guild?.channels.cache.find((c: any) => c.id === modLogChannel?.id) as TextChannel).send({ embeds: [modLogs] })
+                    (message.guild?.channels.cache.find((c: any) => c.id === modLogChannel?.id) as TextChannel).send({ embeds: [modLogs] }).catch((err: Error) => console.error(err))
                 }
             }
 
