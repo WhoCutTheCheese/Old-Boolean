@@ -31,3 +31,4 @@ Boolean's source code is open to all to tinker with and view. Boolean's source c
 **Under no circumstances can you take Boolean's source code and use it for your own gain.**
 
 If you would like to use some of Boolean's code or features in your own bot **please** credit me. Thank you :D
+You may also fork Boolean, but credit me.
