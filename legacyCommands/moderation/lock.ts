@@ -1,11 +1,10 @@
-import { Client, ColorResolvable, EmbedBuilder, GuildChannelResolvable, Message, PermissionsBitField, TextChannel, User } from "discord.js";
+import { Client, ColorResolvable, EmbedBuilder, Message, PermissionsBitField, TextChannel } from "discord.js";
 import Settings from "../../models/settings";
 
 module.exports = {
-    commands: ['lock', 'l'],
+    commands: ['lock', 'l', 'cease'],
     minArgs: 0,
-    maxArgs: 1,
-    expectedArgs: "(#Channel/Channel ID)",
+    expectedArgs: "[#Channel/Channel ID] (Reason)",
     commandName: "LOCK",
     commandCategory: "MODERATION",
     callback: async (client: Client, message: Message, args: string[]) => {
@@ -21,15 +20,17 @@ module.exports = {
         const channel = message.mentions.channels.first() || message.guild?.channels.cache.get(args[0]);
 
         if (channel) {
+            let reason = args.slice(1).join(" ");
+            if(!reason) reason = "No reason provided!"
+            if(reason.length > 500) return message.channel.send({ content: "Reason exceeds maximum length! (500 Characters)" })
 
             const locked = new EmbedBuilder()
-                .setAuthor({ name: "Channel Locked", iconURL: message.guild?.iconURL() || undefined })
                 .setColor(color)
-                .setDescription(`This channel has been locked, you are not able to talk as of now.`)
+                .setDescription(`<:no:979193272784265217> Channel locked! **Reason:** ${reason}`)
                 .setTimestamp();
             (channel as TextChannel).send({ embeds: [locked] })
 
-            message.reply({ content: `**#${(channel as TextChannel).name}** has been locked!` })
+            message.react(`<:yes:979193272612298814>`)
 
             const modLogs = new EmbedBuilder()
                 .setAuthor({ name: `Channel Locked`, iconURL: message.author.displayAvatarURL() || undefined })
@@ -38,6 +39,7 @@ module.exports = {
                 > [<@${message.author.id}>]
 
                 <:pencil:977391492916207636> **Action:** Lock
+                > [**Reason:** ${reason}]
 
                 **Channel:** <#${(channel as TextChannel)?.id}>
                 **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
@@ -54,12 +56,15 @@ module.exports = {
             return;
 
         }
+        let reason = args.slice(0).join(" ");
+        if(!reason) reason = "No reason provided!"
+        if(reason.length > 500) return message.channel.send({ content: "Reason exceeds maximum length! (500 Characters)" })
+
         const locked = new EmbedBuilder()
-            .setAuthor({ name: "Channel Locked", iconURL: message.guild?.iconURL() || undefined })
             .setColor(color)
-            .setDescription(`This channel has been locked, you are not able to talk as of now.`)
-            .setTimestamp()
-        message.reply({ embeds: [locked] })
+            .setDescription(`<:no:979193272784265217> Channel locked! **Reason:** ${reason}`)
+            .setTimestamp();
+        message.channel.send({ embeds: [locked] })
 
         const modLogs = new EmbedBuilder()
             .setAuthor({ name: `Channel Locked`, iconURL: message.author.displayAvatarURL() || undefined })
@@ -68,6 +73,7 @@ module.exports = {
             > [<@${message.author.id}>]
 
             <:pencil:977391492916207636> **Action:** Lock
+            > [**Reason:** ${reason}]
 
             **Channel:** <#${message.channel?.id}>
             **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)

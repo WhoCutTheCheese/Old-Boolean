@@ -11,6 +11,12 @@ module.exports = {
                 .setRequired(false)
                 .setDescription("Select the channel you'd like to lock.")
         )
+        .addStringOption(string =>
+            string.setName("reason")
+                .setRequired(false)
+                .setDescription("Provide a reason for locking the channel.")
+                .setMaxLength(500)
+        )
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
     async execute(interaction: ChatInputCommandInteraction, client: Client) {
 
@@ -62,14 +68,15 @@ module.exports = {
         if (interaction.guild.ownerId === interaction.user.id) hasPermit = true
         if (hasPermit == false) return interaction.reply({ content: "<:no:979193272784265217> **ERROR** You are unable to use this command!", ephemeral: true })
         const channel = interaction.options.getChannel("channel");
+        let reason = interaction.options.getString("reason");
+        if(!reason) reason = "No reason provided!"
 
         if (!channel) {
 
             const locked = new EmbedBuilder()
-                .setAuthor({ name: "Channel Locked", iconURL: interaction.guild.iconURL() || undefined })
                 .setColor(color)
-                .setDescription(`This channel has been locked, you are not able to talk as of now.`)
-                .setTimestamp()
+                .setDescription(`<:no:979193272784265217> Channel locked! **Reason:** ${reason}`)
+                .setTimestamp();
             interaction.reply({ embeds: [locked] })
 
             const modLogs = new EmbedBuilder()
@@ -79,6 +86,7 @@ module.exports = {
                 > [<@${interaction.user.id}>]
 
                 <:pencil:977391492916207636> **Action:** Lock
+                > [**Reason:** ${reason}]
 
                 **Channel:** <#${interaction.channel?.id}>
                 **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
@@ -98,13 +106,12 @@ module.exports = {
 
         } else {
             const locked = new EmbedBuilder()
-                .setAuthor({ name: "Channel Locked", iconURL: interaction.guild.iconURL() || undefined })
                 .setColor(color)
-                .setDescription(`This channel has been locked, you are not able to talk as of now.`)
+                .setDescription(`<:no:979193272784265217> Channel locked! **Reason:** ${reason}`)
                 .setTimestamp();
             (channel as TextChannel).send({ embeds: [locked] })
 
-            interaction.reply({ content: `**#${channel.name}** has been locked!` })
+            interaction.reply({ content: `**#${channel.name}** has been locked!`, ephemeral: true })
 
             const modLogs = new EmbedBuilder()
                 .setAuthor({ name: `Channel Locked`, iconURL: interaction.user.displayAvatarURL() || undefined })
@@ -113,6 +120,7 @@ module.exports = {
                 > [<@${interaction.user.id}>]
 
                 <:pencil:977391492916207636> **Action:** Lock
+                > [**Reason:** ${reason}]
 
                 **Channel:** <#${channel?.id}>
                 **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)

@@ -23,13 +23,11 @@ module.exports = {
         if (channel) {
 
             const locked = new EmbedBuilder()
-                .setAuthor({ name: "Channel Unlocked", iconURL: message.guild?.iconURL() || undefined })
                 .setColor(color)
-                .setDescription(`This channel has been unlocked!.`)
-                .setTimestamp();
+                .setDescription(`<:yes:979193272612298814> Channel unlocked!`);
             (channel as TextChannel).send({ embeds: [locked] })
 
-            message.reply({ content: `**#${(channel as TextChannel).name}** has been unlocked!` })
+            message.react("<:yes:979193272612298814>")
 
             const modLogs = new EmbedBuilder()
                 .setAuthor({ name: `Channel Unlocked`, iconURL: message.author.displayAvatarURL() || undefined })
@@ -60,11 +58,9 @@ module.exports = {
 
         }
         const locked = new EmbedBuilder()
-            .setAuthor({ name: "Channel Unlocked", iconURL: message.guild?.iconURL() || undefined })
             .setColor(color)
-            .setDescription(`This channel has been unlocked.`)
-            .setTimestamp()
-        message.reply({ embeds: [locked] })
+            .setDescription(`<:yes:979193272612298814> Channel unlocked!`)
+        message.channel.send({ embeds: [locked] })
 
         const modLogs = new EmbedBuilder()
             .setAuthor({ name: `Channel Unlocked`, iconURL: message.author.displayAvatarURL() || undefined })
