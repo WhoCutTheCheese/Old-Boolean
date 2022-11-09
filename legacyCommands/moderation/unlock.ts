@@ -23,13 +23,11 @@ module.exports = {
         if (channel) {
 
             const locked = new EmbedBuilder()
-                .setAuthor({ name: "Channel Unlocked", iconURL: message.guild?.iconURL() || undefined })
                 .setColor(color)
-                .setDescription(`This channel has been unlocked!.`)
-                .setTimestamp();
+                .setDescription(`<:yes:979193272612298814> Channel unlocked!`);
             (channel as TextChannel).send({ embeds: [locked] })
 
-            message.reply({ content: `**#${(channel as TextChannel).name}** has been unlocked!` })
+            message.react("<:yes:979193272612298814>")
 
             const modLogs = new EmbedBuilder()
                 .setAuthor({ name: `Channel Unlocked`, iconURL: message.author.displayAvatarURL() || undefined })
@@ -47,7 +45,7 @@ module.exports = {
             let exists = true
             if (!channel1) { exists = false; }
             if (exists == true) {
-                if (message.guild?.members.me?.permissionsIn((channel! as TextChannel)).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                if (message.guild?.members.me?.permissionsIn((channel1! as TextChannel)).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
                     (message.guild?.channels.cache.find((c: any) => c.id === channel1?.id) as TextChannel).send({ embeds: [modLogs] })
                 }
             }
@@ -60,11 +58,9 @@ module.exports = {
 
         }
         const locked = new EmbedBuilder()
-            .setAuthor({ name: "Channel Unlocked", iconURL: message.guild?.iconURL() || undefined })
             .setColor(color)
-            .setDescription(`This channel has been unlocked.`)
-            .setTimestamp()
-        message.reply({ embeds: [locked] })
+            .setDescription(`<:yes:979193272612298814> Channel unlocked!`)
+        message.channel.send({ embeds: [locked] })
 
         const modLogs = new EmbedBuilder()
             .setAuthor({ name: `Channel Unlocked`, iconURL: message.author.displayAvatarURL() || undefined })

@@ -1,20 +1,20 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, Client, PermissionsBitField, ColorResolvable, EmbedBuilder, UserResolvable, TextChannel, PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, Client, PermissionsBitField, ColorResolvable, EmbedBuilder, PermissionFlagsBits, User, messageLink, TextChannel } from "discord.js";
 import Settings from "../../models/settings";
 import Permits from "../../models/permits";
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName("unban")
-        .setDescription("Unban any user.")
-        .addUserOption(user =>
-            user.setName("user")
+        .setName("slowmode")
+        .setDescription("Edit the slowmode of any channel.")
+        .addNumberOption(seconds =>
+            seconds.setName("seconds")
                 .setRequired(true)
-                .setDescription("You you'd like to unban.")
+                .setDescription("Enter the number of seconds to set the slowmode.")
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
     async execute(interaction: ChatInputCommandInteraction, client: Client) {
-
-        if (!interaction.inCachedGuild()) { return interaction.reply({ content: "You can only use this command in cached guilds!" }); }
+        if (!interaction.inCachedGuild()) return interaction.reply({ content: "This command is only available in guilds!", ephemeral: true })
+        if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageChannels)) return interaction.reply({ content: "I don't have the `Manage Channels` permission!", ephemeral: true })
 
         const settings = await Settings.findOne({
             guildID: interaction.guild?.id
@@ -23,7 +23,6 @@ module.exports = {
 
         let color: ColorResolvable = "5865F2" as ColorResolvable;
         if (settings.guildSettings?.embedColor) color = settings.guildSettings.embedColor as ColorResolvable;
-
         const permits = await Permits.find({
             guildID: interaction.guild.id
         })
@@ -56,39 +55,27 @@ module.exports = {
         const thePermit = await Permits.findOne({
             _id: ObjectID
         })
-        if (thePermit?.commandAccess.includes("UNBAN") || thePermit?.commandAccess.includes("MODERATION")) hasPermit = true;
-        if (thePermit?.commandBlocked.includes("UNBAN") || thePermit?.commandBlocked.includes("MODERATION")) hasPermit = false;
+        if (thePermit?.commandAccess.includes("CASE") || thePermit?.commandAccess.includes("MODERATION")) hasPermit = true;
+        if (thePermit?.commandBlocked.includes("CASE") || thePermit?.commandBlocked.includes("MODERATION")) hasPermit = false;
 
         if (interaction.guild.ownerId === interaction.user.id) hasPermit = true
         if (hasPermit == false) return interaction.reply({ content: "<:no:979193272784265217> **ERROR** You are unable to use this command!", ephemeral: true })
 
-        if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.BanMembers)) return interaction.reply({ content: "I do not have permission to unban members!", ephemeral: true })
+        const seconds = interaction.options.getNumber("seconds")
+        if (seconds == null || seconds == undefined) return interaction.reply({ content: "Please enter a valid number of seconds!", ephemeral: true });
+        if (seconds < 0) return interaction.reply({ content: "You can't set a negative slowmode!", ephemeral: true })
 
-        let user = interaction.options.getUser("user")
-        if (!user) return interaction.reply({ content: "Invalid user! How?", ephemeral: true })
-
-        let ban = interaction.guild.bans.cache.get(user.id)
-        if (!ban) return interaction.reply({ content: "That user is not banned!", ephemeral: true })
-
-        const unbanned = new EmbedBuilder()
-            .setColor(color)
-            .setDescription(`**${user.username}** has been unbanned!`)
-        interaction.reply({ embeds: [unbanned] })
-
-        interaction.guild.members.unban(user.id as UserResolvable)
+        interaction.reply({ content: `Slowmode set to: \`${seconds}\` second(s)`, ephemeral: true })
 
         const modLogs = new EmbedBuilder()
-            .setAuthor({ name: `Member Unbanned - ${user.tag}`, iconURL: user.displayAvatarURL() || undefined })
-            .setThumbnail(user.displayAvatarURL() || null)
-            .setDescription(`<:user:977391493218181120> **User:** ${user.tag}
-            > [${user.id}]
-            > [<@${user.id}>]
-
-            <:folder:977391492790362173> **Mod:** ${interaction.user.tag}
+            .setAuthor({ name: `Channel Slowmode Updated`, iconURL: interaction.guild.iconURL() || undefined })
+            .setDescription(`<:folder:977391492790362173> **Mod:** ${interaction.user.tag}
             > [${interaction.user.id}]
             > [<@${interaction.user.id}>]
 
-            <:pencil:977391492916207636> **Action:** Unban
+            <:pencil:977391492916207636> **Action:** Slowmode
+            > [**Old Slowmode:** ${interaction.channel?.rateLimitPerUser} second(s)]
+            > [**New Slowmode:** ${seconds} second(s)]
 
             **Channel:** <#${interaction.channel?.id}>
             **Date:** <t:${Math.round(Date.now() / 1000)}:D>`)
@@ -102,6 +89,8 @@ module.exports = {
                 (interaction.guild.channels.cache.find((c: any) => c.id === channel?.id) as TextChannel).send({ embeds: [modLogs] })
             }
         }
+
+        interaction.channel?.setRateLimitPerUser(seconds)
 
     }
 }

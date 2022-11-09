@@ -69,10 +69,8 @@ module.exports = {
         if (!channel) {
 
             const locked = new EmbedBuilder()
-                .setAuthor({ name: "Channel Unlocked", iconURL: interaction.guild.iconURL() || undefined })
                 .setColor(color)
-                .setDescription(`This channel has been unlocked.`)
-                .setTimestamp()
+                .setDescription(`<:yes:979193272612298814> Channel unlocked!`);
             interaction.reply({ embeds: [locked] })
 
             const modLogs = new EmbedBuilder()
@@ -101,13 +99,11 @@ module.exports = {
 
         } else {
             const locked = new EmbedBuilder()
-                .setAuthor({ name: "Channel Unlocked", iconURL: interaction.guild.iconURL() || undefined })
                 .setColor(color)
-                .setDescription(`This channel has been unlocked.`)
-                .setTimestamp();
+                .setDescription(`<:yes:979193272612298814> Channel unlocked!`);
             (channel as TextChannel).send({ embeds: [locked] })
 
-            interaction.reply({ content: `**#${channel.name}** has been unlocked!` })
+            interaction.reply({ content: `**#${channel.name}** has been unlocked!`, ephemeral: true })
 
             const modLogs = new EmbedBuilder()
                 .setAuthor({ name: `Channel Unlocked`, iconURL: interaction.user.displayAvatarURL() || undefined })
