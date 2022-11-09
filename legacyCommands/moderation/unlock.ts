@@ -45,7 +45,7 @@ module.exports = {
             let exists = true
             if (!channel1) { exists = false; }
             if (exists == true) {
-                if (message.guild?.members.me?.permissionsIn((channel! as TextChannel)).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
+                if (message.guild?.members.me?.permissionsIn((channel1! as TextChannel)).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.EmbedLinks])) {
                     (message.guild?.channels.cache.find((c: any) => c.id === channel1?.id) as TextChannel).send({ embeds: [modLogs] })
                 }
             }

@@ -34,6 +34,7 @@ const validateCommands = (command: string) => {
         "UNMUTE",
         "WARN",
         "REASON",
+        "SLOWMODE",
         "DELETEUSAGE",
         "PREFIX",
         "CONFIGURATION",
