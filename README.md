@@ -11,7 +11,7 @@ Boolean is the completed version of my other project `Grahmaham`. Grahaham's dev
 
 If you're reading this Boolean's source code has gone public, despite having worked with discord.js and Node.js for well over 2 years now I can't imagine Boolean is the most optimized project.
 
-##Issues
+## Issues
 Feel free to present an issue here if you discover one, we will mark it an deal with it as soon as time comes up.
 *Note: Issues will likely remain mostly unused as I am a single developer and I can straight up fix issues as they arise*
 
