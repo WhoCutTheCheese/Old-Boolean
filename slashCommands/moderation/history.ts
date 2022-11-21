@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, Client, PermissionsBitField, ColorResolvable, TextChannel, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, APIButtonComponent, Interaction, PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, Client, PermissionsBitField, ColorResolvable, TextChannel, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, APIButtonComponent, Interaction, PermissionFlagsBits, ButtonInteraction } from "discord.js";
 import Settings from "../../models/settings";
 import Permits from "../../models/permits";
 import Cases from "../../models/cases";
@@ -111,7 +111,7 @@ module.exports = {
 
             const collector = histReply.createMessageComponentCollector({ filter, time: 20000 });
 
-            collector.on("collect", async buttonInteraction => {
+            collector.on("collect", async (buttonInteraction: ButtonInteraction) => {
                 await buttonInteraction.deferUpdate()
                 switch (buttonInteraction.customId) {
                     case `left.${buttonInteraction.user.id}`:
