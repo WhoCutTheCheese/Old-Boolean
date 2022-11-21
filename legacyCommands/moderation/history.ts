@@ -1,4 +1,4 @@
-import { ActionRowBuilder, APIButtonComponent, ButtonBuilder, ButtonStyle, Client, ColorResolvable, EmbedBuilder, Message, User } from "discord.js";
+import { ActionRowBuilder, APIButtonComponent, ButtonBuilder, ButtonInteraction, ButtonStyle, Client, ColorResolvable, EmbedBuilder, Message, User } from "discord.js";
 import Settings from "../../models/settings";
 import Cases from "../../models/cases";
 const _ = require("lodash");
@@ -67,7 +67,7 @@ module.exports = {
 
         const collector = histReply.createMessageComponentCollector({ filter, time: 20000 });
 
-        collector.on("collect", async buttonInteraction => {
+        collector.on("collect", async (buttonInteraction: ButtonInteraction) => {
             await buttonInteraction.deferUpdate()
             switch (buttonInteraction.customId) {
                 case `left.${buttonInteraction.user.id}`:

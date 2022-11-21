@@ -6,7 +6,7 @@ import Bans from "./models/bans";
 import { REST } from "@discordjs/rest"
 import Settings from "./models/settings"
 dotEnv.config()
-const token = process.env.token;
+const token = process.env.beta_token;
 const client = new Client({
     intents: [
         GatewayIntentBits.GuildBans,
@@ -133,7 +133,7 @@ client.on("interactionCreate", async interaction => {
         await command.execute(interaction, client);
     } catch (error) {
         console.error(error);
-        await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+        await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true }).catch((err: Error) => { console.error(err) });
     }
 })
 

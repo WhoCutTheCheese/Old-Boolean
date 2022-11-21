@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, Client, EmbedBuilder, ChatInputCommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle, APIButtonComponent } from "discord.js";
+import { SlashCommandBuilder, Client, EmbedBuilder, ChatInputCommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle, APIButtonComponent, ButtonInteraction } from "discord.js";
 const bot = require("../../package.json");
 const _ = require("lodash");
 let Updates = require("../../json/updates.json");
@@ -38,7 +38,7 @@ module.exports = {
 
         const collector = updatesReply.createMessageComponentCollector({ filter, time: 20000 });
 
-        collector.on("collect", async buttonInteraction => {
+        collector.on("collect", async (buttonInteraction: ButtonInteraction) => {
             await buttonInteraction.deferUpdate()
             switch (buttonInteraction.customId) {
                 case `left.${buttonInteraction.user.id}`:

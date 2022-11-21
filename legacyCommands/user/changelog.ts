@@ -1,4 +1,4 @@
-import { ActionRowBuilder, APIButtonComponent, ButtonBuilder, ButtonStyle, Client, ColorResolvable, EmbedBuilder, GuildMember, Message, User } from "discord.js";
+import { ActionRowBuilder, APIButtonComponent, ButtonBuilder, ButtonInteraction, ButtonStyle, Client, ColorResolvable, EmbedBuilder, GuildMember, Message, User } from "discord.js";
 const bot = require("../../package.json");
 const _ = require("lodash");
 let Updates = require("../../json/updates.json");
@@ -37,7 +37,7 @@ module.exports = {
 
         const collector = updatesReply.createMessageComponentCollector({ filter, time: 20000 });
 
-        collector.on("collect", async buttonInteraction => {
+        collector.on("collect", async (buttonInteraction: ButtonInteraction) => {
             await buttonInteraction.deferUpdate()
             switch (buttonInteraction.customId) {
                 case `left.${buttonInteraction.user.id}`:
