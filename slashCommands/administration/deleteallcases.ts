@@ -40,7 +40,7 @@ module.exports = {
 
         const collector = buttonMessage.createMessageComponentCollector({ filter, time: 15000 });
 
-        collector.on('collect', async buttonInteraction => {
+        collector.on('collect', async (buttonInteraction: ButtonInteraction) => {
             if (buttonInteraction.customId == "CONFIRM") {
                 if (buttonInteraction.user.id === interaction.user.id) {
                     row = new ActionRowBuilder<ButtonBuilder>()
