@@ -1,4 +1,4 @@
-import { Client, Collection, GatewayIntentBits, PermissionsBitField, Routes, UserResolvable } from "discord.js";
+import { ChatInputCommandInteraction, Client, Collection, GatewayIntentBits, Interaction, PermissionsBitField, Routes, UserResolvable } from "discord.js";
 import dotEnv from "dotenv";
 import path from "path";
 import fs from "fs";
@@ -111,7 +111,7 @@ const rest = new REST({ version: '10' }).setToken(`${token}`);
 })();
 import Maintenance from "./models/maintenance";
 const devs = ["493453098199547905", "648598769449041946", "585731185083285504"]
-client.on("interactionCreate", async interaction => {
+client.on("interactionCreate", async (interaction: Interaction) => {
     if (!interaction.isChatInputCommand()) return;
     const maintenance = await Maintenance.findOne({
         botID: client.user?.id
